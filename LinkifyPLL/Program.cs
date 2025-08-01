@@ -1,3 +1,8 @@
+using LinkifyBLL.Services.Static;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.DependencyInjection;
+using SolrNet;
+
 namespace LinkifyPLL
 {
     public class Program
@@ -8,6 +13,19 @@ namespace LinkifyPLL
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+
+            builder.Services.LinkifyIdentity();
+            builder.Services.LinkifyUserDependencyInjection();
+            builder.Services.LinkifyEnhancedConnectionString(builder.Configuration);
+
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,
+            options =>
+            {
+                options.LoginPath = new PathString("/Account/Login");
+                options.AccessDeniedPath = new PathString("/Account/Login");
+            });
 
             var app = builder.Build();
 
@@ -22,6 +40,8 @@ namespace LinkifyPLL
             app.UseHttpsRedirection();
             app.UseRouting();
 
+            //manually added
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();
