@@ -7,9 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="NewFolder\**" />
+    <EmbeddedResource Remove="NewFolder\**" />
+    <None Remove="NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="DataBase\" />
     <Folder Include="Entities\" />
-    <Folder Include="NewFolder\" />
   </ItemGroup>
 
 </Project>
