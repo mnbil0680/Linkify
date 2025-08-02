@@ -2,6 +2,7 @@
 using LinkifyDAL.Entities;
 using LinkifyDAL.Repo.Abstraction;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace LinkifyBLL.Services.Implementation
 {
@@ -40,5 +41,11 @@ namespace LinkifyBLL.Services.Implementation
             var user = await _userRepo.FindByEmailAsync(email);
             return user?.EmailConfirmed ?? false;
         }
+
+        public bool IsSignedIn(ClaimsPrincipal user)
+        {
+            return _signInManager.IsSignedIn(user);
+        }
+
     }
 }
