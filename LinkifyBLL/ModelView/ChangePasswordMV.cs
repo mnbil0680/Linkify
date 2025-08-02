@@ -7,27 +7,21 @@ using System.Threading.Tasks;
 
 namespace LinkifyBLL.ModelView
 {
-    public class UserRegisterMV
+    public class ChangePasswordMV
     {
-        [Required(ErrorMessage = "Enter a valid Name")]
-        public string Name { get; set; }
-
         [Required(ErrorMessage = "Enter a valid Email")]
         [EmailAddress(ErrorMessage = "Enter a valid Email Address")]
         public string Email { get; set; }
 
-        [Display(Name = "Password")]
+        [Display(Name = "New Password")]
         [Required(ErrorMessage = "Enter the Password")]
         [DataType(DataType.Password)]
-        public string? Password { get; set; }
+        public string? NewPassword { get; set; }
 
         [Required(ErrorMessage = "Confirm your Password")]
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm Password")]
-        [Compare("Password", ErrorMessage = "Passwords do not match")]
-        public string? ConfirmPassword { get; set; }
-
-        [Phone(ErrorMessage = "Enter a valid phone number")]
-        public string? PhoneNumber { get; set; }
+        [Compare("NewPassword", ErrorMessage = "Passwords do not match")]
+        [Display(Name = "Confirm New Password")]
+        public string? ConfirmNewPassword { get; set; }
     }
 }
