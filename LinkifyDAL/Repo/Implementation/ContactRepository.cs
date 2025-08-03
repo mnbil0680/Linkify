@@ -1,6 +1,7 @@
 ﻿using LinkifyDAL.DataBase;
 using LinkifyDAL.Entities;
 using LinkifyDAL.Repo.Abstraction;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace LinkifyDAL.Repo.Implementation
@@ -50,6 +51,15 @@ namespace LinkifyDAL.Repo.Implementation
         {
             _context.Contacts.Add(contact);
             _context.SaveChanges();
+        }
+
+        public bool Exists(string type, string value, string userId)
+        {
+            return _context.Contacts.Any(c =>
+                c.Type == type &&
+                c.Value == value &&
+                c.UserId == userId &&
+                c.DeletedOn == null);
         }
     }
 }

@@ -51,21 +51,13 @@ namespace LinkifyPLL.Controllers
         [HttpPost]
         public async Task<IActionResult> AddContact(AddContactVM model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
-            //validate based on type
-            if(model.Type == "Email" && !new EmailAddressAttribute().IsValid(model.Value))
-            {
-                ModelState.AddModelError("Value", "Invalid email format");
-                return View(model);
-            }
-            if(model.Type == "Phone" && !Regex.IsMatch(model.Value, @"^\+?\d{8,15}$"))
-            {
-                ModelState.AddModelError("Value", "Invalid phone number format");
-                return View(model);
-            }
             var user = await _userManager.GetUserAsync(User);
-            _contactService.AddContact(model, user.Id);
+
+            if (!_contactService.AddContact(model, user.Id, out var errorMessage))
+            {
+                ModelState.AddModelError("Value", errorMessage);
+                return View(model);
+            }
 
             return RedirectToAction("ContactInfo");
         }

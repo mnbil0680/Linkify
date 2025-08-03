@@ -5,8 +5,10 @@ using LinkifyDAL.Repo.Abstraction;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace LinkifyBLL.Services.Implementation
@@ -38,20 +40,39 @@ namespace LinkifyBLL.Services.Implementation
             _contactRepository.Delete(id);
         }
 
-        public void AddContact(AddContactVM model, string userId)
+        public bool AddContact(AddContactVM model, string userId, out string errorMessage)
         {
-            if (model == null)
+            errorMessage = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(model.Value))
             {
-                throw new ArgumentNullException(nameof(model), "Model cannot be null");
+                errorMessage = "Value is required.";
+                return false;
             }
-            if (string.IsNullOrEmpty(userId))
+
+            if (model.Type == "Email" && !new EmailAddressAttribute().IsValid(model.Value))
             {
-                throw new ArgumentException("User ID cannot be null or empty", nameof(userId));
+                errorMessage = "Invalid email format.";
+                return false;
             }
+
+            if (model.Type == "Phone" && !Regex.IsMatch(model.Value, @"^\+?\d{8,15}$"))
+            {
+                errorMessage = "Invalid phone number format.";
+                return false;
+            }
+
+            if (_contactRepository.Exists(model.Type, model.Value, userId))
+            {
+                errorMessage = "This contact already exists.";
+                return false;
+            }
+
             var contact = new Contact(model.Type, model.Value, userId);
-            
             _contactRepository.Add(contact);
+            return true;
         }
+
 
     }
 }

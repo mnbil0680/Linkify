@@ -11,6 +11,6 @@ namespace LinkifyBLL.Services.Abstraction
     {
         public List<ContactDTO> GetContactsByUserId(string userId);
         public void DeleteContact(int id);
-        public void AddContact(AddContactVM model, string userId);
+        public bool AddContact(AddContactVM model, string userId, out string errorMessage);
     }
 }
