@@ -46,6 +46,8 @@ namespace LinkifyPLL.Controllers
         [HttpPost]
         public async Task<IActionResult> Signup(UserRegisterMV model)
         {
+            
+            ////////////////////////
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -58,10 +60,28 @@ namespace LinkifyPLL.Controllers
                 return View(model);
             }
 
-            return RedirectToAction("Login");
+            return RedirectToAction("SuccessfulRegister");
         }
 
-       
+
+        [HttpGet]
+        public async Task<IActionResult> VerifyEmail()
+        {
+            return View();
+        }
+
+
+       public IActionResult SuccessfulRegister(UserRegisterMV model)
+       {
+            return View("SuccessfulRegister",model);
+
+       }
+
+        [HttpGet]
+        public async Task<IActionResult> ChangePassword()
+        {
+            return View();
+        }
     }
 
 }
