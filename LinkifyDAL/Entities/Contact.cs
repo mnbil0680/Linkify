@@ -20,7 +20,7 @@ namespace LinkifyDAL.Entities
         public DateTime CreatedOn { get; private set; } = DateTime.UtcNow;
         public DateTime? ModifiedOn { get; private set; }
         public DateTime? DeletedOn { get; private set; }
-        
+
         public Contact(string type, string value, string userId)
         {
             Type = type;
