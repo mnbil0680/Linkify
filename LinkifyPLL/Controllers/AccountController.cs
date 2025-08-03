@@ -82,6 +82,14 @@ namespace LinkifyPLL.Controllers
         {
             return View();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            await _authService.LogoutAsync();
+            return RedirectToAction("Login");
+        }
+
     }
 
 }
