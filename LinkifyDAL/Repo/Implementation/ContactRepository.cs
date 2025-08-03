@@ -19,8 +19,8 @@ namespace LinkifyDAL.Repo.Implementation
                 throw new ArgumentException("User ID cannot be null or empty", nameof(userId));
             }
             return _context.Contacts
-                .Where(c => c.UserId == userId && !c.MarkedAsDeleted())
-                .ToList();
+                 .Where(c => c.UserId == userId && c.DeletedOn == null)
+                 .ToList(); // fetches data from DB first
         }
         public Contact GetContactId(int id)
         {

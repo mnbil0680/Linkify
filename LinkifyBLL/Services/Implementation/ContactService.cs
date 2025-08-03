@@ -14,8 +14,8 @@ namespace LinkifyBLL.Services.Implementation
     public class ContactService : IContactService
     {
         private readonly IContactRepository _contactRepository;
-        private readonly UserManager<UserMV> _userManager;
-            public ContactService(IContactRepository contactRepository, UserManager<UserMV> userManager)
+        private readonly UserManager<User> _userManager;
+            public ContactService(IContactRepository contactRepository, UserManager<User> userManager)
         {
             _contactRepository = contactRepository;
             _userManager = userManager;

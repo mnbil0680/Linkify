@@ -8,7 +8,7 @@
 
 <form asp-action="ContactInfo" asp-controller="Contact">
     <div class="form-group">
-        <label asp-for="MainEmail"></label>
+        <label asp-for="MainEmail">Main Email</label>
         <input asp-for="MainEmail" value="@Model.MainEmail" readonly class="form-control" />
     </div>
     @if(Model.Contacts != null && Model.Contacts.Any())

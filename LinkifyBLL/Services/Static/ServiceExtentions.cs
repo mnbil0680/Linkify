@@ -14,6 +14,12 @@ namespace LinkifyBLL.Services.Static
 {
     public static class ServiceExtensions
     {
+        public static void LinkifyEnhancedConnectionString(this IServiceCollection services, IConfiguration configuration, string stringName = "defaultConnection")
+        {
+            var connectionString = configuration.GetConnectionString(stringName);
+            services.AddDbContext<LinkifyDbContext>(options =>
+                options.UseSqlServer(connectionString));
+        }
         public static void LinkifyIdentity(this IServiceCollection services)
         {
             services.AddIdentity<User, IdentityRole>(options =>
@@ -42,16 +48,12 @@ namespace LinkifyBLL.Services.Static
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
-            services.AddScoped<IContactService, ContactService>();
-            services.AddScoped<IContactRepository, ContactRepository>();
-
         }
 
-        public static void LinkifyEnhancedConnectionString(this IServiceCollection services, IConfiguration configuration, string stringName = "defaultConnection")
+        public static void LinkifyContactDependencyInjection(this IServiceCollection services)
         {
-            var connectionString = configuration.GetConnectionString(stringName);
-            services.AddDbContext<LinkifyDbContext>(options =>
-                options.UseSqlServer(connectionString));
+            services.AddScoped<IContactService, ContactService>();
+            services.AddScoped<IContactRepository, ContactRepository>();
         }
     }
 }
