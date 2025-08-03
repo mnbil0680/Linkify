@@ -33,7 +33,7 @@ namespace LinkifyDAL.Repo.Implementation
         }
         public void Delete(int id)
         {
-           if(id <= 0)
+            if (id <= 0)
             {
                 throw new ArgumentException("Invalid contact ID", nameof(id));
             }
@@ -45,6 +45,10 @@ namespace LinkifyDAL.Repo.Implementation
             contact.MarkedAsDeleted();
             _context.SaveChanges();
         }
-
+        public void Add(Contact contact)
+        {
+            _context.Contacts.Add(contact);
+            _context.SaveChanges();
+        }
     }
 }

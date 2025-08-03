@@ -2,6 +2,8 @@
 using LinkifyBLL.Services.Abstraction;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 namespace LinkifyPLL.Controllers
 {
@@ -33,13 +35,33 @@ namespace LinkifyPLL.Controllers
         public IActionResult DeleteContact(int id)
         {
             _contactService.DeleteContact(id);
-            return RedirectToAction("ContactInfo");
+            return RedirectToAction("Info");
         }
 
-        [HttpPost]
-        public Task<IActionResult> AddContact()
+        [HttpGet]
+        public IActionResult AddContact()
         {
-
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddContact(AddContactVM model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+            //validate based on type
+            if(model.Type == "Email" && !new EmailAddressAttribute().IsValid(model.Value))
+            {
+                ModelState.AddModelError("Value", "Invalid email format");
+                return View(model);
+            }
+            if(model.Type == "Phone" && !Regex.IsMatch(model.Value, @"^\+?\d{8,15}$"))
+            {
+                ModelState.AddModelError("Value", "Invalid phone number format");
+                return View(model);
+            }
+            var user = await _userManager.GetUserAsync(User);
+            _contactService.AddContact(model, user.Id);
+            return RedirectToAction("Info");
         }
 
     }
