@@ -1,9 +1,6 @@
 ﻿using LinkifyBLL.ModelView;
 using LinkifyBLL.Services.Abstraction;
-<<<<<<< HEAD
 using LinkifyDAL.Entities;
-=======
->>>>>>> 39598361b2a0b59710cf0048878c6b79024634e0
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
