@@ -67,21 +67,22 @@ var KTSigninGeneral = (function () {
                                                         confirmButton:
                                                             "btn btn-primary",
                                                     },
-                                                }).then(function (e) {
-                                                    if (e.isConfirmed) {
-                                                        (t.querySelector(
-                                                            '[name="email"]'
-                                                        ).value = ""),
-                                                            (t.querySelector(
-                                                                '[name="password"]'
-                                                            ).value = "");
-                                                        var r = t.getAttribute(
-                                                            "data-kt-redirect-url"
-                                                        );
-                                                        r &&
-                                                            (location.href = r);
-                                                    }
                                                 });
+                                                //.then(function (e) {
+                                                //    if (e.isConfirmed) {
+                                                //        (t.querySelector(
+                                                //            '[name="email"]'
+                                                //        ).value = ""),
+                                                //            (t.querySelector(
+                                                //                '[name="password"]'
+                                                //            ).value = "");
+                                                //        var r = t.getAttribute(
+                                                //            "data-kt-redirect-url"
+                                                //        );
+                                                //        r &&
+                                                //            (location.href = r);
+                                                //    }
+                                                //});
                                         }, 2e3))
                                     : Swal.fire({
                                         text: "Sorry, looks like there are some errors detected, please try again.",

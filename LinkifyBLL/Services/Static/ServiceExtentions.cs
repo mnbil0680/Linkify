@@ -24,9 +24,18 @@ namespace LinkifyBLL.Services.Static
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireUppercase = true;
                 options.Password.RequiredLength = 8;
+                
             })
             .AddEntityFrameworkStores<LinkifyDbContext>()
             .AddDefaultTokenProviders();
+
+            // In your Startup.cs or Program.cs
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.User.AllowedUserNameCharacters =
+                    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ ";
+                // Note the space at the end of the string above
+            });
         }
 
         public static void LinkifyUserDependencyInjection(this IServiceCollection services) { 
