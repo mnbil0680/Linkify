@@ -21,6 +21,15 @@ namespace LinkifyDAL.Entities
         public DateTime? ModifiedOn { get; set; }
         public DateTime? DeletedOn { get; set; }
 
+        public Contact(string type, string value, string userId)
+        {
+            Type = type;
+            Value = value;
+            UserId = userId;
+            CreatedOn = DateTime.UtcNow;
+            IsDeleted = false;
+        }
+
         public bool MarkedAsDeleted()
         {
             if (IsDeleted == true)

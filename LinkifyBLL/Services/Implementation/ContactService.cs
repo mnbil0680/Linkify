@@ -1,5 +1,6 @@
 ﻿using LinkifyBLL.ModelView;
 using LinkifyBLL.Services.Abstraction;
+using LinkifyDAL.Entities;
 using LinkifyDAL.Repo.Abstraction;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -35,6 +36,20 @@ namespace LinkifyBLL.Services.Implementation
             _contactRepository.Delete(id);
         }
 
-        
+        public void AddContact(AddContactVM model, string userId)
+        {
+            if (model == null)
+            {
+                throw new ArgumentNullException(nameof(model), "Model cannot be null");
+            }
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new ArgumentException("User ID cannot be null or empty", nameof(userId));
+            }
+            var contact = new Contact(model.Type, model.Value, userId);
+            
+            _contactRepository.Add(contact);
+        }
+
     }
 }
