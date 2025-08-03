@@ -15,12 +15,13 @@ namespace LinkifyDAL.Entities
         [Required]
         public string Value { get; private set; }
         [Required]
+
         public string UserId { get; private set; } // FK to Identity User
         public bool? IsDeleted { get; private set; } = false;
         public DateTime CreatedOn { get; private set; } = DateTime.UtcNow;
         public DateTime? ModifiedOn { get; private set; }
         public DateTime? DeletedOn { get; private set; }
-
+        
         public Contact(string type, string value, string userId)
         {
             Type = type;

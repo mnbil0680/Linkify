@@ -1,6 +1,9 @@
 ﻿using LinkifyBLL.ModelView;
 using LinkifyBLL.Services.Abstraction;
+<<<<<<< HEAD
 using LinkifyDAL.Entities;
+=======
+>>>>>>> 39598361b2a0b59710cf0048878c6b79024634e0
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -11,12 +14,15 @@ namespace LinkifyPLL.Controllers
     public class ContactController : Controller
     {
         private readonly IContactService _contactService;
+
         private readonly UserManager<User> _userManager;
         public ContactController(IContactService contactService, UserManager<User> userManager)
+
         {
             _contactService = contactService;
             _userManager = userManager;
         }
+
         public async Task <IActionResult> ContactInfo()
         {
             // who is the current user?
@@ -36,6 +42,7 @@ namespace LinkifyPLL.Controllers
         public IActionResult DeleteContact(int id)
         {
             _contactService.DeleteContact(id);
+
             return RedirectToAction("ContactInfo");
         }
 
@@ -62,6 +69,7 @@ namespace LinkifyPLL.Controllers
             }
             var user = await _userManager.GetUserAsync(User);
             _contactService.AddContact(model, user.Id);
+
             return RedirectToAction("ContactInfo");
         }
 
