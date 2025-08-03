@@ -1,0 +1,38 @@
+﻿@model ContactVM
+@{
+    ViewData["Title"] = "Contact";
+}
+
+<h1>Contact Info</h1>
+
+
+<form asp-action="ContactInfo" asp-controller="Contact">
+    <div class="form-group">
+        <label asp-for="MainEmail"></label>
+        <input asp-for="MainEmail" value="@Model.MainEmail" readonly class="form-control" />
+    </div>
+    @if(Model.Contacts != null && Model.Contacts.Any())
+    {
+        <div class="row">
+            @foreach (var contact in Model.Contacts)
+            {
+                <div class="card-body">
+                    <h5 class="card-title d-flex justify-content-between">
+                        @contact.Type
+                        <a asp-action="DeleteContact" asp-route-id="@contact.Id" class="text-danger" title="Delete"
+                           onclick="return confirm('Are you sure you want to delete this contact?');">
+                            <i class="bi bi-trash-fill"></i>
+                        </a>
+                    </h5>
+                    <p class="card-text">@contact.Value</p>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p>No contacts found</p>
+    }
+
+    <a asp-action="AddContact" class="btn btn-primary">Add New Contact</a>
+</form>
