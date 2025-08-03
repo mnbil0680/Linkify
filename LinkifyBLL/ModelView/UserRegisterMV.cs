@@ -29,5 +29,9 @@ namespace LinkifyBLL.ModelView
 
         [Phone(ErrorMessage = "Enter a valid phone number")]
         public string? PhoneNumber { get; set; }
+
+        [Required(ErrorMessage = "You must accept the Privacy Policy")]
+        public bool AcceptPrivacy { get; set; }
+
     }
 }
