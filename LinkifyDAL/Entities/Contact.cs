@@ -16,8 +16,20 @@ namespace LinkifyDAL.Entities
         public string Value { get; private set; }
         [Required]
         public string UserId { get; set; } // FK to Identity User
+        public bool? IsDeleted { get; private set; } = false;
         public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
         public DateTime? ModifiedOn { get; set; }
         public DateTime? DeletedOn { get; set; }
+
+        public bool MarkedAsDeleted()
+        {
+            if (IsDeleted == true)
+            {
+                return false; // Already deleted
+            }
+            IsDeleted = true;
+            DeletedOn = DateTime.UtcNow;
+            return true; // Successfully marked as deleted
+        }
     }
 }
