@@ -1,4 +1,5 @@
 using LinkifyBLL.ModelView;
+using LinkifyBLL.Services.Abstraction;
 using LinkifyPLL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -11,10 +12,11 @@ namespace LinkifyPLL.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        public readonly IFriendsService _IFS;
+        public HomeController(ILogger<HomeController> logger, IFriendsService ifs)
         {
             _logger = logger;
+            this._IFS = ifs;
         }
         
         public IActionResult Index()
@@ -31,6 +33,11 @@ namespace LinkifyPLL.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public IActionResult People() {
+            var users = _IFS.GetAllUsers().ToList();
+            return View(users);
         }
     }
 }

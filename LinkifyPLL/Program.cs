@@ -1,7 +1,5 @@
-using LinkifyBLL.Services.Static;
+using LinkifyBLL.Helper;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.Extensions.DependencyInjection;
-using SolrNet;
 
 namespace LinkifyPLL
 {
@@ -16,7 +14,7 @@ namespace LinkifyPLL
 
 
             builder.Services.LinkifyIdentity();
-            builder.Services.LinkifyUserDependencyInjection();
+            builder.Services.LinkifyDependencyInjection();
             builder.Services.LinkifyEnhancedConnectionString(builder.Configuration);
 
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

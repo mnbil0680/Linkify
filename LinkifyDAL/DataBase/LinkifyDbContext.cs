@@ -8,5 +8,6 @@ namespace LinkifyDAL.DataBase
         public LinkifyDbContext(DbContextOptions<LinkifyDbContext> options) : base(options)
         { }
         public DbSet<User> User { get; set; }
+        public DbSet<Friends> Friends { get; set; }
     }
 }

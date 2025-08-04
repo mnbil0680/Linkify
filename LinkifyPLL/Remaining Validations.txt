@@ -1,0 +1,1 @@
+﻿// Client-Side validation// Repeted Email at Registration// Registration and login using Google and FaceBook// Add tubles return types in IFriendsRepository to show the errors (void, string?)
