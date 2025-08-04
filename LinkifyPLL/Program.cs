@@ -1,7 +1,5 @@
-using LinkifyBLL.Services.Static;
+using LinkifyBLL.Helper;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.Extensions.DependencyInjection;
-using SolrNet;
 
 namespace LinkifyPLL
 {

@@ -8,9 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-//using SolrNet;
 
-namespace LinkifyBLL.Services.Static
+namespace LinkifyBLL.Helper
 {
     public static class ServiceExtensions
     {
@@ -34,23 +33,22 @@ namespace LinkifyBLL.Services.Static
             })
             .AddEntityFrameworkStores<LinkifyDbContext>()
             .AddDefaultTokenProviders();
-
-            // In your Startup.cs or Program.cs
             services.Configure<IdentityOptions>(options =>
             {
                 options.User.AllowedUserNameCharacters =
                     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ ";
-                // Note the space at the end of the string above
             });
         }
 
-        public static void LinkifyUserDependencyInjection(this IServiceCollection services) { 
+        public static void LinkifyDependencyInjection(this IServiceCollection services) { 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IContactService, ContactService>();
             services.AddScoped<IContactRepository, ContactRepository>();
 
+            services.AddScoped<IFriendsRepository, FriendsRepository>();
+            services.AddScoped<IFriendsService, FriendsService>();
         }
 
         public static void LinkifyContactDependencyInjection(this IServiceCollection services)
