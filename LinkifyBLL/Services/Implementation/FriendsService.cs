@@ -62,8 +62,8 @@ namespace LinkifyBLL.Services.Implementation
                     Name = item.UserName,
                     ImgPath = item.ImgPath,
                     Status = _IFR.GetFriendshipStatus(item.Id, item.Id),
-                    MutualFriendsCount = _IFR.GetMutualFriendCount(item.Id, item.Id),
-                    Title = item.Title
+                    MutualFriendsCount = _IFR.GetMutualFriendCount(item.Id, item.Id)
+                    
                 });
             }
 
@@ -118,8 +118,8 @@ namespace LinkifyBLL.Services.Implementation
                 Name = u.UserName,
                 ImgPath = u.ImgPath,
                 Status = _IFR.GetFriendshipStatus(currentUserId, u.Id),
-                MutualFriendsCount = _IFR.GetMutualFriendCount(currentUserId, u.Id),
-                Title = u.Title
+                MutualFriendsCount = _IFR.GetMutualFriendCount(currentUserId, u.Id)
+                
             }).ToList();
         }
     }
