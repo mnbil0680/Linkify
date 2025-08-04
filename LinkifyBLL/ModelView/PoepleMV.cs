@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LinkifyDAL.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,8 @@ namespace LinkifyBLL.ModelView
         public string Id { get; set; }
         public string Name { get; set; }
         public string ImgPath { get; set; }
-
+        public string Title { get; set; } = null;
+        public FriendStatus Status { get; set; }
+        public int MutualFriendsCount { get; set; }
     }
 }

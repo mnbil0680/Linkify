@@ -1,0 +1,87 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model List<PoepleMV>
+@{
+    var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    ViewData["Title"] = "People You May Know";
+}
+
+<link rel="stylesheet" href="~/css/people.css" />
+
+<div class="container mt-4">
+    <h2 class="mb-4">People You May Know</h2>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var user in Model)
+        {
+            <div class="col">
+                <div class="card h-100 people-card shadow-sm">
+                    <div class="card-img-container">
+                        @if (!string.IsNullOrEmpty(user.ImgPath))
+                        {
+                            <img src="@user.ImgPath" class="card-img-top" alt="@user.Name">
+                        }
+                        else
+                        {
+                            <div class="no-image-placeholder">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        }
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@user.Name</h5>
+                        @if (!string.IsNullOrEmpty(user.Status.ToString()))
+                        {
+                            <p class="text-muted mb-0">@user.Status</p>
+                        }
+                    </div>
+                    
+                    @if (user.MutualFriendsCount > 0)
+                    {
+                        <div class="mutual-friends">
+                            <i class="fas fa-user-friends text-muted me-2"></i>
+                            @user.MutualFriendsCount mutual connection@(user.MutualFriendsCount == 1 ? "" : "s")
+                        </div>
+                    }
+
+                    <div class="card-footer d-flex gap-2 justify-content-between">
+                        <button class="btn btn-connect add-friend-btn flex-grow-1" data-user-id="@user.Id">
+                            <i class="fas fa-user-plus me-2"></i>Connect
+                        </button>
+                        <a href="@Url.Action("Profile", "Home", new { id = user.Id })" 
+                           class="btn btn-outline-secondary btn-view-profile">
+                            <i class="fas fa-eye me-2"></i>View Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).on('click', '.add-friend-btn', function () {
+            var button = $(this);
+            var userId = button.data('user-id');
+
+            button.prop('disabled', true)
+                  .html('<i class="fas fa-spinner fa-spin me-2"></i>Connecting...');
+
+            $.ajax({
+                url: '/Friends/AddFriend',
+                type: 'POST',
+                data: { id: userId },
+                success: function () {
+                    button.html('<i class="fas fa-check me-2"></i>Request Sent')
+                          .removeClass('btn-connect')
+                          .addClass('btn-secondary');
+                },
+                error: function (err) {
+                    button.prop('disabled', false)
+                          .html('<i class="fas fa-user-plus me-2"></i>Connect');
+                    alert("Something went wrong!");
+                    console.error(err);
+                }
+            });
+        });
+    </script>
+}

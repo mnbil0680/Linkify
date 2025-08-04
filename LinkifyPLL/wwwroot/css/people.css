@@ -1,0 +1,110 @@
+/* People You May Know styles */
+.people-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+}
+
+.people-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.people-card .card-img-container {
+    height: 200px;
+    overflow: hidden;
+    background-color: #f3f3f3;
+    position: relative;
+}
+
+.people-card .card-img-top {
+    transition: transform 0.3s ease;
+}
+
+.people-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.people-card .card-body {
+    padding: 1.25rem;
+}
+
+.people-card .mutual-friends {
+    font-size: 0.875rem;
+    color: #666;
+    margin: 0.5rem 0;
+    padding: 0 1.25rem;
+}
+
+.people-card .card-footer {
+    padding: 1rem 1.25rem;
+    background-color: #fff;
+    border-top: 1px solid #f0f0f0;
+}
+
+.people-card .btn {
+    padding: 0.375rem 1rem;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0.3px;
+}
+
+.people-card .btn-connect {
+    background-color: #0a66c2;
+    border-color: #0a66c2;
+    color: white;
+}
+
+.people-card .btn-connect:hover {
+    background-color: #084d93;
+    border-color: #084d93;
+}
+
+.people-card .btn-connect[disabled] {
+    background-color: #e0e0e0;
+    border-color: #e0e0e0;
+    cursor: not-allowed;
+}
+
+.people-card .btn-view-profile {
+    color: #666;
+    border-color: #666;
+}
+
+.people-card .btn-view-profile:hover {
+    background-color: #f3f3f3;
+    color: #333;
+}
+
+.people-card .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #191919;
+}
+
+.no-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+    color: #666;
+    font-size: 3rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .people-card .card-img-container {
+        height: 160px;
+    }
+    
+    .people-card .card-footer {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .people-card .btn {
+        width: 100%;
+    }
+}

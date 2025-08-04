@@ -20,5 +20,6 @@ namespace LinkifyBLL.Services.Abstraction
         IEnumerable<Friends> GetBlockedUsers(string userId);
         FriendStatus GetFriendshipStatus(string userId1, string userId2);
         IEnumerable<PoepleMV> GetAllUsers();
+        IEnumerable<PoepleMV> GetPeopleYouMayKnow(string currentUserId);
     }
 }

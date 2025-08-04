@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace LinkifyPLL.Controllers
 {
@@ -18,7 +19,7 @@ namespace LinkifyPLL.Controllers
             _logger = logger;
             this._IFS = ifs;
         }
-        
+
         public IActionResult Index()
         {
             return View();
@@ -35,9 +36,17 @@ namespace LinkifyPLL.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public IActionResult People() {
+        public IActionResult People()
+        {
             var users = _IFS.GetAllUsers().ToList();
             return View(users);
+        }
+
+        public IActionResult PeopleYouMayKnow()
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var peopleYouMayKnow = _IFS.GetPeopleYouMayKnow(currentUserId).ToList();
+            return View(peopleYouMayKnow);
         }
     }
 }
