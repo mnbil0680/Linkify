@@ -174,5 +174,37 @@ namespace LinkifyDAL.Repo.Implementation
         {
             return _db.User.ToList();
         }
+
+        public IEnumerable<User> GetPeopleYouMayKnow(string currentUserId)
+        {
+            var relatedIds = _db.Friends.Where(u =>
+                (u.RequesterId == currentUserId && u.AddresseeId == currentUserId) && // me as a Requester or Addressee 
+                ( u.Status == FriendStatus.Pending || // if i am pending friend request or i have been being pended
+                  u.Status == FriendStatus.Accepted ||
+                  u.Status == FriendStatus.Blocked))
+                .Select(u =>
+                    u.RequesterId == currentUserId ? u.AddresseeId : u.RequesterId) // extract the ID of the person i am connected to 
+                .Distinct() // distinct to avoid duplicates
+                .ToList();
+
+            // Get all users except the current user and those already related
+            return _db.User
+                .Where(u => u.Id != currentUserId && !relatedIds.Contains(u.Id)); //
+
+        }
+        public int GetMutualFriendCount(string currentUserId, string otherUserId)
+        {
+            var currentUserFriends = _db.Friends
+                .Where( f => f.RequesterId == currentUserId || f.AddresseeId == currentUserId)
+                .Select(f => f.RequesterId == currentUserId ? f.AddresseeId : f.RequesterId)
+                .ToList();
+            var otherUserFriends = _db.Friends
+                .Where(f => f.RequesterId == otherUserId || f.AddresseeId == otherUserId)
+                .Select(f => f.RequesterId == otherUserId ? f.AddresseeId : f.RequesterId)
+                .ToList();
+            return currentUserFriends.Intersect(otherUserFriends).Count();
+
+        }
+
     }
 }

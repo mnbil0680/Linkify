@@ -15,7 +15,8 @@ namespace LinkifyBLL.Services.Implementation
     public class FriendsService : IFriendsService
     {
         private readonly IFriendsRepository _IFR;
-        public FriendsService(IFriendsRepository ifr) { 
+        public FriendsService(IFriendsRepository ifr)
+        {
             this._IFR = ifr;
         }
         public void AcceptFriendRequest(string requesterId, string addresseeId)
@@ -50,7 +51,7 @@ namespace LinkifyBLL.Services.Implementation
 
         public IEnumerable<PoepleMV> GetAllUsers()
         {
-            List<PoepleMV> ll =new List<PoepleMV>();
+            List<PoepleMV> ll = new List<PoepleMV>();
             var list = _IFR.GetAllUsers();
 
             foreach (var item in list)
@@ -102,6 +103,20 @@ namespace LinkifyBLL.Services.Implementation
         public void Unfriend(string userId1, string userId2)
         {
             _IFR.Unfriend(userId1, userId2);
+        }
+
+        public IEnumerable<PoepleMV> GetPeopleYouMayKnow(string currentUserId)
+        {
+            var users = _IFR.GetPeopleYouMayKnow(currentUserId);
+
+            return users.Select(u => new PoepleMV
+            {
+                Id = u.Id,
+                Name = u.UserName,
+                ImgPath = u.ImgPath,
+                Status = _IFR.GetFriendshipStatus(currentUserId, u.Id),
+                MutualFriendsCount = _IFR.GetMutualFriendCount(currentUserId, u.Id)
+            }).ToList();
         }
     }
 }

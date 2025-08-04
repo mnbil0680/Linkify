@@ -9,37 +9,39 @@
     <div class="row row-cols-1 row-cols-md-3 g-4">
 
 
-        @foreach (var user in Model.Where(u => u.Id != userId))
+        @foreach (var user in Model)
         {
             <div class="col">
                 <div class="card h-100 shadow-sm">
-                    @* Get Img *@
                     @if (!string.IsNullOrEmpty(user.ImgPath))
                     {
                         <img src="@user.ImgPath" class="card-img-top" alt="@user.Name" style="object-fit:cover; height:200px;">
                     }
                     else
                     {
-                        @* null Or Empty *@
                         <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height:200px;">
                             <span class="text-white-50">No Image</span>
                         </div>
                     }
                     <div class="card-body">
-                       
                         <h5 class="card-title">@user.Name</h5>
-                       
-                      
                     </div>
+                    
+                    @if (user.MutualFriendsCount > 0)
+                     {
+                            
+                    <p class="text-muted small">
+                        👥 @user.MutualFriendsCount mutual friend@(user.MutualFriendsCount == 1 ? "" : "s")
+                    </p>
+                     }
                     <div class="card-footer bg-transparent border-0">
-                        <form  method="post" class="d-inline">
-                            <button type="submit" asp-route-id1="@user.Id" asp-route-id2="@userId" asp-action="AddFriend" asp-controller="Friends" class="btn btn-success btn-sm">Add Friend</button>
-                        </form>
+                        <button class="btn btn-success btn-sm add-friend-btn" data-user-id="@user.Id">Add Friend</button>
                         <a href="@Url.Action("Profile", "Home", new { id = user.Id })" class="btn btn-outline-primary btn-sm">View Profile</a>
                     </div>
                 </div>
             </div>
         }
+
     </div>
 </div>
 
@@ -47,3 +49,27 @@
 <div class="card-footer bg-transparent border-0 d-flex gap-2">
     
 </div>
+
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).on('click', '.add-friend-btn', function () {
+            var button = $(this);
+            var userId = button.data('user-id');
+
+            $.ajax({
+                url: '/Friends/AddFriend', //points to controller action
+                type: 'POST',
+                data: { id: userId },
+                success: function () {
+                            button.text("Request Sent").removeClass('btn-success').addClass('btn-secondary').prop('disabled', true);
+                },
+                error: function (err) {
+                    alert("Something went wrong!");
+                    console.error(err);
+                }
+            });
+        });
+    </script>
+}
