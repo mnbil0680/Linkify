@@ -18,10 +18,16 @@ namespace LinkifyPLL.Controllers
             return View(allFriends);
         }
         [HttpPost]
-        public IActionResult AddFriend(string id1, string id2)
+        public IActionResult AddFriend(string id)
         {
-            _IFS.AddFriendRequest(id1, id2);
-            return RedirectToAction("Index");
+            var requesterId = User.FindFirstValue(ClaimTypes.NameIdentifier); // now i am the requester and iam known from the session
+            if (requesterId == id)
+            {
+                return BadRequest("You cannot send a friend request to yourself.");
+            }
+
+            _IFS.AddFriendRequest(requesterId, id);
+            return Ok(); //AJAX call success
         }
     }
 }

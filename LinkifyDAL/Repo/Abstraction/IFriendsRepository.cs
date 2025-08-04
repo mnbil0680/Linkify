@@ -21,5 +21,8 @@ namespace LinkifyDAL.Repo.Abstraction
         //non friend users
         IEnumerable<User> GetAllUsers();
         FriendStatus GetFriendshipStatus(string userId1, string userId2);
+        IEnumerable<User> GetPeopleYouMayKnow(string currentUserId);
+        public int GetMutualFriendCount(string currentUserId, string otherUserId);
+
     }
 }
