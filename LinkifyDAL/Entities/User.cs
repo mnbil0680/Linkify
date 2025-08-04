@@ -6,8 +6,6 @@ namespace LinkifyDAL.Entities
     {
         public string? ImgPath { get; private set; }
         public string? Status { get; private set; }
-        public string? Title { get; private set; }
-        public string? Bio { get; private set; }
         public bool? IsDeleted { get; private set; } = false;
         public DateTime? DeletedOn { get; private set; }
         public DateTime? RegistrationDate { get; private set; } = DateTime.Now;
