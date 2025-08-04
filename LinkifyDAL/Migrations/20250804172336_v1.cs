@@ -5,7 +5,7 @@
 namespace LinkifyDAL.Migrations
 {
     /// <inheritdoc />
-    public partial class _2nd_initDB : Migration
+    public partial class v1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
