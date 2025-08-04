@@ -1,65 +1,116 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ProConnect - The premier professional networking platform for career growth and business connections">
+    <meta name="keywords" content="professional networking, career, jobs, connections, business">
+    <meta name="author" content="ProConnect">
+    <meta name="theme-color" content="#1b84ff">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="ProConnect - Professional Network">
+    <meta property="og:description" content="Connect with professionals, discover opportunities, and grow your career">
+    <meta property="og:image" content="/images/og-image.jpg">
+    <meta property="og:url" content="https://proconnect.com">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ProConnect - Professional Network">
+    <meta name="twitter:description" content="Connect with professionals, discover opportunities, and grow your career">
+    <meta name="twitter:image" content="/images/twitter-image.jpg">
+
     <title>ProConnect - Professional Network</title>
-    <link href="~/css/Home/all.min.css" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+   
+   
+
+    <!-- Stylesheets -->
+    <link href="~/css/Home/all.min.css">
     <link href="~/css/Home/style.css" rel="stylesheet">
- </head>
-<body>
-    <!-- Top Navigation Bar -->
-    <nav class="topbar">
-        <div class="nav-container">
-            <div class="logo-section">
-                <div class="logo">
-                    <i class="fas fa-network-wired"></i>
-                </div>
-                <a href="#" class="brand-name">ProConnect</a>
-            </div>
+    <link href="~/css/Home/style2.css" rel="stylesheet">
+    <link href="~/css/Nav.css" rel="stylesheet">
+    
 
-            <div class="search-container">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="search-box" placeholder="Search for people, jobs, companies...">
-            </div>
+    
 
-            <div class="nav-right">
-                <div class="language-selector">
-                    <div class="language-dropdown">
-                        <i class="fas fa-globe"></i>
-                        <span>EN</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                </div>
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="~/css/Home/style.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style">
+</head>
 
-                <div class="profile-menu pulse">
-                    <i class="fas fa-user"></i>
-                </div>
-            </div>
-        </div>
-    </nav>
+
+ <body style="font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif; background: linear-gradient(135deg, var(--background-secondary) 0%, var(--light-gray) 100%); color: var(--text-dark); line-height: 1.6; transition: background 0.3s ease, color 0.3s ease; overflow-x: hidden;">
+
+    <partial name="_NavPartial" />
+
 
     <!-- Main Container -->
     <div class="main-container">
+
         <!-- Left Sidebar -->
-        <aside class="left-sidebar">
+        <aside class="left-sidebar" role="complementary" aria-label="Navigation menu">
+            <!-- User Quick Stats -->
+            <div class="user-stats-card">
+                <div class="stats-header">
+                    <img src="/api/placeholder/60/60" alt="Your profile" class="user-avatar">
+                    <div class="user-info">
+                        <h3>Alex Johnson</h3>
+                        <p>Senior Developer</p>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-number">1,234</span>
+                        <span class="stat-label">Connections</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">89</span>
+                        <span class="stat-label">Posts</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">5.2K</span>
+                        <span class="stat-label">Views</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="sidebar-section">
                 <h3 class="sidebar-title">
                     <i class="fas fa-users"></i>
                     Network
                 </h3>
-                <div class="sidebar-item">
+                <div class="sidebar-item interactive-card" tabindex="0" role="button">
                     <i class="fas fa-user-friends sidebar-icon"></i>
                     <span>My Connections</span>
+                    <span class="item-count">1,234</span>
                 </div>
-                <div class="sidebar-item">
+                <div class="sidebar-item interactive-card" tabindex="0" role="button">
                     <i class="fas fa-users sidebar-icon"></i>
                     <span>Find People</span>
+                    <i class="fas fa-external-link-alt item-external"></i>
                 </div>
-                <div class="sidebar-item">
+                <div class="sidebar-item interactive-card" tabindex="0" role="button">
                     <i class="fas fa-user-plus sidebar-icon"></i>
                     <span>Invitations</span>
+                    <span class="item-count new">5</span>
+                </div>
+                <div class="sidebar-item interactive-card" tabindex="0" role="button">
+                    <i class="fas fa-users-cog sidebar-icon"></i>
+                    <span>Manage Network</span>
                 </div>
             </div>
 
@@ -68,140 +119,214 @@
                     <i class="fas fa-briefcase"></i>
                     Career
                 </h3>
-                <div class="sidebar-item">
+                <div class="sidebar-item interactive-card" tabindex="0" role="button">
                     <i class="fas fa-search sidebar-icon"></i>
                     <span>Find Jobs</span>
+                    <span class="item-badge hot">Hot</span>
                 </div>
-                <div class="sidebar-item">
+                <div class="sidebar-item interactive-card" tabindex="0" role="button">
                     <i class="fas fa-bookmark sidebar-icon"></i>
                     <span>Saved Jobs</span>
+                    <span class="item-count">12</span>
                 </div>
-                <div class="sidebar-item">
+                <div class="sidebar-item interactive-card" tabindex="0" role="button">
                     <i class="fas fa-chart-line sidebar-icon"></i>
                     <span>Career Insights</span>
+                </div>
+                <div class="sidebar-item interactive-card" tabindex="0" role="button">
+                    <i class="fas fa-file-alt sidebar-icon"></i>
+                    <span>Resume Builder</span>
+                    <span class="item-badge new">New</span>
                 </div>
             </div>
 
             <div class="sidebar-section">
                 <h3 class="sidebar-title">
                     <i class="fas fa-cogs"></i>
-                    Skills
+                    Skills & Learning
                 </h3>
-                <div class="sidebar-item">
+                <div class="sidebar-item interactive-card" tabindex="0" role="button">
                     <i class="fas fa-star sidebar-icon"></i>
                     <span>My Skills</span>
+                    <div class="progress-bar small">
+                        <div class="progress-fill" style="width: 75%"></div>
+                    </div>
                 </div>
-                <div class="sidebar-item">
+                <div class="sidebar-item interactive-card" tabindex="0" role="button">
                     <i class="fas fa-graduation-cap sidebar-icon"></i>
-                    <span>Learning</span>
+                    <span>Learning Paths</span>
+                    <span class="item-badge trending">Trending</span>
                 </div>
-                <div class="sidebar-item">
+                <div class="sidebar-item interactive-card" tabindex="0" role="button">
                     <i class="fas fa-certificate sidebar-icon"></i>
                     <span>Certifications</span>
+                    <span class="item-count">3</span>
+                </div>
+                <div class="sidebar-item interactive-card" tabindex="0" role="button">
+                    <i class="fas fa-trophy sidebar-icon"></i>
+                    <span>Achievements</span>
                 </div>
             </div>
         </aside>
 
         <!-- Main Feed -->
-        <main class="main-feed">
+        <main class="main-feed" id="main-content" role="main" aria-label="Main content">
+
+            <!-- Create Post Section -->
             <div class="create-post">
-                <textarea class="post-input" placeholder="What's on your mind? Share with your network..."></textarea>
-                <div class="post-actions">
-                    <button class="post-action-btn btn-photo">
-                        <i class="fas fa-image"></i>
-                        Photo
-                    </button>
-                    <button class="post-action-btn btn-video">
-                        <i class="fas fa-video"></i>
-                        Video
-                    </button>
-                    <button class="post-action-btn btn-document">
-                        <i class="fas fa-file-alt"></i>
-                        Document
-                    </button>
+                <div class="create-post-header">
+                    <img src="/api/placeholder/50/50" alt="Your profile" class="create-post-avatar">
+                    <textarea class="post-input"
+                              placeholder="What's on your mind? Share with your network..."
+                              aria-label="Create new post"
+                              rows="3"></textarea>
                 </div>
             </div>
 
+            <!-- Posts Container -->
             <div class="posts-container">
-               @RenderBody()
+                    @RenderBody()
             </div>
+        
         </main>
 
         <!-- Right Sidebar -->
-        <aside class="right-sidebar">
-            <div class="widget">
-                <h3 class="widget-title">
-                    <i class="fas fa-user-plus"></i>
-                    People You May Know
-                </h3>
-                <div class="suggestion-item">
-                    <div class="suggestion-avatar">AL</div>
-                    <div style="flex: 1;">
-                        <h4 style="font-size: 14px; margin-bottom: 2px;">Alice Lee</h4>
-                        <p style="font-size: 12px; color: var(--dark-gray);">Data Scientist</p>
+            <aside class="right-sidebar">
+                <div class="widget">
+                    <h3 class="widget-title">
+                        <i class="fas fa-user-plus"></i>
+                        People You May Know
+                    </h3>
+                    <div class="suggestion-item">
+                        <div class="suggestion-avatar">AL</div>
+                        <div style="flex: 1">
+                            <h4 style="font-size: 14px; margin-bottom: 2px">
+                                Alice Lee
+                            </h4>
+                            <p style="font-size: 12px; color: var(--dark-gray)">
+                                Data Scientist
+                            </p>
+                        </div>
+                        <button class="connect-btn">Connect</button>
                     </div>
-                    <button class="connect-btn">Connect</button>
-                </div>
-                <div class="suggestion-item">
-                    <div class="suggestion-avatar">RB</div>
-                    <div style="flex: 1;">
-                        <h4 style="font-size: 14px; margin-bottom: 2px;">Robert Brown</h4>
-                        <p style="font-size: 12px; color: var(--dark-gray);">Marketing Manager</p>
+                    <div class="suggestion-item">
+                        <div class="suggestion-avatar">RB</div>
+                        <div style="flex: 1">
+                            <h4 style="font-size: 14px; margin-bottom: 2px">
+                                Robert Brown
+                            </h4>
+                            <p style="font-size: 12px; color: var(--dark-gray)">
+                                Marketing Manager
+                            </p>
+                        </div>
+                        <button class="connect-btn">Connect</button>
                     </div>
-                    <button class="connect-btn">Connect</button>
-                </div>
-                <div class="suggestion-item">
-                    <div class="suggestion-avatar">EW</div>
-                    <div style="flex: 1;">
-                        <h4 style="font-size: 14px; margin-bottom: 2px;">Emma Wilson</h4>
-                        <p style="font-size: 12px; color: var(--dark-gray);">Frontend Developer</p>
+                    <div class="suggestion-item">
+                        <div class="suggestion-avatar">EW</div>
+                        <div style="flex: 1">
+                            <h4 style="font-size: 14px; margin-bottom: 2px">
+                                Emma Wilson
+                            </h4>
+                            <p style="font-size: 12px; color: var(--dark-gray)">
+                                Frontend Developer
+                            </p>
+                        </div>
+                        <button class="connect-btn">Connect</button>
                     </div>
-                    <button class="connect-btn">Connect</button>
                 </div>
-            </div>
 
-            <div class="widget">
-                <h3 class="widget-title">
-                    <i class="fas fa-fire"></i>
-                    Trending Topics
-                </h3>
-                <div class="sidebar-item">
-                    <i class="fas fa-hashtag sidebar-icon"></i>
-                    <span>AI & Machine Learning</span>
+                <div class="widget">
+                    <h3 class="widget-title">
+                        <i class="fas fa-fire"></i>
+                        Trending Topics
+                    </h3>
+                    <div class="sidebar-item">
+                        <i class="fas fa-hashtag sidebar-icon"></i>
+                        <span>AI & Machine Learning</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <i class="fas fa-hashtag sidebar-icon"></i>
+                        <span>Remote Work</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <i class="fas fa-hashtag sidebar-icon"></i>
+                        <span>Web Development</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <i class="fas fa-hashtag sidebar-icon"></i>
+                        <span>Career Growth</span>
+                    </div>
                 </div>
-                <div class="sidebar-item">
-                    <i class="fas fa-hashtag sidebar-icon"></i>
-                    <span>Remote Work</span>
-                </div>
-                <div class="sidebar-item">
-                    <i class="fas fa-hashtag sidebar-icon"></i>
-                    <span>Web Development</span>
-                </div>
-                <div class="sidebar-item">
-                    <i class="fas fa-hashtag sidebar-icon"></i>
-                    <span>Career Growth</span>
-                </div>
-            </div>
 
-            <div class="widget">
-                <h3 class="widget-title">
-                    <i class="fas fa-briefcase"></i>
-                    Job Recommendations
-                </h3>
-                <div style="margin-bottom: 15px;">
-                    <h4 style="font-size: 14px; color: var(--primary-blue); margin-bottom: 5px;">Senior Developer</h4>
-                    <p style="font-size: 12px; color: var(--dark-gray); margin-bottom: 5px;">TechCorp Inc.</p>
-                    <p style="font-size: 12px; color: var(--dark-gray);">Remote • $80k-$120k</p>
+                <div class="widget">
+                    <h3 class="widget-title">
+                        <i class="fas fa-briefcase"></i>
+                        Job Recommendations
+                    </h3>
+                    <div style="margin-bottom: 15px">
+                        <h4
+                            style="
+                                font-size: 14px;
+                                color: var(--primary-blue);
+                                margin-bottom: 5px;
+                            "
+                        >
+                            Senior Developer
+                        </h4>
+                        <p
+                            style="
+                                font-size: 12px;
+                                color: var(--dark-gray);
+                                margin-bottom: 5px;
+                            "
+                        >
+                            TechCorp Inc.
+                        </p>
+                        <p style="font-size: 12px; color: var(--dark-gray)">
+                            Remote • $80k-$120k
+                        </p>
+                    </div>
+                    <div style="margin-bottom: 15px">
+                        <h4
+                            style="
+                                font-size: 14px;
+                                color: var(--primary-blue);
+                                margin-bottom: 5px;
+                            "
+                        >
+                            UX Designer
+                        </h4>
+                        <p
+                            style="
+                                font-size: 12px;
+                                color: var(--dark-gray);
+                                margin-bottom: 5px;
+                            "
+                        >
+                            DesignStudio
+                        </p>
+                        <p style="font-size: 12px; color: var(--dark-gray)">
+                            New York • $70k-$95k
+                        </p>
+                    </div>
                 </div>
-                <div style="margin-bottom: 15px;">
-                    <h4 style="font-size: 14px; color: var(--primary-blue); margin-bottom: 5px;">UX Designer</h4>
-                    <p style="font-size: 12px; color: var(--dark-gray); margin-bottom: 5px;">DesignStudio</p>
-                    <p style="font-size: 12px; color: var(--dark-gray);">New York • $70k-$95k</p>
-                </div>
-            </div>
-        </aside>
-    </div>
+            </aside>
 
-    
+
+    <!-- Floating Action Button for Mobile -->
+    <button class="fab" id="mobileFab" onclick="openModal('createPostModal')">
+        <i class="fas fa-plus"></i>
+    </button>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" crossorigin="anonymous"></script>
+    <script src="~/js/Home/script.js"></script>
+    <script src="~/js/Home/script2.js"></script>
+
+
+
+    @RenderSection("Scripts", required: false)
+
 </body>
 </html>
+
