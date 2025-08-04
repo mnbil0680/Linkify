@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@model UserMV
+<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -21,7 +22,7 @@
     <meta name="twitter:description" content="Connect with professionals, discover opportunities, and grow your career">
     <meta name="twitter:image" content="/images/twitter-image.jpg">
 
-    <title>ProConnect - Professional Network</title>
+    <title>Linkify</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -67,10 +68,10 @@
             <!-- User Quick Stats -->
             <div class="user-stats-card">
                 <div class="stats-header">
-                    <img src="/api/placeholder/60/60" alt="Your profile" class="user-avatar">
+                    <img src="@Model.ImgPath" alt="@Model.Name" class="user-avatar">
                     <div class="user-info">
-                        <h3>Alex Johnson</h3>
-                        <p>Senior Developer</p>
+                        <h3>@Model.Name</h3>
+                        <p>@Model.Email</p>
                     </div>
                 </div>
                 <div class="stats-grid">

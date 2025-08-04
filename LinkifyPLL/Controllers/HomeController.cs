@@ -12,6 +12,7 @@ namespace LinkifyPLL.Controllers
     [Authorize]
     public class HomeController : Controller
     {
+        public readonly IUserService IUS;
         private readonly ILogger<HomeController> _logger;
         public readonly IFriendsService _IFS;
         public HomeController(ILogger<HomeController> logger, IFriendsService ifs)
@@ -22,7 +23,22 @@ namespace LinkifyPLL.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            // Create UserMV from Identity claims
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userName = User.Identity?.Name;
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+            var userMV = new UserMV(
+                id: userId ?? string.Empty,
+                name: userName ?? string.Empty,
+                email: userEmail ?? string.Empty,
+                password: string.Empty, // Don't pass password
+                imgPath: null, // You might want to get this from database
+                status: null   // You might want to get this from database
+            );
+
+
+            return View(userMV);
         }
 
         public IActionResult Privacy()
