@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -237,29 +238,6 @@
 
                 <div class="widget">
                     <h3 class="widget-title">
-                        <i class="fas fa-fire"></i>
-                        Trending Topics
-                    </h3>
-                    <div class="sidebar-item">
-                        <i class="fas fa-hashtag sidebar-icon"></i>
-                        <span>AI & Machine Learning</span>
-                    </div>
-                    <div class="sidebar-item">
-                        <i class="fas fa-hashtag sidebar-icon"></i>
-                        <span>Remote Work</span>
-                    </div>
-                    <div class="sidebar-item">
-                        <i class="fas fa-hashtag sidebar-icon"></i>
-                        <span>Web Development</span>
-                    </div>
-                    <div class="sidebar-item">
-                        <i class="fas fa-hashtag sidebar-icon"></i>
-                        <span>Career Growth</span>
-                    </div>
-                </div>
-
-                <div class="widget">
-                    <h3 class="widget-title">
                         <i class="fas fa-briefcase"></i>
                         Job Recommendations
                     </h3>
@@ -313,19 +291,48 @@
             </aside>
 
 
-    <!-- Floating Action Button for Mobile -->
-    <button class="fab" id="mobileFab" onclick="openModal('createPostModal')">
-        <i class="fas fa-plus"></i>
-    </button>
-
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" crossorigin="anonymous"></script>
     <script src="~/js/Home/script.js"></script>
     <script src="~/js/Home/script2.js"></script>
 
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Handle the dropdown theme mode selections
+                const themeElements = document.querySelectorAll('[data-kt-element="mode"]');
+
+                // Load saved theme
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+
+                // Add click handlers to theme selection items
+                themeElements.forEach(element => {
+                    element.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const newTheme = this.getAttribute('data-kt-value');
+
+                        if (newTheme && (newTheme === 'light' || newTheme === 'dark')) {
+                            document.documentElement.setAttribute('data-theme', newTheme);
+                            localStorage.setItem('theme', newTheme);
+
+                            console.log(`Theme switched to: ${newTheme}`); // Debug log
+                        }
+                    });
+                });
+
+                // Also handle click on the main theme toggle button
+                const mainToggle = document.querySelector('[data-kt-menu-trigger]');
+                if (mainToggle) {
+                    // Just for debugging - log when clicked
+                    mainToggle.addEventListener('click', function() {
+                        console.log('Theme toggle clicked');
+                    });
+                }
+            });
+        </script>
 
 
-    @RenderSection("Scripts", required: false)
+        @RenderSection("Scripts", required: false)
 
 </body>
 </html>

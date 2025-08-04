@@ -16397,16 +16397,6 @@ body.swal2-toast-shown .swal2-container {
     left: 0;
 }
 
-.ki-moon .path1:before {
-    content: "\ed45";
-}
-
-.ki-moon .path2:before {
-    content: "\ed46";
-    position: absolute;
-    left: 0;
-    opacity: 0.3;
-}
 
 .ki-more-2 .path1:before {
     content: "\ed47";
