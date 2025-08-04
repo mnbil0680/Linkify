@@ -49,12 +49,11 @@ namespace LinkifyBLL.Helper
 
             services.AddScoped<IFriendsRepository, FriendsRepository>();
             services.AddScoped<IFriendsService, FriendsService>();
-        }
 
-        public static void LinkifyContactDependencyInjection(this IServiceCollection services)
-        {
             services.AddScoped<IContactService, ContactService>();
             services.AddScoped<IContactRepository, ContactRepository>();
         }
+
+        
     }
 }
