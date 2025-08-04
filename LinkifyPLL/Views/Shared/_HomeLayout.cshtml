@@ -1,0 +1,207 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProConnect - Professional Network</title>
+    <link href="~/css/Home/all.min.css" rel="stylesheet">
+    <link href="~/css/Home/style.css" rel="stylesheet">
+ </head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="topbar">
+        <div class="nav-container">
+            <div class="logo-section">
+                <div class="logo">
+                    <i class="fas fa-network-wired"></i>
+                </div>
+                <a href="#" class="brand-name">ProConnect</a>
+            </div>
+
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-box" placeholder="Search for people, jobs, companies...">
+            </div>
+
+            <div class="nav-right">
+                <div class="language-selector">
+                    <div class="language-dropdown">
+                        <i class="fas fa-globe"></i>
+                        <span>EN</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+
+                <div class="profile-menu pulse">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <aside class="left-sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-users"></i>
+                    Network
+                </h3>
+                <div class="sidebar-item">
+                    <i class="fas fa-user-friends sidebar-icon"></i>
+                    <span>My Connections</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-users sidebar-icon"></i>
+                    <span>Find People</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-user-plus sidebar-icon"></i>
+                    <span>Invitations</span>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-briefcase"></i>
+                    Career
+                </h3>
+                <div class="sidebar-item">
+                    <i class="fas fa-search sidebar-icon"></i>
+                    <span>Find Jobs</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-bookmark sidebar-icon"></i>
+                    <span>Saved Jobs</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-chart-line sidebar-icon"></i>
+                    <span>Career Insights</span>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-cogs"></i>
+                    Skills
+                </h3>
+                <div class="sidebar-item">
+                    <i class="fas fa-star sidebar-icon"></i>
+                    <span>My Skills</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-graduation-cap sidebar-icon"></i>
+                    <span>Learning</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-certificate sidebar-icon"></i>
+                    <span>Certifications</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Feed -->
+        <main class="main-feed">
+            <div class="create-post">
+                <textarea class="post-input" placeholder="What's on your mind? Share with your network..."></textarea>
+                <div class="post-actions">
+                    <button class="post-action-btn btn-photo">
+                        <i class="fas fa-image"></i>
+                        Photo
+                    </button>
+                    <button class="post-action-btn btn-video">
+                        <i class="fas fa-video"></i>
+                        Video
+                    </button>
+                    <button class="post-action-btn btn-document">
+                        <i class="fas fa-file-alt"></i>
+                        Document
+                    </button>
+                </div>
+            </div>
+
+            <div class="posts-container">
+               @RenderBody()
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="right-sidebar">
+            <div class="widget">
+                <h3 class="widget-title">
+                    <i class="fas fa-user-plus"></i>
+                    People You May Know
+                </h3>
+                <div class="suggestion-item">
+                    <div class="suggestion-avatar">AL</div>
+                    <div style="flex: 1;">
+                        <h4 style="font-size: 14px; margin-bottom: 2px;">Alice Lee</h4>
+                        <p style="font-size: 12px; color: var(--dark-gray);">Data Scientist</p>
+                    </div>
+                    <button class="connect-btn">Connect</button>
+                </div>
+                <div class="suggestion-item">
+                    <div class="suggestion-avatar">RB</div>
+                    <div style="flex: 1;">
+                        <h4 style="font-size: 14px; margin-bottom: 2px;">Robert Brown</h4>
+                        <p style="font-size: 12px; color: var(--dark-gray);">Marketing Manager</p>
+                    </div>
+                    <button class="connect-btn">Connect</button>
+                </div>
+                <div class="suggestion-item">
+                    <div class="suggestion-avatar">EW</div>
+                    <div style="flex: 1;">
+                        <h4 style="font-size: 14px; margin-bottom: 2px;">Emma Wilson</h4>
+                        <p style="font-size: 12px; color: var(--dark-gray);">Frontend Developer</p>
+                    </div>
+                    <button class="connect-btn">Connect</button>
+                </div>
+            </div>
+
+            <div class="widget">
+                <h3 class="widget-title">
+                    <i class="fas fa-fire"></i>
+                    Trending Topics
+                </h3>
+                <div class="sidebar-item">
+                    <i class="fas fa-hashtag sidebar-icon"></i>
+                    <span>AI & Machine Learning</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-hashtag sidebar-icon"></i>
+                    <span>Remote Work</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-hashtag sidebar-icon"></i>
+                    <span>Web Development</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-hashtag sidebar-icon"></i>
+                    <span>Career Growth</span>
+                </div>
+            </div>
+
+            <div class="widget">
+                <h3 class="widget-title">
+                    <i class="fas fa-briefcase"></i>
+                    Job Recommendations
+                </h3>
+                <div style="margin-bottom: 15px;">
+                    <h4 style="font-size: 14px; color: var(--primary-blue); margin-bottom: 5px;">Senior Developer</h4>
+                    <p style="font-size: 12px; color: var(--dark-gray); margin-bottom: 5px;">TechCorp Inc.</p>
+                    <p style="font-size: 12px; color: var(--dark-gray);">Remote • $80k-$120k</p>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <h4 style="font-size: 14px; color: var(--primary-blue); margin-bottom: 5px;">UX Designer</h4>
+                    <p style="font-size: 12px; color: var(--dark-gray); margin-bottom: 5px;">DesignStudio</p>
+                    <p style="font-size: 12px; color: var(--dark-gray);">New York • $70k-$95k</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    
+</body>
+</html>
