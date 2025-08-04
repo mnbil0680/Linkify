@@ -1,10 +1,12 @@
-﻿using LinkifyBLL.Services.Abstraction;
+﻿using LinkifyBLL.ModelView;
+using LinkifyBLL.Services.Abstraction;
 using LinkifyDAL.Entities;
 using LinkifyDAL.Enums;
 using LinkifyDAL.Repo.Abstraction;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -46,9 +48,25 @@ namespace LinkifyBLL.Services.Implementation
             return _IFR.FriendshipExists(userId1, userId2);
         }
 
-        public IEnumerable<User> GetAllUsers()
+        public IEnumerable<PoepleMV> GetAllUsers()
         {
-            return _IFR.GetAllUsers();
+            List<PoepleMV> ll =new List<PoepleMV>();
+            var list = _IFR.GetAllUsers();
+
+            foreach (var item in list)
+            {
+                ll.Add(new PoepleMV
+                {
+                    Id = item.Id,
+                    Name = item.UserName,
+                    ImgPath = item.ImgPath
+                });
+            }
+
+
+
+
+            return ll;
         }
 
         public IEnumerable<Friends> GetBlockedUsers(string userId)

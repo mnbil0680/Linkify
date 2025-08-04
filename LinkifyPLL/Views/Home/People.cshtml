@@ -1,9 +1,49 @@
-﻿@using LinkifyDAL.Entities
-@model List<User>
+﻿@using Microsoft.AspNetCore.Identity
+@model List<PoepleMV>
+@{
+    var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+}
 
-	<table>
-	@foreach(var user in Model){
-		<tr>@user.Id</tr>
-		<form></form>
-	}
-</table>
+
+<div class="container mt-4">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+
+
+        @foreach (var user in Model.Where(u => u.Id != userId))
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    @* Get Img *@
+                    @if (!string.IsNullOrEmpty(user.ImgPath))
+                    {
+                        <img src="@user.ImgPath" class="card-img-top" alt="@user.Name" style="object-fit:cover; height:200px;">
+                    }
+                    else
+                    {
+                        @* null Or Empty *@
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height:200px;">
+                            <span class="text-white-50">No Image</span>
+                        </div>
+                    }
+                    <div class="card-body">
+                       
+                        <h5 class="card-title">@user.Name</h5>
+                       
+                      
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <form  method="post" class="d-inline">
+                            <button type="submit" asp-route-id1="@user.Id" asp-route-id2="@userId" asp-action="AddFriend" asp-controller="Friends" class="btn btn-success btn-sm">Add Friend</button>
+                        </form>
+                        <a href="@Url.Action("Profile", "Home", new { id = user.Id })" class="btn btn-outline-primary btn-sm">View Profile</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+<div class="card-footer bg-transparent border-0 d-flex gap-2">
+    
+</div>

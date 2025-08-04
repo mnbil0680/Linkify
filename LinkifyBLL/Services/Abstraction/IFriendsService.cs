@@ -1,4 +1,5 @@
-﻿using LinkifyDAL.Entities;
+﻿using LinkifyBLL.ModelView;
+using LinkifyDAL.Entities;
 using LinkifyDAL.Enums;
 
 namespace LinkifyBLL.Services.Abstraction
@@ -18,6 +19,6 @@ namespace LinkifyBLL.Services.Abstraction
         IEnumerable<Friends> GetFriends(string userId);
         IEnumerable<Friends> GetBlockedUsers(string userId);
         FriendStatus GetFriendshipStatus(string userId1, string userId2);
-        IEnumerable<User> GetAllUsers();
+        IEnumerable<PoepleMV> GetAllUsers();
     }
 }

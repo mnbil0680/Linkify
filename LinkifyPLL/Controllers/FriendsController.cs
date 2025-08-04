@@ -1,5 +1,6 @@
 ﻿using LinkifyBLL.Services.Abstraction;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace LinkifyPLL.Controllers
 {
@@ -10,8 +11,9 @@ namespace LinkifyPLL.Controllers
         {
             this._IFS = ifs;
         }
-        public IActionResult Index(string id)
+        public IActionResult Index()
         {
+            string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var allFriends = _IFS.GetFriends(id).ToList();
             return View(allFriends);
         }

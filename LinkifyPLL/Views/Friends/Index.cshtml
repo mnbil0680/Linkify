@@ -4,6 +4,8 @@
 		<tr>Friends</tr>
 	@foreach (var friend in Model)
 	{
-		
+		<h1>@friend.Id</h1>
+		<h1>Requster  : @friend.Requester.UserName</h1>
+		<h1> Addressee : @friend.Addressee.UserName</h1>
 	}
 </table>
