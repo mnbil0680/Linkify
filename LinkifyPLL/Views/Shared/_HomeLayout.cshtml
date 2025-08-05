@@ -61,7 +61,7 @@
 
 
     <!-- Main Container -->
-    <div class="main-container">
+    <a class="main-container">
 
         <!-- Left Sidebar -->
         <aside class="left-sidebar" role="complementary" aria-label="Navigation menu">
@@ -76,15 +76,15 @@
                 </div>
                 <div class="stats-grid">
                     <div class="stat-item">
-                        <span class="stat-number">1,234</span>
+                        <span class="stat-number">@Model.ConnectionsCount</span>
                         <span class="stat-label">Connections</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">89</span>
+                        <span class="stat-number">@Model.PostsCount</span>
                         <span class="stat-label">Posts</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">5.2K</span>
+                        <span class="stat-number">@Model.ViewsCount</span>
                         <span class="stat-label">Views</span>
                     </div>
                 </div>
@@ -95,21 +95,21 @@
                     <i class="fas fa-users"></i>
                     Network
                 </h3>
-                <a asp-controller="Home" asp-action="MyConnections" class="sidebar-item interactive-card">
+                <div asp-controller="Home" asp-action="MyConnections" class="sidebar-item interactive-card">
                     <i class="fas fa-user-friends sidebar-icon"></i>
                     <span>My Connections</span>
-                    <span class="item-count">1,234</span>
-                </a>
+                    <span class="item-count">@Model.ConnectionsCount</span>
+                </div>
 
-                <div class="sidebar-item interactive-card" tabindex="0" role="button">
+                <div asp-controller="Home" asp-action="PeopleYouMayKnow" class="sidebar-item interactive-card">
                     <i class="fas fa-users sidebar-icon"></i>
                     <span>Find People</span>
                     <i class="fas fa-external-link-alt item-external"></i>
                 </div>
-                <div class="sidebar-item interactive-card" tabindex="0" role="button">
+                <div asp-controller="Home" asp-action="Invitations" class="sidebar-item interactive-card">
                     <i class="fas fa-user-plus sidebar-icon"></i>
                     <span>Invitations</span>
-                    <span class="item-count new">5</span>
+                    <span class="item-count new">@Model.InvitationCount</span>
                 </div>
                 <div class="sidebar-item interactive-card" tabindex="0" role="button">
                     <i class="fas fa-users-cog sidebar-icon"></i>
@@ -130,7 +130,7 @@
                 <div class="sidebar-item interactive-card" tabindex="0" role="button">
                     <i class="fas fa-bookmark sidebar-icon"></i>
                     <span>Saved Jobs</span>
-                    <span class="item-count">12</span>
+                        <span class="item-count">@Model.SavedJobsCount</span>
                 </div>
                 <div class="sidebar-item interactive-card" tabindex="0" role="button">
                     <i class="fas fa-chart-line sidebar-icon"></i>
@@ -163,7 +163,7 @@
                 <div class="sidebar-item interactive-card" tabindex="0" role="button">
                     <i class="fas fa-certificate sidebar-icon"></i>
                     <span>Certifications</span>
-                    <span class="item-count">3</span>
+                        <span class="item-count">@Model.CertificationCount</span>
                 </div>
                 <div class="sidebar-item interactive-card" tabindex="0" role="button">
                     <i class="fas fa-trophy sidebar-icon"></i>

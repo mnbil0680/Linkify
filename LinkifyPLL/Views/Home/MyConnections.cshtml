@@ -8,8 +8,18 @@
 
 <div class="container">
     <div class="connections-header">
-        <div class="connections-count">
-            <strong>@Model.Count()</strong> Connection@(Model.Count() != 1 ? "s" : "")
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-2">My Network</h1>
+                <div class="connections-count">
+                    <strong>@Model.Count()</strong> Connection@(Model.Count() != 1 ? "s" : "")
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-outline-primary rounded-pill">
+                    <i class="fas fa-user-plus me-2"></i>Grow Your Network
+                </button>
+            </div>
         </div>
         
         <div class="search-sort-container">
@@ -18,7 +28,7 @@
                 <input type="text" 
                        id="searchInput" 
                        class="form-control search-input" 
-                       placeholder="Search connections by name..."
+                       placeholder="Search your connections..."
                        autocomplete="off">
             </div>
             
@@ -37,38 +47,70 @@
                  data-name="@connection.Name.ToLower()"
                  data-date="@connection.Id"> 
                 <div class="connection-card">
-                    @if (!string.IsNullOrEmpty(connection.ImgPath))
-                    {
-                        <img src="@connection.ImgPath" 
-                             alt="@connection.Name" 
-                             class="connection-image">
-                    }
-                    else
-                    {
-                        <div class="connection-placeholder">
-                            <i class="fas fa-user"></i>
-                        </div>
-                    }
+                    <div class="position-relative">
+                        @if (!string.IsNullOrEmpty(connection.ImgPath))
+                        {
+                            <img src="@connection.ImgPath" 
+                                 alt="@connection.Name" 
+                                 class="connection-image">
+                        }
+                        else
+                        {
+                            <div class="connection-placeholder">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        }
+                    </div>
                     
-                    <h3 class="connection-name">@connection.Name</h3>
+                    <h3 class="connection-name">
+                        <a href="@Url.Action("Profile", "Home", new { id = connection.Id })" 
+                           class="text-decoration-none text-dark">
+                            @connection.Name
+                        </a>
+                    </h3>
+                    
                     @if (!string.IsNullOrEmpty(connection.Title))
                     {
                         <p class="connection-title">@connection.Title</p>
                     }
                     
+                    @if (connection.MutualFriendsCount > 0)
+                    {
+                        <div class="mutual-friends">
+                            <i class="fas fa-user-friends"></i>
+                            @connection.MutualFriendsCount mutual connection@(connection.MutualFriendsCount == 1 ? "" : "s")
+                        </div>
+                    }
+                    
                     <div class="connection-actions">
-                        <button class="btn btn-message" onclick="location.href='#'">
+                        <button class="btn btn-message" 
+                                onclick="location.href='#'" 
+                                title="Send message">
                             <i class="fas fa-comment-dots me-2"></i>Message
                         </button>
                         
                         <div class="dropdown">
-                            <button class="btn btn-light" data-bs-toggle="dropdown">
+                            <button class="btn btn-light" 
+                                    data-bs-toggle="dropdown" 
+                                    aria-expanded="false"
+                                    title="More actions">
                                 <i class="fas fa-ellipsis-h"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
-                                    <a class="dropdown-item" href="@Url.Action("Profile", "Home", new { id = connection.Id })">
-                                        <i class="fas fa-user"></i>View Profile
+                                    <a class="dropdown-item" 
+                                       href="@Url.Action("Profile", "Home", new { id = connection.Id })">
+                                        <i class="fas fa-user"></i>View Full Profile
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-share"></i>Share Profile
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-bell"></i>Follow Posts
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
@@ -86,18 +128,39 @@
             </div>
         }
     </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <div class="mb-3">
+                <i class="fas fa-user-friends fa-3x text-muted"></i>
+            </div>
+            <h3>No connections yet</h3>
+            <p class="text-muted">Start growing your network by connecting with people you know.</p>
+            <a href="@Url.Action("PeopleYouMayKnow", "Home")" class="btn btn-primary rounded-pill">
+                Find Connections
+            </a>
+        </div>
+    }
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function() {
-            // Search functionality
+            // Search functionality with debounce
+            let searchTimeout;
             $('#searchInput').on('input', function() {
-                const searchTerm = $(this).val().toLowerCase();
-                $('.connection-item').each(function() {
-                    const name = $(this).data('name');
-                    $(this).toggle(name.includes(searchTerm));
-                });
+                clearTimeout(searchTimeout);
+                const input = $(this);
+                searchTimeout = setTimeout(function() {
+                    const searchTerm = input.val().toLowerCase();
+                    $('.connection-item').each(function() {
+                        const name = $(this).data('name');
+                        $(this).toggle(name.includes(searchTerm));
+                    });
+                    updateConnectionCount();
+                }, 300);
             });
 
             // Sort functionality
@@ -121,33 +184,53 @@
                 $container.append($items);
             });
 
-            // Remove connection functionality
+            // Remove connection functionality with SweetAlert2
             $('.remove-connection').on('click', function(e) {
                 e.preventDefault();
                 const userId = $(this).data('user-id');
                 const $card = $(this).closest('.connection-item');
+                const name = $card.find('.connection-name').text().trim();
                 
-                if (confirm('Are you sure you want to remove this connection?')) {
-                    $.ajax({
-                        url: '/Friends/Unfriend',
-                        type: 'POST',
-                        data: { id: userId },
-                        success: function() {
-                            $card.fadeOut(300, function() {
-                                $(this).remove();
-                                updateConnectionCount();
-                            });
-                        },
-                        error: function() {
-                            alert('Failed to remove connection. Please try again.');
-                        }
-                    });
-                }
+                Swal.fire({
+                    title: 'Remove Connection?',
+                    html: `Are you sure you want to remove <strong>${name}</strong> from your connections?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Remove',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/Friends/Unfriend',
+                            type: 'POST',
+                            data: { id: userId },
+                            success: function() {
+                                $card.fadeOut(300, function() {
+                                    $(this).remove();
+                                    updateConnectionCount();
+                                    Swal.fire(
+                                        'Removed',
+                                        `${name} has been removed from your connections.`,
+                                        'success'
+                                    );
+                                });
+                            },
+                            error: function() {
+                                Swal.fire(
+                                    'Error',
+                                    'Failed to remove connection. Please try again.',
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                });
             });
 
             function updateConnectionCount() {
                 const count = $('.connection-item:visible').length;
-                $('.connections-count strong').text(count);
                 $('.connections-count').html(
                     `<strong>${count}</strong> Connection${count !== 1 ? 's' : ''}`
                 );
