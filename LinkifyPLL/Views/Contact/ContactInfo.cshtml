@@ -1,0 +1,90 @@
+﻿@model ContactVM
+@{
+    ViewData["Title"] = "Contact Information";
+}
+
+<link rel="stylesheet" href="~/css/contact.css" />
+
+<div class="contact-container">
+    <div class="contact-header">
+        <h1>Contact Information</h1>
+        <p class="text-muted">Manage your contact details and additional information</p>
+    </div>
+
+    <form asp-action="ContactInfo" asp-controller="Contact">
+        <div class="main-email-container">
+            <label class="main-email-label" asp-for="MainEmail">Primary Email Address</label>
+            <input asp-for="MainEmail" value="@Model.MainEmail" readonly class="form-control main-email-value" />
+        </div>
+
+        @if(Model.Contacts != null && Model.Contacts.Any())
+        {
+            <div class="table-responsive contacts-table">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Contact Details</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var contact in Model.Contacts)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="contact-type-badge @contact.Type.ToLower()">
+                                        @if (contact.Type == "Email")
+                                        {
+                                            <i class="fas fa-envelope me-2"></i>
+                                        }
+                                        else if (contact.Type == "Phone")
+                                        {
+                                            <i class="fas fa-phone me-2"></i>
+                                        }
+                                        @contact.Type
+                                    </span>
+                                </td>
+                                <td>@contact.Value</td>
+                                <td class="text-end">
+                                    <a asp-action="DeleteContact"
+                                       asp-route-id="@contact.Id"
+                                       class="btn btn-delete"
+                                       onclick="return confirm('Are you sure you want to delete this contact information?');">
+                                        <i class="fas fa-trash-alt me-2"></i>Remove
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="no-contacts">
+                <i class="fas fa-address-book mb-3"></i>
+                <h5>No Additional Contacts</h5>
+                <p class="text-muted">Add phone numbers or alternative email addresses to enhance your contact information.</p>
+            </div>
+        }
+
+        <div class="mt-4 text-end">
+            <a asp-action="AddContact" class="btn btn-add-contact">
+                <i class="fas fa-plus me-2"></i>Add New Contact
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // Add smooth fade-out animation for deleted rows
+        $('.btn-delete').on('click', function(e) {
+            if(confirm('Are you sure you want to delete this contact information?')) {
+                $(this).closest('tr').fadeOut(300);
+            }
+            return false;
+        });
+    </script>
+}

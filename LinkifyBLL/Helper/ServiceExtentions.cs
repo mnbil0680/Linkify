@@ -13,6 +13,12 @@ namespace LinkifyBLL.Helper
 {
     public static class ServiceExtensions
     {
+        public static void LinkifyEnhancedConnectionString(this IServiceCollection services, IConfiguration configuration, string stringName = "defaultConnection")
+        {
+            var connectionString = configuration.GetConnectionString(stringName);
+            services.AddDbContext<LinkifyDbContext>(options =>
+                options.UseSqlServer(connectionString));
+        }
         public static void LinkifyIdentity(this IServiceCollection services)
         {
             services.AddIdentity<User, IdentityRole>(options =>
@@ -44,13 +50,11 @@ namespace LinkifyBLL.Helper
             services.AddScoped<IPostImagesRepository, PostImagesRepository>();
             services.AddScoped<IPostReactionsService, PostReactionsService>();
             services.AddScoped<IPostReactionsRepository, PostReactionsRepository>();
+
+            services.AddScoped<IContactService, ContactService>();
+            services.AddScoped<IContactRepository, ContactRepository>();
         }
 
-        public static void LinkifyEnhancedConnectionString(this IServiceCollection services, IConfiguration configuration, string stringName = "defaultConnection")
-        {
-            var connectionString = configuration.GetConnectionString(stringName);
-            services.AddDbContext<LinkifyDbContext>(options =>
-                options.UseSqlServer(connectionString));
-        }
+        
     }
 }

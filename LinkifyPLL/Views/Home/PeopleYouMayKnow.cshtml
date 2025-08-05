@@ -15,6 +15,10 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         @foreach (var user in Model)
         {
+            if (user == null)
+            {
+                continue; // skip null users
+            }
             <div class="col">
                 <div class="card h-100 people-card shadow-sm">
                     <div class="card-img-container">
@@ -31,7 +35,7 @@
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">@user.Name</h5>
-                        @if (!string.IsNullOrEmpty(user.Status.ToString()))
+                        @if (user.Status != null)
                         {
                             <p class="text-muted mb-0">@user.Status</p>
                         }
