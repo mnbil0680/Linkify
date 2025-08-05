@@ -492,13 +492,13 @@ namespace LinkifyDAL.Migrations
                     b.HasOne("LinkifyDAL.Entities.User", "Addressee")
                         .WithMany()
                         .HasForeignKey("AddresseeId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("LinkifyDAL.Entities.User", "Requester")
                         .WithMany()
                         .HasForeignKey("RequesterId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Addressee");
@@ -522,18 +522,17 @@ namespace LinkifyDAL.Migrations
                     b.HasOne("LinkifyDAL.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("CommenterId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("LinkifyDAL.Entities.PostComments", "ParentComment")
                         .WithMany()
-                        .HasForeignKey("ParentCommentId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ParentCommentId");
 
                     b.HasOne("LinkifyDAL.Entities.Post", "Post")
                         .WithMany()
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ParentComment");
@@ -548,13 +547,13 @@ namespace LinkifyDAL.Migrations
                     b.HasOne("LinkifyDAL.Entities.Post", "Post")
                         .WithMany()
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("LinkifyDAL.Entities.User", "Reactor")
                         .WithMany()
                         .HasForeignKey("ReactorId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Post");
