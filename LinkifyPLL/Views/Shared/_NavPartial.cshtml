@@ -164,43 +164,64 @@
         </div>
     </div>
 
-    <!-- Profile Menu -->
-    <div class="profile-menu dropdown pulse" id="profileDropdown">
-        <button class="profile-button" aria-label="Profile menu" data-tooltip="Profile">
-            <img src="/api/placeholder/45/45" alt="Your profile" class="profile-image">
-            <div class="online-indicator"></div>
-        </button>
-        <div class="dropdown-content profile-dropdown">
-            <div class="profile-card">
-                <div class="profile-info">
-                    <img src="/api/placeholder/60/60" alt="Your profile" class="profile-large">
-                    <div>
-                        <h4>Alex Johnson</h4>
-                        <p>Senior Developer at TechCorp</p>
-                    </div>
-                </div>
-                <button class="view-profile-btn">View Profile</button>
-            </div>
-            <div class="dropdown-divider"></div>
-            <div class="dropdown-item">
-                <i class="fas fa-user"></i>
-                <span>Profile</span>
-            </div>
-            <div class="dropdown-item">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
-            </div>
-            <div class="dropdown-item">
-                <i class="fas fa-question-circle"></i>
-                <span>Help Center</span>
-            </div>
-            <div class="dropdown-divider"></div>
-            <div class="dropdown-item logout">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Sign Out</span>
-            </div>
+    <!--begin::User menu-->
+    <div class="app-navbar-item ms-1 ms-md-4" id="kt_header_user_menu_toggle">
+        <!--begin::Menu wrapper-->
+        <div class="cursor-pointer symbol symbol-35px"
+             data-kt-menu-trigger="{default: 'click', lg: 'hover'}"
+             data-kt-menu-attach="parent"
+             data-kt-menu-placement="bottom-end">
+            <img src="/metronic8/demo1/assets/media/avatars/300-3.jpg" class="rounded-3" alt="user" />
         </div>
+
+        <!--begin::User account menu-->
+        <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg menu-state-color fw-semibold py-4 fs-6 w-275px" data-kt-menu="true">
+            <!--begin::Menu item-->
+            <div class="menu-item px-3">
+                <div class="menu-content d-flex align-items-center px-3">
+                    <!--begin::Avatar-->
+                    <div class="symbol symbol-50px me-5">
+                        <img alt="@Model.Name" src="@Model.ImgPath" />
+                    </div>
+                    <!--end::Avatar-->
+                    <!--begin::Username-->
+                    <div class="d-flex flex-column">
+                        <div class="fw-bold d-flex align-items-center fs-5">
+                            @Model.Name                 <span class="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2">Pro</span>
+                        </div>
+
+                        <a href="#" class="fw-semibold text-muted text-hover-primary fs-7">
+                           @Model.Email
+                        </a>
+                    </div>
+                    <!--end::Username-->
+                </div>
+            </div>
+            <!--end::Menu item-->
+            <!--begin::Menu separator-->
+            <div class="separator my-2"></div>
+            <!--end::Menu separator-->
+            <!--begin::Menu item-->
+            <div class="menu-item px-5">
+                <a href="Account/Index" class="menu-link px-5">
+                    My Profile
+                </a>
+            </div>
+            <!--end::Menu item-->
+
+            <!--begin::Menu item-->
+            <div class="menu-item px-5">
+                
+                <form asp-controller="Account" asp-action="Logout" method="post" class="menu-link px-5">
+                    <button type="submit" class="btn btn-link nav-link">Logout</button>
+                </form>
+            </div>
+            <!--end::Menu item-->
+        </div>
+        <!--end::User account menu-->
+        <!--end::Menu wrapper-->
     </div>
+    <!--end::User menu-->
     </div>
     </div>
 </nav>

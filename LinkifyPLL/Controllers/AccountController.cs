@@ -1,5 +1,6 @@
 ﻿using LinkifyBLL.ModelView;
 using LinkifyBLL.Services.Abstraction;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LinkifyPLL.Controllers
@@ -16,8 +17,10 @@ namespace LinkifyPLL.Controllers
             this._authService = authService;
         }
 
+        [Authorize]
         public IActionResult Index(){
-            return RedirectToAction("Login");
+            
+            return View();
         }
 
         [HttpGet]
