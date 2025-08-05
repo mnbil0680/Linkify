@@ -44,11 +44,12 @@ namespace LinkifyBLL.Helper
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
-            services.AddScoped<IContactService, ContactService>();
-            services.AddScoped<IContactRepository, ContactRepository>();
-
             services.AddScoped<IFriendsRepository, FriendsRepository>();
             services.AddScoped<IFriendsService, FriendsService>();
+            services.AddScoped<IPostImagesService, PostImagesService>();
+            services.AddScoped<IPostImagesRepository, PostImagesRepository>();
+            services.AddScoped<IPostReactionsService, PostReactionsService>();
+            services.AddScoped<IPostReactionsRepository, PostReactionsRepository>();
 
             services.AddScoped<IContactService, ContactService>();
             services.AddScoped<IContactRepository, ContactRepository>();

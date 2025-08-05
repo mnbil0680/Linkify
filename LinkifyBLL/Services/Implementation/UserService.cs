@@ -16,7 +16,7 @@ namespace LinkifyBLL.Services.Implementation
 
         public async Task<bool> RegisterUserAsync(UserRegisterMV userMV, string password)
         {
-            User user = new User(userMV.Name, userMV.Email, null, null);
+            User user = new User(userMV.Name, userMV.Email, null, null, null, null);
             return await _userRepo.RegisterUserAsync(user, password);
         }
 

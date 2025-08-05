@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Identity.Client;
+using System.ComponentModel.DataAnnotations;
 
 namespace LinkifyDAL.Entities
 {
@@ -9,17 +9,19 @@ namespace LinkifyDAL.Entities
         public string? Status { get; private set; }
         public string? Title { get; private set; }
         public string? Bio { get; private set; }
-        public bool? IsDeleted { get; private set; } = false;
+        public bool IsDeleted { get; private set; } = false;
         public DateTime? DeletedOn { get; private set; }
         public DateTime? RegistrationDate { get; private set; } = DateTime.Now;
         public DateTime? UpdatedOn { get; private set; }
 
-        public User(string? userName, string? email, string? imgPath, string? status)
+        public User(string? userName, string? email, string? imgPath, string? status, string? title, string? bio)
         {
             this.UserName = userName;
             this.Email = email;
             this.ImgPath = imgPath;
             this.Status = status;
+            this.Title = title;
+            this.Bio = bio;
         }
         public void Edit(string? userName, string? imgPath, string? status)
         {
