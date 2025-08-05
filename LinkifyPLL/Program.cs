@@ -13,9 +13,10 @@ namespace LinkifyPLL
             builder.Services.AddControllersWithViews();
 
 
+            builder.Services.LinkifyEnhancedConnectionString(builder.Configuration);
             builder.Services.LinkifyIdentity();
             builder.Services.LinkifyDependencyInjection();
-            builder.Services.LinkifyEnhancedConnectionString(builder.Configuration);
+            
 
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,

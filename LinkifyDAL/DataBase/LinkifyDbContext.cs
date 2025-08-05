@@ -9,5 +9,6 @@ namespace LinkifyDAL.DataBase
         { }
         public DbSet<User> User { get; set; }
         public DbSet<Friends> Friends { get; set; }
+        public DbSet<Contact> Contacts { get; set; }
     }
 }
