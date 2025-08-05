@@ -12,6 +12,13 @@ namespace LinkifyBLL.ModelView
         public string? ImgPath { get; set; }
         public string? Status { get; set; }
         public IFormFile? Image { get; set; } = null;
+        public int? ConnectionsCount { get; set; } = 0;
+        public int? PostsCount { get; set; } = 0;
+        public int? ViewsCount { get; set; } = 0;
+        public int? InvitationCount { get; set; } = 0;
+        public int? SavedJobsCount { get; set; } = 0;
+        public int? CertificationCount { get; set; } = 0;
+
         public UserMV(string id, string name, string email, string password, string imgPath, string status) { 
             this.Id = id;
             this.Name = name;
@@ -19,6 +26,7 @@ namespace LinkifyBLL.ModelView
             this.Password = password;
             this.ImgPath = imgPath;
             this.Status = status;
+
         }
     }
 }
