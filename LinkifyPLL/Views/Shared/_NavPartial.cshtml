@@ -1,5 +1,12 @@
-﻿
+﻿@using System.Security.Claims
 
+@{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var userName = User.Identity?.Name;
+    var userEmail = User.FindFirstValue(ClaimTypes.Email);
+    // Assume image path is in the model
+    var userImage = Model?.ImgPath ?? "./imgs/Account/default.png";
+}
   <!-- Top Navigation Bar -->
 
 <nav class="topbar" role="navigation" aria-label="Main navigation">
@@ -171,7 +178,7 @@
              data-kt-menu-trigger="{default: 'click', lg: 'hover'}"
              data-kt-menu-attach="parent"
              data-kt-menu-placement="bottom-end">
-            <img src="/metronic8/demo1/assets/media/avatars/300-3.jpg" class="rounded-3" alt="user" />
+            <img src="@userImage" class="rounded-3" alt="@userName" />
         </div>
 
         <!--begin::User account menu-->
@@ -181,17 +188,17 @@
                 <div class="menu-content d-flex align-items-center px-3">
                     <!--begin::Avatar-->
                     <div class="symbol symbol-50px me-5">
-                        <img alt="@Model.Name" src="@Model.ImgPath" />
+                        <img alt="@userName" src="@userImage" />
                     </div>
                     <!--end::Avatar-->
                     <!--begin::Username-->
                     <div class="d-flex flex-column">
                         <div class="fw-bold d-flex align-items-center fs-5">
-                            @Model.Name                 <span class="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2">Pro</span>
+                            @userName                 <span class="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2">Pro</span>
                         </div>
 
                         <a href="#" class="fw-semibold text-muted text-hover-primary fs-7">
-                           @Model.Email
+                           @userEmail
                         </a>
                     </div>
                     <!--end::Username-->
