@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -108,19 +109,35 @@ namespace LinkifyBLL.Services.Implementation
             _IFR.Unfriend(userId1, userId2);
         }
 
-        public IEnumerable<PoepleMV> GetPeopleYouMayKnow(string currentUserId)
+        public IEnumerable<PoepleMV> GetPeopleYouMayKnow(string userId)
         {
-            var users = _IFR.GetPeopleYouMayKnow(currentUserId);
+            var users = _IFR.GetPeopleYouMayKnow(userId);
 
             return users.Select(u => new PoepleMV
             {
                 Id = u.Id,
                 Name = u.UserName,
                 ImgPath = u.ImgPath,
-                Status = _IFR.GetFriendshipStatus(currentUserId, u.Id),
-                MutualFriendsCount = _IFR.GetMutualFriendCount(currentUserId, u.Id)
+                Status = _IFR.GetFriendshipStatus(userId, u.Id),
+                MutualFriendsCount = _IFR.GetMutualFriendCount(userId, u.Id)
                 
             }).ToList();
+        }
+
+        public IEnumerable<PoepleMV> MyConnections(string userId)
+        {
+            var poepleList = _IFR.GetFriends(userId)
+                .Select(f => new PoepleMV
+                {
+                    Id = f.RequesterId == userId ? f.AddresseeId : f.RequesterId,
+                    Name = f.RequesterId == userId ? f.Addressee.UserName : f.Requester.UserName,
+                    ImgPath = f.RequesterId == userId ? f.Addressee.ImgPath : f.Requester.ImgPath,
+                    Title = f.RequesterId == userId ? f.Addressee.Title : f.Requester.Title,
+                    Status = f.Status,
+                    MutualFriendsCount = 0 
+                })
+                .ToList();
+            return poepleList;
         }
     }
 }

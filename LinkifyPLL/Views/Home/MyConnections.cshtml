@@ -1,0 +1,157 @@
+﻿@model List<PoepleMV>
+@{
+    ViewData["Title"] = "My Connections";
+    var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+}
+
+<link rel="stylesheet" href="~/css/connections.css" />
+
+<div class="container">
+    <div class="connections-header">
+        <div class="connections-count">
+            <strong>@Model.Count()</strong> Connection@(Model.Count() != 1 ? "s" : "")
+        </div>
+        
+        <div class="search-sort-container">
+            <div class="search-box flex-grow-1">
+                <i class="fas fa-search"></i>
+                <input type="text" 
+                       id="searchInput" 
+                       class="form-control search-input" 
+                       placeholder="Search connections by name..."
+                       autocomplete="off">
+            </div>
+            
+            <select class="form-select sort-dropdown" id="sortSelect">
+                <option value="firstName">Sort by first name</option>
+                <option value="lastName">Sort by last name</option>
+                <option value="recent">Sort by recently added</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4" id="connectionsContainer">
+        @foreach (var connection in Model)
+        {
+            <div class="col connection-item" 
+                 data-name="@connection.Name.ToLower()"
+                 data-date="@connection.Id"> 
+                <div class="connection-card">
+                    @if (!string.IsNullOrEmpty(connection.ImgPath))
+                    {
+                        <img src="@connection.ImgPath" 
+                             alt="@connection.Name" 
+                             class="connection-image">
+                    }
+                    else
+                    {
+                        <div class="connection-placeholder">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    }
+                    
+                    <h3 class="connection-name">@connection.Name</h3>
+                    @if (!string.IsNullOrEmpty(connection.Title))
+                    {
+                        <p class="connection-title">@connection.Title</p>
+                    }
+                    
+                    <div class="connection-actions">
+                        <button class="btn btn-message" onclick="location.href='#'">
+                            <i class="fas fa-comment-dots me-2"></i>Message
+                        </button>
+                        
+                        <div class="dropdown">
+                            <button class="btn btn-light" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="@Url.Action("Profile", "Home", new { id = connection.Id })">
+                                        <i class="fas fa-user"></i>View Profile
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger remove-connection" 
+                                       href="#" 
+                                       data-user-id="@connection.Id">
+                                        <i class="fas fa-user-minus"></i>Remove Connection
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Search functionality
+            $('#searchInput').on('input', function() {
+                const searchTerm = $(this).val().toLowerCase();
+                $('.connection-item').each(function() {
+                    const name = $(this).data('name');
+                    $(this).toggle(name.includes(searchTerm));
+                });
+            });
+
+            // Sort functionality
+            $('#sortSelect').on('change', function() {
+                const sortBy = $(this).val();
+                const $container = $('#connectionsContainer');
+                const $items = $('.connection-item').get();
+
+                $items.sort(function(a, b) {
+                    if (sortBy === 'firstName' || sortBy === 'lastName') {
+                        const nameA = $(a).data('name');
+                        const nameB = $(b).data('name');
+                        return nameA.localeCompare(nameB);
+                    } else if (sortBy === 'recent') {
+                        const dateA = $(a).data('date');
+                        const dateB = $(b).data('date');
+                        return dateB.localeCompare(dateA);
+                    }
+                });
+
+                $container.append($items);
+            });
+
+            // Remove connection functionality
+            $('.remove-connection').on('click', function(e) {
+                e.preventDefault();
+                const userId = $(this).data('user-id');
+                const $card = $(this).closest('.connection-item');
+                
+                if (confirm('Are you sure you want to remove this connection?')) {
+                    $.ajax({
+                        url: '/Friends/Unfriend',
+                        type: 'POST',
+                        data: { id: userId },
+                        success: function() {
+                            $card.fadeOut(300, function() {
+                                $(this).remove();
+                                updateConnectionCount();
+                            });
+                        },
+                        error: function() {
+                            alert('Failed to remove connection. Please try again.');
+                        }
+                    });
+                }
+            });
+
+            function updateConnectionCount() {
+                const count = $('.connection-item:visible').length;
+                $('.connections-count strong').text(count);
+                $('.connections-count').html(
+                    `<strong>${count}</strong> Connection${count !== 1 ? 's' : ''}`
+                );
+            }
+        });
+    </script>
+}

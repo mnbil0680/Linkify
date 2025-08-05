@@ -64,5 +64,19 @@ namespace LinkifyPLL.Controllers
             var peopleYouMayKnow = _IFS.GetPeopleYouMayKnow(currentUserId).ToList();
             return View(peopleYouMayKnow);
         }
+
+        //public IActionResult MyConnections()
+        //{
+        //    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //    var friends = _IFS.GetFriends(userId).ToList();
+        //    return View(friends);
+        //}
+
+        public IActionResult MyConnections()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var poepleList = _IFS.MyConnections(userId);
+            return View(poepleList); 
+        }
     }
 }
