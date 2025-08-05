@@ -3,6 +3,9 @@
 @{
     var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
     ViewData["Title"] = "People You May Know";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+    
+    
 }
 
 <link rel="stylesheet" href="~/css/people.css" />
