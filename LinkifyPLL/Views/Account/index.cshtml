@@ -3,3 +3,525 @@
     Layout = "~/Views/Shared/_AppLayout.cshtml";
 }
 
+@section style{
+    <style>
+
+        :root {
+            /* Light Mode Colors */
+            --primary-dark: #071437;
+            --primary-blue: #1b84ff;
+            --primary-yellow: #f6c000;
+            --accent-blue: #0066cc;
+            --accent-purple: #4a3c8e;
+            --accent-orange: #ff6b35;
+            --accent-green: #00d084;
+            --accent-pink: #ff4081;
+            --light-gray: #f4f4f4;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #666;
+            --white: #ffffff;
+            --text-dark: #333;
+            --text-light: #555;
+            --border-light: #e1e5e9;
+            --background-primary: #ffffff;
+            --background-secondary: #f8f9fa;
+            --shadow: 0 2px 10px rgba(7, 20, 55, 0.1);
+            --shadow-hover: 0 4px 20px rgba(27, 132, 255, 0.15);
+            --shadow-strong: 0 8px 40px rgba(7, 20, 55, 0.12);
+            /* Glass Effects */
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --backdrop-blur: blur(20px);
+        }
+
+        [data-theme="dark"] {
+            --primary-dark: #ffffff;
+            --primary-blue: #4da3ff;
+            --primary-yellow: #ffd633;
+            --accent-blue: #3399ff;
+            --accent-purple: #7b6bc4;
+            --accent-orange: #ff8c5a;
+            --accent-green: #00f5a0;
+            --accent-pink: #ff6ba3;
+            --light-gray: #1a1a1a;
+            --medium-gray: #2d2d2d;
+            --dark-gray: #a0a0a0;
+            --white: #0f0f0f;
+            --text-dark: #ffffff;
+            --text-light: #b0b0b0;
+            --border-light: #333333;
+            --background-primary: #121212;
+            --background-secondary: #1e1e1e;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 4px 20px rgba(77, 163, 255, 0.2);
+            --shadow-strong: 0 8px 40px rgba(0, 0, 0, 0.4);
+            /* Dark Glass Effects */
+            --glass-bg: rgba(18, 18, 18, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+
+
+        .main-container{
+            margin-top: 80px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            gap: 20px;
+            display:flex;
+            flex-direction:column;
+            padding: 20px;
+            min-height: calc(100vh - 80px);
+        }
+
+            .profile-header {
+            background: linear-gradient(135deg, #1b84ff 0%, #4a3c8e 100%);
+            border-radius: 20px;
+                padding: 40px;
+                margin-bottom: 30px;
+                box-shadow: var(--shadow-strong);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .profile-header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22grain%22%20width%3D%22100%22%20height%3D%22100%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2210%22%20r%3D%221%22%20fill%3D%22white%22%20opacity%3D%220.1%22%20/%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2225%22%20r%3D%220.5%22%20fill%3D%22white%22%20opacity%3D%220.05%22%20/%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2215%22%20r%3D%221.5%22%20fill%3D%22white%22%20opacity%3D%220.08%22%20/%3E%3Ccircle%20cx%3D%2280%22%20cy%3D%2235%22%20r%3D%221%22%20fill%3D%22white%22%20opacity%3D%220.06%22%20/%3E%3C/pattern%3E%3C/defs%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20fill%3D%22url(%23grain)%22%20/%3E%3C/svg%3E');
+                pointer-events: none;
+            }
+
+            .header-content {
+                display: grid;
+                grid-template-columns: auto 1fr auto;
+                gap: 30px;
+                align-items: center;
+                position: relative;
+                z-index: 1;
+            }
+
+
+            .profile-avatar {
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                border: 4px solid rgba(255, 255, 255, 0.3);
+                object-fit: cover;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            }
+
+            .profile-info h1 {
+                color: white;
+                font-size: 2.5rem;
+                font-weight: 700;
+                margin-bottom: 8px;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            }
+
+            .profile-info .title {
+                color: rgba(255, 255, 255, 0.9);
+                font-size: 1.3rem;
+                margin-bottom: 12px;
+            }
+
+            .profile-info .company {
+                color: rgba(255, 255, 255, 0.8);
+                font-size: 1.1rem;
+                margin-bottom: 15px;
+            }
+
+            .status-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                background: rgba(255, 255, 255, 0.2);
+                backdrop-filter: var(--backdrop-blur);
+                padding: 8px 16px;
+                border-radius: 25px;
+                color: white;
+                font-size: 0.9rem;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+
+            .status-indicator {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: var(--accent-green);
+                animation: pulse 2s infinite;
+            }
+
+    @@keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.5; }
+            }
+
+            .profile-stats {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .stat-item {
+                text-align: center;
+                color: white;
+            }
+
+            .stat-number {
+                font-size: 1.8rem;
+                font-weight: 700;
+                display: block;
+            }
+
+            .stat-label {
+                font-size: 0.85rem;
+                opacity: 0.8;
+            }
+
+            .theme-toggle {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 1000;
+                background: var(--glass-bg);
+                backdrop-filter: var(--backdrop-blur);
+                border: 1px solid var(--glass-border);
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                color: var(--text-dark);
+            }
+
+            .theme-toggle:hover {
+                transform: scale(1.1);
+                box-shadow: var(--shadow-hover);
+            }
+
+            .main-content {
+                display: grid;
+                grid-template-columns: 1fr 350px;
+                gap: 30px;
+            }
+
+            .content-section {
+                background: var(--glass-bg);
+                backdrop-filter: var(--backdrop-blur);
+                border: 1px solid var(--glass-border);
+                border-radius: 16px;
+                padding: 25px;
+                margin-bottom: 25px;
+                box-shadow: var(--shadow);
+                transition: all 0.3s ease;
+            }
+
+            .content-section:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-hover);
+            }
+
+            .section-title {
+                font-size: 1.4rem;
+                font-weight: 600;
+                color: var(--primary-dark);
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .section-title i {
+                color: var(--primary-blue);
+                font-size: 1.2rem;
+            }
+
+            .bio {
+                font-size: 1.1rem;
+                line-height: 1.7;
+                color: var(--text-light);
+                margin-bottom: 20px;
+            }
+
+            .social-links {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .social-link {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 16px;
+                background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+                color: white;
+                text-decoration: none;
+                border-radius: 25px;
+                font-size: 0.9rem;
+                transition: all 0.3s ease;
+            }
+
+            .social-link:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-hover);
+            }
+
+            .experience-item, .education-item, .project-item {
+                border-left: 4px solid var(--primary-blue);
+                padding-left: 20px;
+                margin-bottom: 25px;
+                position: relative;
+            }
+
+            .experience-item::before, .education-item::before, .project-item::before {
+                content: '';
+                position: absolute;
+                left: -8px;
+                top: 5px;
+                width: 12px;
+                height: 12px;
+                background: var(--primary-blue);
+                border-radius: 50%;
+                border: 3px solid var(--background-primary);
+            }
+
+            .item-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 10px;
+            }
+
+            .item-title {
+                font-size: 1.2rem;
+                font-weight: 600;
+                color: var(--primary-dark);
+            }
+
+            .item-company {
+                color: var(--primary-blue);
+                font-weight: 500;
+                margin-bottom: 5px;
+            }
+
+            .item-date {
+                color: var(--dark-gray);
+                font-size: 0.9rem;
+                font-weight: 500;
+            }
+
+            .current-badge {
+                background: var(--accent-green);
+                color: white;
+                padding: 4px 12px;
+                border-radius: 12px;
+                font-size: 0.8rem;
+                font-weight: 500;
+            }
+
+            .skills-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 15px;
+            }
+
+            .skill-item {
+                background: var(--background-secondary);
+                padding: 15px;
+                border-radius: 12px;
+                border: 1px solid var(--border-light);
+            }
+
+            .skill-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            .skill-name {
+                font-weight: 600;
+                color: var(--primary-dark);
+            }
+
+            .skill-level {
+                font-size: 0.85rem;
+                color: var(--dark-gray);
+            }
+
+            .skill-bar {
+                height: 6px;
+                background: var(--medium-gray);
+                border-radius: 3px;
+                overflow: hidden;
+            }
+
+            .skill-progress {
+                height: 100%;
+                background: linear-gradient(90deg, var(--primary-blue), var(--accent-blue));
+                border-radius: 3px;
+                transition: width 0.8s ease;
+            }
+
+            .endorsement-count {
+                font-size: 0.8rem;
+                color: var(--accent-green);
+                margin-top: 5px;
+            }
+
+            .sidebar {
+                display: flex;
+                flex-direction: column;
+                gap: 25px;
+            }
+
+            .contact-info {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .contact-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                color: var(--text-light);
+            }
+
+            .contact-item i {
+                color: var(--primary-blue);
+                width: 20px;
+            }
+
+            .preferences-list {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .preference-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px;
+                background: var(--background-secondary);
+                border-radius: 8px;
+            }
+
+            .preference-icon {
+                color: var(--accent-green);
+            }
+
+            .tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .tag {
+                background: linear-gradient(135deg, var(--accent-orange), var(--accent-pink));
+                color: white;
+                padding: 6px 12px;
+                border-radius: 15px;
+                font-size: 0.85rem;
+                font-weight: 500;
+            }
+
+            .recommendation-item {
+                background: var(--background-secondary);
+                padding: 20px;
+                border-radius: 12px;
+                margin-bottom: 15px;
+                border-left: 4px solid var(--accent-green);
+            }
+
+            .recommender-info {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 12px;
+            }
+
+            .recommender-avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            .rating {
+                display: flex;
+                gap: 2px;
+                margin-top: 8px;
+            }
+
+            .star {
+                color: var(--primary-yellow);
+            }
+
+    @@media (max-width: 1200px) {
+                .main-content {
+                    grid-template-columns: 1fr;
+                }
+
+                .sidebar {
+                    order: -1;
+                }
+            }
+
+    @@media (max-width: 768px) {
+                .header-content {
+                    grid-template-columns: 1fr;
+                    text-align: center;
+                    gap: 20px;
+                }
+
+                .profile-info h1 {
+                    font-size: 2rem;
+                }
+
+                .container {
+                    padding: 15px;
+                }
+            }
+    </style>
+}
+<!-- Profile Header -->
+<div class="profile-header">
+    <div class="header-content">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop&crop=face" alt="Profile" class="profile-avatar">
+
+        <div class="profile-info">
+            <h1>John Smith</h1>
+            <div class="title">Senior Software Engineer</div>
+            <div class="company">Tech Innovations Inc.</div>
+            <div class="status-badge">
+                <div class="status-indicator"></div>
+                Available for opportunities
+            </div>
+        </div>
+
+        <div class="profile-stats">
+            <div class="stat-item">
+                <span class="stat-number">500+</span>
+                <span class="stat-label">Connections</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">2.5K</span>
+                <span class="stat-label">Profile Views</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">95%</span>
+                <span class="stat-label">Complete</span>
+            </div>
+        </div>
+    </div>
+</div>

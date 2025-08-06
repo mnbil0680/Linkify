@@ -46,17 +46,17 @@
 
 
 
+    @await RenderSectionAsync("style", required: false);
 
-    <!-- Preload Critical Resources -->
-    <link rel="preload" href="~/css/Home/style.css" as="style">
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style">
 </head>
 
 
 <body>
     <partial name="_NavPartial.cshtml">
-
+        <div class="main-container">
 @RenderBody()
+        </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
