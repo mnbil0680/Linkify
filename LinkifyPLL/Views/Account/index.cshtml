@@ -60,8 +60,6 @@
             --glass-border: rgba(255, 255, 255, 0.1);
         }
 
-
-
         .main-container{
             margin-top: 80px;
             max-width: 1200px;
@@ -492,6 +490,42 @@
                     padding: 15px;
                 }
             }
+
+
+            /* /////////////////// */
+            /* Tabs */
+            /* /////////////////// */
+        .tab {
+            padding: 15px 25px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #7f8c8d;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+            .tab.active {
+                color: #3498db;
+                border-bottom-color: #3498db;
+            }
+
+            .tab:hover {
+                color: #2980b9;
+            }
+
+        .tab-content {
+            display: none;
+        }
+
+            .tab-content.active {
+                display: block;
+            }
+
+
+
     </style>
 }
 <!-- Profile Header -->
@@ -523,5 +557,102 @@
                 <span class="stat-label">Complete</span>
             </div>
         </div>
+
+   
+    </div>
+    <div class="tabs">
+        <button class="tab active" onclick="showTab('overview')">Overview</button>
+        <button class="tab" onclick="showTab('experience')">Experience</button>
+        <button class="tab" onclick="showTab('skills')">Skills & Certifications</button>
+        <button class="tab" onclick="showTab('education')">Education</button>
+        <button class="tab" onclick="showTab('projects')">Projects</button>
+        <button class="tab" onclick="showTab('recommendations')">Recommendations</button>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+
+            // Add animation to newly shown content
+            const activeContent = document.getElementById(tabName);
+            activeContent.style.opacity = '0';
+            activeContent.style.transform = 'translateY(20px)';
+
+            setTimeout(() => {
+                activeContent.style.transition = 'all 0.3s ease';
+                activeContent.style.opacity = '1';
+                activeContent.style.transform = 'translateY(0)';
+            }, 50);
+        }
+
+        // Add smooth scroll animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+
+            const animatedElements = document.querySelectorAll('.card, .experience-item, .education-item, .project-item, .recommendation-item');
+            animatedElements.forEach((el) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+                el.style.transition = 'all 0.6s ease';
+                observer.observe(el);
+            });
+
+            // Animate progress bars
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach((bar) => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.transition = 'width 1s ease-in-out';
+                    bar.style.width = width;
+                }, 500);
+            });
+        });
+
+        // Add hover effects to social links
+        document.querySelectorAll('.social-link').forEach(link => {
+            link.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-3px) scale(1.05)';
+            });
+
+            link.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Add click effects to skill tags
+        document.querySelectorAll('.skill-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            });
+        });
+    </script>
+}
