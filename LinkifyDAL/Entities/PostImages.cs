@@ -14,6 +14,7 @@ namespace LinkifyDAL.Entities
         public PostImages(string ImagePath, int PostId) { 
             this.ImagePath = ImagePath;
             this.PostId = PostId;
+            CreatedOn = DateTime.UtcNow;
         }
         public void Update(string imagePath)
         {

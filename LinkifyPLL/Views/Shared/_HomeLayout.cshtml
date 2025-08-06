@@ -1,5 +1,4 @@
-﻿
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -36,33 +35,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-   
-   
-
     <!-- Stylesheets -->
     <link href="~/css/Home/all.min.css">
     <link href="~/css/Home/style.css" rel="stylesheet">
     <link href="~/css/Home/style2.css" rel="stylesheet">
     <link href="~/css/Nav.css" rel="stylesheet">
-    
-
-    
-
-    <!-- Preload Critical Resources -->
     <link rel="preload" href="~/css/Home/style.css" as="style">
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style">
 </head>
-
-
 <body>
-
-
     <partial name="_NavPartial" />
-
-
-    <!-- Main Container -->
-    <div class="main-container">
-
+    <div class="main-container" >
         <!-- Left Sidebar -->
         <aside class="left-sidebar" role="complementary" aria-label="Navigation menu">
             <!-- User Quick Stats -->
@@ -173,171 +156,194 @@
 
         <!-- Main Feed -->
         <main class="main-feed" id="main-content" role="main" aria-label="Main content">
-
             <!-- Create Post Section -->
             <div class="create-post">
                 <div class="create-post-header">
                     <img src="/api/placeholder/50/50" alt="Your profile" class="create-post-avatar">
-                    <textarea class="post-input"
-                              placeholder="What's on your mind? Share with your network..."
-                              aria-label="Create new post"
-                              rows="3"></textarea>
+                    <button id="openModalTrigger" class="post-trigger-button">
+                        <i class="fas fa-pen"></i> Start a post
+                    </button>
+
                 </div>
             </div>
-
-            <!-- Posts Container -->
-            <div class="posts-container">
-                    @RenderBody()
-            </div>
-        
+            @await Html.PartialAsync("_CreatePostModal", new PostCreateMV())
+            @RenderBody()
         </main>
 
         <!-- Right Sidebar -->
-            <aside class="right-sidebar">
-                <div class="widget">
-                    <h3 class="widget-title">
-                        <i class="fas fa-user-plus"></i>
-                    <a href="/Home/PeopleYouMayKnow" style="color: inherit; text-decoration: none;">
-                        People You May Know
-                    </a>
-                    </h3>
-                    <div class="suggestion-item">
-                        <div class="suggestion-avatar">AL</div>
-                        <div style="flex: 1">
-                            <h4 style="font-size: 14px; margin-bottom: 2px">
-                                Alice Lee
-                            </h4>
-                            <p style="font-size: 12px; color: var(--dark-gray)">
-                                Data Scientist
-                            </p>
-                        </div>
-                        <button class="connect-btn">Connect</button>
-                    </div>
-                    <div class="suggestion-item">
-                        <div class="suggestion-avatar">RB</div>
-                        <div style="flex: 1">
-                            <h4 style="font-size: 14px; margin-bottom: 2px">
-                                Robert Brown
-                            </h4>
-                            <p style="font-size: 12px; color: var(--dark-gray)">
-                                Marketing Manager
-                            </p>
-                        </div>
-                        <button class="connect-btn">Connect</button>
-                    </div>
-                    <div class="suggestion-item">
-                        <div class="suggestion-avatar">EW</div>
-                        <div style="flex: 1">
-                            <h4 style="font-size: 14px; margin-bottom: 2px">
-                                Emma Wilson
-                            </h4>
-                            <p style="font-size: 12px; color: var(--dark-gray)">
-                                Frontend Developer
-                            </p>
-                        </div>
-                        <button class="connect-btn">Connect</button>
-                    </div>
-                </div>
-
-                <div class="widget">
-                    <h3 class="widget-title">
-                        <i class="fas fa-briefcase"></i>
-                        Job Recommendations
-                    </h3>
-                    <div style="margin-bottom: 15px">
-                        <h4
-                            style="
-                                font-size: 14px;
-                                color: var(--primary-blue);
-                                margin-bottom: 5px;
-                            "
-                        >
-                            Senior Developer
+        <aside class="right-sidebar">
+            <div class="widget">
+                <h3 class="widget-title">
+                    <i class="fas fa-user-plus"></i>
+                <a href="/Home/PeopleYouMayKnow" style="color: inherit; text-decoration: none;">
+                    People You May Know
+                </a>
+                </h3>
+                <div class="suggestion-item">
+                    <div class="suggestion-avatar">AL</div>
+                    <div style="flex: 1">
+                        <h4 style="font-size: 14px; margin-bottom: 2px">
+                            Alice Lee
                         </h4>
-                        <p
-                            style="
-                                font-size: 12px;
-                                color: var(--dark-gray);
-                                margin-bottom: 5px;
-                            "
-                        >
-                            TechCorp Inc.
-                        </p>
                         <p style="font-size: 12px; color: var(--dark-gray)">
-                            Remote • $80k-$120k
+                            Data Scientist
                         </p>
                     </div>
-                    <div style="margin-bottom: 15px">
-                        <h4
-                            style="
-                                font-size: 14px;
-                                color: var(--primary-blue);
-                                margin-bottom: 5px;
-                            "
-                        >
-                            UX Designer
-                        </h4>
-                        <p
-                            style="
-                                font-size: 12px;
-                                color: var(--dark-gray);
-                                margin-bottom: 5px;
-                            "
-                        >
-                            DesignStudio
-                        </p>
-                        <p style="font-size: 12px; color: var(--dark-gray)">
-                            New York • $70k-$95k
-                        </p>
-                    </div>
+                    <button class="connect-btn">Connect</button>
                 </div>
-            </aside>
+                <div class="suggestion-item">
+                    <div class="suggestion-avatar">RB</div>
+                    <div style="flex: 1">
+                        <h4 style="font-size: 14px; margin-bottom: 2px">
+                            Robert Brown
+                        </h4>
+                        <p style="font-size: 12px; color: var(--dark-gray)">
+                            Marketing Manager
+                        </p>
+                    </div>
+                    <button class="connect-btn">Connect</button>
+                </div>
+                <div class="suggestion-item">
+                    <div class="suggestion-avatar">EW</div>
+                    <div style="flex: 1">
+                        <h4 style="font-size: 14px; margin-bottom: 2px">
+                            Emma Wilson
+                        </h4>
+                        <p style="font-size: 12px; color: var(--dark-gray)">
+                            Frontend Developer
+                        </p>
+                    </div>
+                    <button class="connect-btn">Connect</button>
+                </div>
+            </div>
 
-
-
+            <div class="widget">
+                <h3 class="widget-title">
+                    <i class="fas fa-briefcase"></i>
+                    Job Recommendations
+                </h3>
+                <div style="margin-bottom: 15px">
+                    <h4
+                        style="
+                            font-size: 14px;
+                            color: var(--primary-blue);
+                            margin-bottom: 5px;
+                    "
+                    >
+                        Senior Developer
+                    </h4>
+                    <p
+                        style="
+                            font-size: 12px;
+                            color: var(--dark-gray);
+                            margin-bottom: 5px;
+                    "
+                    >
+                        TechCorp Inc.
+                    </p>
+                    <p style="font-size: 12px; color: var(--dark-gray)">
+                        Remote • $80k-$120k
+                    </p>
+                </div>
+                <div style="margin-bottom: 15px">
+                    <h4
+                        style="
+                            font-size: 14px;
+                            color: var(--primary-blue);
+                            margin-bottom: 5px;
+                    "
+                    >
+                        UX Designer
+                    </h4>
+                    <p
+                        style="
+                            font-size: 12px;
+                            color: var(--dark-gray);
+                            margin-bottom: 5px;
+                    "
+                    >
+                        DesignStudio
+                    </p>
+                    <p style="font-size: 12px; color: var(--dark-gray)">
+                        New York • $70k-$95k
+                    </p>
+                </div>
+            </div>
+        </aside>
     </div>
+    
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" crossorigin="anonymous"></script>
     <script src="~/js/Home/script.js"></script>
     <script src="~/js/Home/script2.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Handle the dropdown theme mode selections
+            const themeElements = document.querySelectorAll('[data-kt-element="mode"]');
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                // Handle the dropdown theme mode selections
-                const themeElements = document.querySelectorAll('[data-kt-element="mode"]');
+            // Load saved theme
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
 
-                // Load saved theme
-                const savedTheme = localStorage.getItem('theme') || 'light';
-                document.documentElement.setAttribute('data-theme', savedTheme);
+            // Add click handlers to theme selection items
+            themeElements.forEach(element => {
+                element.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const newTheme = this.getAttribute('data-kt-value');
 
-                // Add click handlers to theme selection items
-                themeElements.forEach(element => {
-                    element.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const newTheme = this.getAttribute('data-kt-value');
+                    if (newTheme && (newTheme === 'light' || newTheme === 'dark')) {
+                        document.documentElement.setAttribute('data-theme', newTheme);
+                        localStorage.setItem('theme', newTheme);
 
-                        if (newTheme && (newTheme === 'light' || newTheme === 'dark')) {
-                            document.documentElement.setAttribute('data-theme', newTheme);
-                            localStorage.setItem('theme', newTheme);
-
-                            console.log(`Theme switched to: ${newTheme}`); // Debug log
-                        }
-                    });
+                        console.log(`Theme switched to: ${newTheme}`); // Debug log
+                    }
                 });
-
-                // Also handle click on the main theme toggle button
-                const mainToggle = document.querySelector('[data-kt-menu-trigger]');
-                if (mainToggle) {
-                    // Just for debugging - log when clicked
-                    mainToggle.addEventListener('click', function() {
-                        console.log('Theme toggle clicked');
-                    });
-                }
             });
-        </script>
 
+            // Also handle click on the main theme toggle button
+            const mainToggle = document.querySelector('[data-kt-menu-trigger]');
+            if (mainToggle) {
+                // Just for debugging - log when clicked
+                mainToggle.addEventListener('click', function() {
+                    console.log('Theme toggle clicked');
+                });
+            }
+        });
 
-        @RenderSection("Scripts", required: false)
+        const postInput = document.querySelector('.post-input');
+        const createPost = document.querySelector('.create-post');
+        const actions = document.querySelector('.create-post-actions');
 
+        postInput.addEventListener('focus', function() {
+            createPost.classList.add('expanded');
+            actions.style.display = 'block';
+        });
+        postInput.addEventListener('blur', function() {
+            if (!this.value.trim()) {
+                createPost.classList.remove('expanded');
+                actions.style.display = 'none';
+            }
+        });
+
+    </script>
+    @RenderSection("Scripts", required: false)
 </body>
 </html>
+
+<style>
+.create-post .post-input {
+    min-height: 40px;
+    max-height: 200px;
+    transition: min-height 0.2s;
+    resize: none;
+}
+.create-post.expanded .post-input {
+    min-height: 100px;
+}
+.create-post-actions {
+    margin-top: 10px;
+}
+
+
+</style>
