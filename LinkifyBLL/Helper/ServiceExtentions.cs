@@ -46,15 +46,16 @@ namespace LinkifyBLL.Helper
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IFriendsRepository, FriendsRepository>();
             services.AddScoped<IFriendsService, FriendsService>();
+            services.AddScoped<IPostService, PostService>();
+            services.AddScoped<IPostRepository, PostRepository>();
             services.AddScoped<IPostImagesService, PostImagesService>();
             services.AddScoped<IPostImagesRepository, PostImagesRepository>();
             services.AddScoped<IPostReactionsService, PostReactionsService>();
             services.AddScoped<IPostReactionsRepository, PostReactionsRepository>();
-
+            services.AddScoped<IPostCommentsService, PostCommentsService>();
+            services.AddScoped<IPostCommentsRepository, PostCommentsRepository>();
             services.AddScoped<IContactService, ContactService>();
             services.AddScoped<IContactRepository, ContactRepository>();
         }
-
-        
     }
 }
