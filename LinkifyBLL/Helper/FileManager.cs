@@ -8,15 +8,27 @@ namespace SempaBLL.Helper
         {
             try
             {
-                // Create folder if it doesn't exist
-                string FolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", FolderName);
-                if (!Directory.Exists(FolderPath))
+                // Restrict to specific file types
+                var allowedExtensions = new[] { ".pdf", ".jpg", ".jpeg", ".png" };
+                var extension = Path.GetExtension(File.FileName).ToLower();
+                if (!allowedExtensions.Contains(extension))
                 {
-                    Directory.CreateDirectory(FolderPath);
+                    return "Only PDF, JPG, and PNG files are allowed.";
                 }
 
-                // Generate unique filename
-                string FileName = Guid.NewGuid() + Path.GetExtension(File.FileName);
+                // Limit file size to 10MB
+                if (File.Length > 10 * 1024 * 1024)
+                {
+                    return "File size must be under 10MB.";
+                }
+
+                // Create folder (same as original)
+                string FolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", FolderName);
+                Directory.CreateDirectory(FolderPath);
+
+                // Generate safe filename
+                string safeFileName = Path.GetFileName(File.FileName);
+                string FileName = Guid.NewGuid() + Path.GetExtension(safeFileName);
                 string FinalPath = Path.Combine(FolderPath, FileName);
 
                 using (var Stream = new FileStream(FinalPath, FileMode.Create))
@@ -24,7 +36,6 @@ namespace SempaBLL.Helper
                     File.CopyTo(Stream);
                 }
 
-                // Return relative path including folder
                 return $"/{FolderName}/{FileName}";
             }
             catch (Exception ex)
@@ -32,7 +43,6 @@ namespace SempaBLL.Helper
                 return ex.Message;
             }
         }
-
         public static string RemoveFile(string FolderName, string fileName)
         {
             try

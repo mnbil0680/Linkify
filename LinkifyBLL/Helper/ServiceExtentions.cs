@@ -54,8 +54,14 @@ namespace LinkifyBLL.Helper
             services.AddScoped<IPostReactionsRepository, PostReactionsRepository>();
             services.AddScoped<IPostCommentsService, PostCommentsService>();
             services.AddScoped<IPostCommentsRepository, PostCommentsRepository>();
+            services.AddScoped<ISavePostService, SavePostService>();
+            services.AddScoped<ISavePostRepository, SavePostRepository>();
+            services.AddScoped<ISharePostService, SharePostService>();
+            services.AddScoped<ISharePostRepository, SharePostRepository>();
             services.AddScoped<IContactService, ContactService>();
             services.AddScoped<IContactRepository, ContactRepository>();
+            services.AddScoped<IJobService, JobService>();
+            services.AddScoped<IJobRepository, JobRepository>();
         }
     }
 }
