@@ -1,13 +1,16 @@
-﻿using LinkifyBLL.Services.Abstraction;
+﻿using LinkifyBLL.ModelView;
+using LinkifyBLL.Services.Abstraction;
 using LinkifyDAL.Entities;
 using LinkifyDAL.Repo.Abstraction;
+using Microsoft.AspNetCore.Http;
+using SempaBLL.Helper;
 
 namespace LinkifyBLL.Services.Implementation
 {
     public class PostService : IPostService
     {
         private readonly IPostRepository _postRepo;
-
+        
         public PostService(IPostRepository postRepo)
         {
             _postRepo = postRepo;
@@ -47,7 +50,7 @@ namespace LinkifyBLL.Services.Implementation
         }
 
         public async Task DeletePostAsync(int postId)
-        {
+            {
             if (!await _postRepo.ExistsAsync(postId))
                 throw new KeyNotFoundException("Post not found");
 
@@ -55,12 +58,12 @@ namespace LinkifyBLL.Services.Implementation
         }
 
         public async Task<IEnumerable<Post>> GetUserPostsAsync(string userId)
-        {
+                {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new ArgumentNullException(nameof(userId));
 
             return await _postRepo.GetByUserIdAsync(userId);
-        }
+                }
 
         public async Task<int> GetUserPostCountAsync(string userId)
         {
@@ -68,7 +71,7 @@ namespace LinkifyBLL.Services.Implementation
                 throw new ArgumentNullException(nameof(userId));
 
             return await _postRepo.GetPostCountAsync(userId);
-        }
+            }
 
         public async Task<IEnumerable<Post>> GetRecentPostsAsync(int count = 10)
         {
@@ -82,7 +85,7 @@ namespace LinkifyBLL.Services.Implementation
         {
             return await _postRepo.GetPopularPostsAsync(since);
         }
-
+        
         public async Task<bool> IsPostOwnerAsync(int postId, string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))

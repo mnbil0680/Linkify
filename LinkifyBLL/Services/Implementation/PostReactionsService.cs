@@ -2,6 +2,7 @@
 using LinkifyDAL.Entities;
 using LinkifyDAL.Enums;
 using LinkifyDAL.Repo.Abstraction;
+using LinkifyDAL.Repo.Implementation;
 
 namespace LinkifyBLL.Services.Implementation
 {
@@ -42,6 +43,25 @@ namespace LinkifyBLL.Services.Implementation
                 // Add new reaction
                 await _repository.AddReactionAsync(new PostReactions(reactionType, userId, postId));
             }
+        }
+
+        public async Task<IEnumerable<PostReactions>> GetReactionsByPostAsync(int postId, bool includeDeleted = false)
+        {
+            if (postId <= 0)
+                throw new ArgumentException("Invalid Post ID", nameof(postId));
+            return await _repository.GetReactionsByPostAsync(postId, includeDeleted);
+        }
+        public async Task<IEnumerable<PostReactions>> GetReactionsByUserAsync(string userId, bool includeDeleted = false)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new ArgumentNullException(nameof(userId));
+            return await _repository.GetReactionsByUserAsync(userId, includeDeleted);
+        }
+        public async Task<int> GetReactionCountAsync(int postId, ReactionTypes? type = null)
+        {
+            if (postId <= 0)
+                throw new ArgumentException("Invalid Post ID");
+            return await _repository.GetReactionCountAsync(postId, type);
         }
     }
 }

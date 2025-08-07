@@ -133,16 +133,14 @@ html {
 }
 
 .logo {
-    width: 45px;
     height: 45px;
-    background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
-    border-radius: 12px;
+    background: linear-gradient(135deg, var(--primary-blue), #000000);
+    border-radius: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 20px;
-    font-weight: bold;
+
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;

@@ -2,3 +2,78 @@
     ViewData["Title"] = "Home Page";
     Layout = "~/Views/Shared/_HomeLayout.cshtml";
 }
+@*
+@model IEnumerable<LinkifyBLL.ModelView.PostMV>
+@foreach (var post in Model)
+{
+    <div class="post-card">
+        <div class="post-header">
+            <img src="@post.UserAvatar" class="avatar" />
+            <div>
+                <strong>@post.UserName</strong>
+                <p>@post.CreatedAt.ToString("g")</p>
+            </div>
+        </div>
+
+        <div class="post-content">
+            <p>@post.TextContent</p>
+            @if (post.Images != null && post.Images.Any())
+            {
+                <div class="post-images">
+                    @foreach (var img in post.Images)
+                    {
+                        <img src="@img" alt="Post image" />
+                    }
+                </div>
+            }
+        </div>
+
+       @*  <div class="post-reactions">
+            <button class="reaction-btn" data-reaction="Like" data-post-id="@post.Id">👍 <span id="like-count-@post.Id">@post.LikeCount</span></button>
+            <button class="reaction-btn" data-reaction="Love" data-post-id="@post.Id">❤️ <span id="love-count-@post.Id">@post.LoveCount</span></button>
+            <button class="reaction-btn" data-reaction="Laugh" data-post-id="@post.Id">😂 <span id="laugh-count-@post.Id">@post.LaughCount</span></button>
+            <button class="reaction-btn" data-reaction="Sad" data-post-id="@post.Id">😂 <span id="Sad-count-@post.Id">@post.SadCount</span></button>
+
+        </div> 
+    </div>
+}
+
+
+<style>
+    .post-card {
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        background: #fff;
+    }
+
+    .post-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+    }
+
+    .post-images img {
+        width: 100%;
+        max-height: 300px;
+        object-fit: cover;
+        margin-top: 10px;
+        border-radius: 8px;
+    }
+
+    .reaction-btn {
+        margin-right: 10px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.2rem;
+    }
+
+</style>*@

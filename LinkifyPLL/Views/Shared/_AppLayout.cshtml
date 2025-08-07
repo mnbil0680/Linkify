@@ -35,9 +35,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-
-
-
     <!-- Stylesheets -->
     <link href="~/css/Home/all.min.css">
     <link href="~/css/Home/style.css" rel="stylesheet">
@@ -46,17 +43,16 @@
 
 
 
+    @await RenderSectionAsync("style", required: false);
 
-    <!-- Preload Critical Resources -->
-    <link rel="preload" href="~/css/Home/style.css" as="style">
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style">
 </head>
 
-
 <body>
     <partial name="_NavPartial.cshtml">
-
+        <div class="main-container">
 @RenderBody()
+        </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -92,7 +88,9 @@
             }
         });
     </script>
-
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" crossorigin="anonymous"></script>
+        <script src="~/js/Home/script.js"></script>
+        <script src="~/js/Home/script2.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

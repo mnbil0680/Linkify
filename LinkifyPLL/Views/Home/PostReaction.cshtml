@@ -1,0 +1,62 @@
+﻿@* @model int // PostId
+
+<div class="reactions-bar" data-post-id="@Model">
+    <button class="reaction-btn" data-reaction="Like">👍 <span class="count" id="like-count-@Model">0</span></button>
+    <button class="reaction-btn" data-reaction="Love">❤️ <span class="count" id="love-count-@Model">0</span></button>
+    <button class="reaction-btn" data-reaction="Laugh">😂 <span class="count" id="laugh-count-@Model">0</span></button>
+</div>
+
+
+<style>
+    .reactions-bar {
+        display: flex;
+        gap: 10px;
+        margin-top: 8px;
+    }
+
+    .reaction-btn {
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: transform 0.1s;
+    }
+
+    .reaction-btn:hover {
+         transform: scale(1.1);
+    }
+
+</style>
+
+<script>
+    document.querySelectorAll('.reaction-btn').forEach(button => {
+        button.addEventListener('click', async () => {
+            const postId = button.closest('.reactions-bar').dataset.postId;
+            const reaction = button.dataset.reaction;
+
+            const response = await fetch('/Post/React', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ postId, reaction })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // Update counts (simplified example)
+                document.getElementById(`like-count-${postId}`).textContent = data.likeCount;
+                document.getElementById(`love-count-${postId}`).textContent = data.loveCount;
+                document.getElementById(`laugh-count-${postId}`).textContent = data.laughCount;
+            } else {
+                alert('Failed to react.');
+            }
+        });
+    });
+</script>
+
+ *@
