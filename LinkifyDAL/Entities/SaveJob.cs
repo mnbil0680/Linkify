@@ -1,7 +1,6 @@
 ﻿namespace LinkifyDAL.Entities
 {
-    public class ReplyReaction
+    public class SaveJob
     {
-
     }
 }

@@ -24,9 +24,10 @@ namespace LinkifyDAL.Entities
 
         [ForeignKey(nameof(UserId))]
         public User User { get; private set; }
-        public Post(string TextContent)
+        public Post(string TextContent, string UserId)
         {
             this.TextContent = TextContent;
+            this.UserId = UserId;
         }
         public void Edit(string textContent)
         {

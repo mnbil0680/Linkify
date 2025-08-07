@@ -13,7 +13,9 @@ namespace LinkifyDAL.DataBase
         public DbSet<PostReactions> PostReactions { get; set; }
         public DbSet<PostImages> PostImages { get; set; }
         public DbSet<PostComments> PostComments { get; set; }
+        public DbSet<SavePost> SavePosts { get; set; }
+        public DbSet<SharePost> SharePosts { get; set; }
         public DbSet<Contact> Contacts { get; set; }
-
+        public DbSet<Job> Jobs { get; set; }
     }
 }
