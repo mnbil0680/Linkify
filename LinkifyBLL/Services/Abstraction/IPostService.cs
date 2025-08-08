@@ -15,3 +15,4 @@ namespace LinkifyBLL.Services.Abstraction
         Task<bool> IsPostOwnerAsync(int postId, string userId);
     }
 }
+

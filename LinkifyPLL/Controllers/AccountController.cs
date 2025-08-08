@@ -61,14 +61,12 @@ namespace LinkifyPLL.Controllers
 
             var user = await IUS.GetUserByIdAsync(UserId);
 
-
-            var profileMV = MapUserToProfileMV(user);
+            var profileMV =  await MapUserToProfileMV(user); // Added await
             return View("index", profileMV);
-
         }
 
         // Manual Mapping
-        private ProfileMV MapUserToProfileMV(User user)
+        private async Task<ProfileMV> MapUserToProfileMV(User user)
         {
             return new ProfileMV
             {
@@ -103,7 +101,7 @@ namespace LinkifyPLL.Controllers
 
                 // Stats - set to 0 (you can calculate these later)
                 ConnectionsCount = IFS.GetFriendCount(user.Id),
-                PostsCount = await IPS.GetUserPostCountAsync(user.Id),
+                PostsCount =  await IPS.GetUserPostCountAsync(user.Id),
                 ProfileViews = 0,
                 LikesCount = 0,
                 CommentsCount = 0,

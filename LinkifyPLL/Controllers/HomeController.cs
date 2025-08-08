@@ -1,5 +1,6 @@
 using LinkifyBLL.ModelView;
 using LinkifyBLL.Services.Abstraction;
+using LinkifyDAL.Entities;
 using LinkifyPLL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -15,13 +16,21 @@ namespace LinkifyPLL.Controllers
         public readonly IUserService IUS;
         private readonly ILogger<HomeController> _logger;
         public readonly IFriendsService _IFS;
-        public HomeController(ILogger<HomeController> logger, IFriendsService ifs)
+        public readonly IPostService IPS;
+        public readonly IPostCommentsService IPCS;
+        public readonly IPostImagesService IPIS;
+        public readonly IPostReactionsService IPRS;
+        public HomeController(ILogger<HomeController> logger, IFriendsService ifs, IPostService ips, IPostCommentsService ipcs, IPostImagesService ipis, IPostReactionsService iprs)
         {
             _logger = logger;
             this._IFS = ifs;
+            this.IPS = ips;
+            this.IPCS = ipcs;
+            this.IPIS = ipis;
+            this.IPRS = iprs;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             // Create UserMV from Identity claims
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -37,8 +46,32 @@ namespace LinkifyPLL.Controllers
                 status: null   // You might want to get this from database
             );
 
+            // Fetch posts and related data asynchronously
+            var posts = (await IPS.GetRecentPostsAsync()).ToList();
+            var postImages = IPIS.GetImageByPostIdAsync(postID)
+            var comments = IPCS.GetCommentsForPostAsync(PostId);
+            var reactions = IPRS.
+            var shares = new List<SharePost>(); // Populate as needed
 
-            return View(userMV);
+            var homeMV = MapHomeModelView(posts, postImages, comments, reactions, shares);
+            return View(homeMV);
+        }
+
+        public HomeMV MapHomeModelView(
+            List<Post> posts,
+            List<PostImages> postImages,
+            List<PostComments> comments,
+            List<PostReactions> reactions,
+            List<SharePost> shares)
+        {
+            return new HomeMV
+            {
+                Posts = posts,
+                PostImages = postImages,
+                PostComments = comments,
+                PostReactions = reactions,
+                SharePosts = shares
+            };
         }
 
         public IActionResult Privacy()
