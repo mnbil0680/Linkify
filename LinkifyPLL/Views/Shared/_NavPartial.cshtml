@@ -5,7 +5,8 @@
     var userName = User.Identity?.Name;
     var userEmail = User.FindFirstValue(ClaimTypes.Email);
     // Assume image path is in the model
-    var userImage = Model?.ImgPath ?? "/imgs/Account/default.png";
+    //var userImage = Model?.ImgPath ?? "/imgs/Account/default.png";
+    var userImage = ViewBag.UserImage as string ?? "/imgs/Account/default.png";
 }
   <!-- Top Navigation Bar -->
 
