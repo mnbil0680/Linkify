@@ -15,6 +15,13 @@ namespace LinkifyBLL.ModelView
         public DateTime CreatedAt { get; set; }
         public List<string> Images { get; set; }
 
+        // Begin::Mohamed Nabil Editing
+
+        //additional Properties
+        public List<string> Tags { get; set; }
+        public List<CommentCreateMV> Comments;
+        // End::Mohamed Nabil Editing 
+
         //no of reactions 
         public int ReactionCount { get; set; }
         public int LikeCount { get; set; }
