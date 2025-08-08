@@ -23,6 +23,11 @@ namespace LinkifyPLL.Controllers
             return View();
         }
 
+        public IActionResult User()
+        {
+            return View();
+        }
+
         [HttpGet]
         public IActionResult Login()
         {
