@@ -45,6 +45,13 @@ namespace LinkifyBLL.Services.Implementation
 
             return await _userRepo.ChangeUserPasswordAsync(user, oldPassword, newPassword);
         }
+    
+
+
+        public Task<User> GetUserByIdAsync(string userId)
+        {
+            return _userRepo.GetUserByIdAsync(userId);
+        }
     }
 }
 

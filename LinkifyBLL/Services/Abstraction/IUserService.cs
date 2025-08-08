@@ -10,5 +10,7 @@ namespace LinkifyBLL.Services.Abstraction
         Task<bool> UpdateUserAsync(UserMV oldUser, UserMV newUser);
         Task<bool> ChangeUserPasswordAsync(UserMV user, string oldPassword, string newPassword);
 
+        Task<User> GetUserByIdAsync(string userId);
+
     }
 }
