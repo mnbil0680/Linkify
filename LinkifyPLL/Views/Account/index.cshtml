@@ -970,10 +970,7 @@
         </div>
     </div>
 
-    <!-- Theme Toggle -->
-    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">
-        <i class="fas fa-moon" id="theme-icon"></i>
-    </button>
+
 
     <!-- Profile Content -->
     <div class="profile-content">
@@ -1442,7 +1439,7 @@
                                 <div style="color: var(--dark-gray); font-size: 0.9rem; margin-bottom: 15px;">
                                     <i class="fa fa-envelope" aria-hidden="true"></i>@connection.Addressee.Email
                                 </div>
-                                <a href="/Account/User?id=@connection.Addressee.Id" class="social-link" style="padding: 8px 20px; font-size: 0.9rem;">
+                                <a asp-controller="Account" asp-action="User" asp-route-UserId="@connection.Addressee.Id" class="social-link" style="padding: 8px 20px; font-size: 0.9rem;">
                                     View Profile
                                 </a>
                             </div>

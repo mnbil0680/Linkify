@@ -11,12 +11,16 @@ namespace LinkifyPLL.Controllers
     {
         public readonly IUserService IUS;
         private readonly IAuthenticationService _authService;
+        private readonly IFriendsService IFS;
+        private readonly IPostService IPS;
 
         // Constructor to initialize IUserService
-        public AccountController(IUserService ius, IAuthenticationService authService)
+        public AccountController(IUserService ius, IAuthenticationService authService, IFriendsService ifs, IPostService ips)
         {
             this.IUS = ius;
             this._authService = authService;
+            this.IFS = ifs;
+            this.IPS = ips;
         }
 
         [Authorize]
@@ -28,6 +32,7 @@ namespace LinkifyPLL.Controllers
             // May be 404 Page
             if (string.IsNullOrEmpty(userId))
             {
+               
                 return RedirectToAction("Login");
             }
 
@@ -42,9 +47,27 @@ namespace LinkifyPLL.Controllers
             // Map User entity to ProfileMV
             var profileMV = MapUserToProfileMV(user);
 
+
             return View(profileMV);
         }
 
+        public async Task<IActionResult> User(string UserId)
+        {
+            // May be 404 Page
+            if (string.IsNullOrEmpty(UserId))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var user = await IUS.GetUserByIdAsync(UserId);
+
+
+            var profileMV = MapUserToProfileMV(user);
+            return View("index", profileMV);
+
+        }
+
+        // Manual Mapping
         private ProfileMV MapUserToProfileMV(User user)
         {
             return new ProfileMV
@@ -68,18 +91,8 @@ namespace LinkifyPLL.Controllers
 
                 // Social Links - all null (not in User entity)
                 LinkedInUrl = null,
-                TwitterUrl = null,
                 GitHubUrl = null,
                 PortfolioUrl = null,
-                InstagramUrl = null,
-                FacebookUrl = null,
-                YouTubeUrl = null,
-                TikTokUrl = null,
-                MediumUrl = null,
-                DevToUrl = null,
-                StackOverflowUrl = null,
-                BehanceUrl = null,
-                DribbbleUrl = null,
 
                 // Professional Details - defaults
                 YearsOfExperience = null,
@@ -89,8 +102,8 @@ namespace LinkifyPLL.Controllers
                 IsPremiumMember = false, // default
 
                 // Stats - set to 0 (you can calculate these later)
-                ConnectionsCount = 0,
-                PostsCount = 0,
+                ConnectionsCount = IFS.GetFriendCount(user.Id),
+                PostsCount = await IPS.GetUserPostCountAsync(user.Id),
                 ProfileViews = 0,
                 LikesCount = 0,
                 CommentsCount = 0,
@@ -106,14 +119,12 @@ namespace LinkifyPLL.Controllers
                 Courses = new List<CourseMV>(),
                 Projects = new List<ProjectItemMV>(),
                 Posts = new List<PostMV>(),
-                Connections = new List<Friends>()
+
+
+                Connections = IFS.GetFriends(user.Id).ToList()
             };
         }
 
-        public IActionResult User()
-        {
-            return View();
-        }
 
         [HttpGet]
         public IActionResult Login()
