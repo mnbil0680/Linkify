@@ -66,6 +66,17 @@ namespace LinkifyDAL.Repo.Implementation
 
             _db.SaveChanges();
         }
+        public void UnblockUser(string blockerId, string blockedId)
+        {
+            var relationship = _db.Friends
+                .FirstOrDefault(f =>
+                    (f.RequesterId == blockerId && f.AddresseeId == blockedId) ||
+                    (f.RequesterId == blockedId && f.AddresseeId == blockerId));
+            if (relationship == null || relationship.Status != FriendStatus.Blocked)
+                throw new KeyNotFoundException("No blocked relationship found");
+            relationship.EditStatus(FriendStatus.None);
+            _db.SaveChanges();
+        }
 
         public void DeclineFriendRequest(string requesterId, string addresseeId)
         {
@@ -151,7 +162,7 @@ namespace LinkifyDAL.Repo.Implementation
         {
             return _db.Friends
             .Where(f => f.AddresseeId == userId && f.Status == FriendStatus.Pending)
-            .Include(f => f.Requester)
+            .Include(f => f.Addressee)
             .ToList();
         }
 

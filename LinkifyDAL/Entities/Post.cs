@@ -24,7 +24,7 @@ namespace LinkifyDAL.Entities
 
         [ForeignKey(nameof(UserId))]
         public User User { get; private set; }
-
+        
         public void Edit(string textContent)
         {
             this.TextContent = textContent;

@@ -11,6 +11,7 @@ namespace LinkifyDAL.Repo.Abstraction
         void DeclineFriendRequest(string requesterId, string addresseeId);
         void CancelFriendRequest(string requesterId, string addresseeId);
         void BlockUser(string blockerId, string blockedId);
+        void UnblockUser(string blockerId, string blockedId);
         void Unfriend(string userId1, string userId2);
         int GetFriendCount(string userId);
         int GetPendingRequestCount(string userId);

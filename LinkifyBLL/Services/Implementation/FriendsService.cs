@@ -34,6 +34,10 @@ namespace LinkifyBLL.Services.Implementation
         {
             _IFR.BlockUser(blockerId, blockedId);
         }
+        public void UnblockUser(string blockerId, string blockedId)
+        {
+            _IFR.UnblockUser(blockerId, blockedId);
+        }
 
         public void CancelFriendRequest(string requesterId, string addresseeId)
         {
