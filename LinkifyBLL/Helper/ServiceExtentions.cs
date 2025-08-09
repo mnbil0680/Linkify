@@ -64,6 +64,7 @@ namespace LinkifyBLL.Helper
             services.AddScoped<IJobRepository, JobRepository>();
             services.AddScoped<IJobApplicationService, JobApplicationService>();
             services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
+            services.AddScoped<IEmailService, EmailService>();
         }
     }
 }

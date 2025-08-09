@@ -13,14 +13,16 @@ namespace LinkifyPLL.Controllers
         private readonly IAuthenticationService _authService;
         private readonly IFriendsService IFS;
         private readonly IPostService IPS;
+        private readonly IEmailService IES;
 
         // Constructor to initialize IUserService
-        public AccountController(IUserService ius, IAuthenticationService authService, IFriendsService ifs, IPostService ips)
+        public AccountController(IUserService ius, IAuthenticationService authService, IFriendsService ifs, IPostService ips, IEmailService ies)
         {
             this.IUS = ius;
             this._authService = authService;
             this.IFS = ifs;
             this.IPS = ips;
+            this.IES = ies;
         }
 
         [Authorize]
@@ -178,6 +180,8 @@ namespace LinkifyPLL.Controllers
 
         public IActionResult SuccessfulRegister(UserRegisterMV model)
         {
+            //
+
             return View("SuccessfulRegister", model);
 
         }

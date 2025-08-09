@@ -47,11 +47,11 @@ namespace LinkifyPLL.Controllers
             );
 
             // Fetch posts and related data asynchronously
-            var posts = (await IPS.GetRecentPostsAsync()).ToList();
-            var postImages = IPIS.GetImageByPostIdAsync(postID)
-            var comments = IPCS.GetCommentsForPostAsync(PostId);
-            var reactions = IPRS.
-            var shares = new List<SharePost>(); // Populate as needed
+            //var posts = (await IPS.GetRecentPostsAsync()).ToList();
+            //var postImages = IPIS.GetImageByPostIdAsync(postID)
+            //var comments = IPCS.GetCommentsForPostAsync(PostId);
+            //var reactions = IPRS.
+            //var shares = new List<SharePost>(); // Populate as needed
 
             var homeMV = MapHomeModelView(posts, postImages, comments, reactions, shares);
             return View(homeMV);
