@@ -8,6 +8,6 @@ namespace LinkifyBLL.Services.Abstraction
 {
     public interface IEmailService
     {
-        Task SendEmail(string Receiver, string EmailSubject, string EmailBody);
+        public Task SendEmail(string Receiver, string EmailSubject, string EmailBody="");
     }
 }

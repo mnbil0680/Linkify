@@ -21,7 +21,7 @@ namespace LinkifyBLL.Services.Implementation
             _password = config["EMAIL_CONFIGURATION:PASSWORD"];
         }
 
-        public async Task SendEmail(string Receiver, string EmailSubject, string EmailBody)
+        public async Task SendEmail(string Receiver, string EmailSubject, string EmailBody ="")
         {
             if (string.IsNullOrEmpty(_email))
                 throw new ArgumentNullException(nameof(_email), "Sender email is not configured.");
