@@ -14,7 +14,7 @@ namespace LinkifyPLL.Controllers
         public IActionResult Index()
         {
             string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var allFriends = _IFS.GetFriends(id).ToList();
+            var allFriends = _IFS.GetFriendsAsync(id).Result.ToList();
             return View(allFriends);
         }
         [HttpPost]
@@ -26,7 +26,7 @@ namespace LinkifyPLL.Controllers
                 return BadRequest("You cannot send a friend request to yourself.");
             }
 
-            _IFS.AddFriendRequest(requesterId, id);
+            _IFS.AddFriendRequestAsync(requesterId, id);
             return Ok(); //AJAX call success
         }
     }

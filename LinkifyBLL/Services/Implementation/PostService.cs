@@ -2,8 +2,6 @@
 using LinkifyBLL.Services.Abstraction;
 using LinkifyDAL.Entities;
 using LinkifyDAL.Repo.Abstraction;
-using Microsoft.AspNetCore.Http;
-using SempaBLL.Helper;
 
 namespace LinkifyBLL.Services.Implementation
 {

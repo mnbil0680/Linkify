@@ -33,7 +33,7 @@ namespace LinkifyDAL.Entities
                 throw new InvalidOperationException("Cannot modify archived applications");
 
             Status = newStatus;
-            UpdatedOn = DateTime.UtcNow;
+            UpdatedOn = DateTime.Now;
         }
         public void UpdateCoverLetter(string newCoverLetter)
         {
