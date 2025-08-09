@@ -64,6 +64,11 @@ namespace LinkifyBLL.Helper
             services.AddScoped<IJobRepository, JobRepository>();
             services.AddScoped<IJobApplicationService, JobApplicationService>();
             services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
+            services.AddScoped<ISaveJobService, SaveJobService>();
+            services.AddScoped<ISaveJobRepository, SaveJobRepository>();
+            services.AddScoped<ICommentReactionsService, CommentReactionsService>();
+            services.AddScoped<ICommentReactionsRepository, CommentReactionsRepository>();
+
         }
     }
 }

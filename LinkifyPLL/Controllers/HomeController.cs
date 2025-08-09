@@ -2,7 +2,6 @@ using LinkifyBLL.ModelView;
 using LinkifyBLL.Services.Abstraction;
 using LinkifyPLL.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Security.Claims;
@@ -54,14 +53,14 @@ namespace LinkifyPLL.Controllers
 
         public IActionResult People()
         {
-            var users = _IFS.GetAllUsers().ToList();
+            var users = _IFS.GetAllUsersAsync().Result.ToList();
             return View(users);
         }
 
         public IActionResult PeopleYouMayKnow()
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var peopleYouMayKnow = _IFS.GetPeopleYouMayKnow(currentUserId).ToList();
+            var peopleYouMayKnow = _IFS.GetPeopleYouMayKnowAsync(currentUserId).Result.ToList();
             return View(peopleYouMayKnow);
         }
 
@@ -75,7 +74,7 @@ namespace LinkifyPLL.Controllers
         public IActionResult MyConnections()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var poepleList = _IFS.MyConnections(userId);
+            var poepleList = _IFS.GetFriendsAsync(userId);
             return View(poepleList); 
         }
     }

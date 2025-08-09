@@ -1,5 +1,6 @@
 ﻿using LinkifyBLL.ModelView;
 using LinkifyBLL.Services.Abstraction;
+using LinkifyDAL.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -56,8 +57,9 @@ namespace LinkifyPLL.Controllers
                 return View(model);
             }
 
-            var result = await IUS.RegisterUserAsync(model, model.Password);
-            if (!result)
+            User us = new User(model.Name, model.Email, null, null, null, null, null);
+            var result = await IUS.RegisterUserAsync(us, model.Password);
+            if (!result.Succeeded)
             {
                 ModelState.AddModelError("", "Signup failed. Please try again.");
                 return View(model);

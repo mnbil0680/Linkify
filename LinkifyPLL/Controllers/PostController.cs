@@ -37,7 +37,7 @@ namespace LinkifyPLL.Controllers
                 return RedirectToAction("Index", "Home");
 
             var user = await _userManager.GetUserAsync(User);
-            await _postService.CreatePostAsync(user.Id, model.TextContent,model.Images );
+            await _postService.CreatePostAsync(user.Id, model.TextContent);
             return RedirectToAction("Home");
         }
 

@@ -11,16 +11,6 @@ namespace LinkifyDAL.Entities
         public DateTime? UpdatedOn { get; private set; }
         public DateTime? DeletedOn { get; private set; }
         public string UserId { get; private set; }
-        public List<PostReactions>? Reactions { get; private set; }
-        public List<PostImages>? Images { get; private set; }
-        public List<PostComments>? Comments { get; private set; }
-
-        public Post(string textContent, string userId)
-        {
-            this.TextContent = textContent;
-            this.UserId = userId;
-            CreatedOn = DateTime.Now;
-        }
 
         [ForeignKey(nameof(UserId))]
         public User User { get; private set; }
