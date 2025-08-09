@@ -88,8 +88,7 @@ namespace LinkifyBLL.Services.Implementation
             if (string.IsNullOrWhiteSpace(userId)) return false;
             return await _userRepository.UserExistsAsync(userId);
         }
-    
-
+   
     }
 }
 

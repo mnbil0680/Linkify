@@ -1,4 +1,10 @@
-﻿@model List<ManageUser>
+﻿@using System.Security.Claims
+@model List<ManageUser>
+@{
+    ViewData["Title"] = "Friends List";
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    
+}
 
 @if (Model != null && Model.Any())
 {
@@ -31,40 +37,35 @@
                     {
                         <small class="text-muted">
                             <i class="fas fa-calendar-alt me-1"></i>
-                            Friends since @friend.Since.Value.ToString("MMM dd, yyyy")
+                            Friends since @friend.Since.Value.ToString("MM, dd, yyyy")
                         </small>
                     }
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="flex-shrink-0">
-                    <div class="btn-group" role="group">
-                        <button type="button"
-                                class="btn btn-outline-primary btn-sm"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="View Profile"
-                                onclick="viewProfile('@friend.UserId')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button type="button"
-                                class="btn btn-outline-secondary btn-sm"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="Send Message"
-                                onclick="sendMessage('@friend.UserId')">
-                            <i class="fas fa-envelope"></i>
-                        </button>
-                        <button type="button"
-                                class="btn btn-outline-danger btn-sm"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="Unfriend"
-                                onclick="unfriend('@friend.UserId', '@friend.FullName')">
-                            <i class="fas fa-user-times"></i>
-                        </button>
+                    <div class="d-flex flex-column gap-2">
+                        <!-- View Profile Button -->
+                        <a href="/Profile/Details/@friend.UserId" class="btn btn-primary btn-lg w-100" style="min-width: 120px;">
+                            <i class="fas fa-eye me-2"></i>View Profile
+                        </a>
+
+                        <!-- Send Message Button -->
+                        <a href="/Messages/Compose?to=@friend.UserId" class="btn btn-info btn-lg w-100" style="min-width: 120px;">
+                            <i class="fas fa-envelope me-2"></i>Message
+                        </a>
+
+                        <!-- Unfriend Button -->
+                        <form asp-controller="ManageNetwork" asp-action="Unfriend" method="post" style="display:inline;">
+                            <input type="hidden" name="userId" value="@friend.UserId" />
+                            <button type="submit" class="btn btn-outline-danger btn-lg w-100" style="min-width: 120px;"
+                                    onclick="return confirm('Are you sure you want to unfriend @friend.FullName?')">
+                                <i class="fas fa-user-times me-2"></i>Unfriend
+                            </button>
+                        </form>
                     </div>
                 </div>
+
             </div>
         }
     </div>
@@ -99,6 +100,14 @@ else
                 });
         }
     }
+
+    $(document).ready(function() {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
 </script>
 
 <style>

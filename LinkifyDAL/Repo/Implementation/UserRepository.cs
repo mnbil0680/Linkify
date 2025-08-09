@@ -95,6 +95,22 @@ namespace LinkifyDAL.Repo.Implementation
             return (await _userManager.FindByIdAsync(userId)) != null;
         }
 
+        public async Task<User> GetUserByIdAsync(string userId)
+        {
+            return await _db.User.FirstOrDefaultAsync(user => user.Id == userId);
+           
+        }
 
+        public async Task<User> GetUserByIdAsync(string userId)
+        {
+            return await _db.User.FirstOrDefaultAsync(user => user.Id == userId);
+           
+        }
+
+        public async Task<User> GetUserByIdAsync(string userId)
+        {
+            return await _db.User.FirstOrDefaultAsync(user => user.Id == userId);
+           
+        }
     }
 }

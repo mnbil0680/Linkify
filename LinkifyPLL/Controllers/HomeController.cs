@@ -129,5 +129,22 @@ namespace LinkifyPLL.Controllers
             var poepleList = await _IFS.GetFriendsAsync(userId);
             return View(poepleList); 
         }
+
+        public async Task <IActionResult> Invitation()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var pendingRequests = await _IFS.GetPendingRequestsAsync(userId);
+            var model = pendingRequests
+                .Where(pr => pr.Requester != null )
+                .Select(pr => new ManageUser
+            {
+                UserId = pr.RequesterId,
+                FullName = pr.Requester.UserName,
+                AvatarUrl = pr.Requester.ImgPath,
+                Status = FriendStatus.Pending,
+                Since = pr.RequestDate
+            }).ToList();
+            return View(model);
+        }
     }
 }

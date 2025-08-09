@@ -30,7 +30,7 @@ namespace LinkifyBLL.Services.Implementation
             if (string.IsNullOrWhiteSpace(textContent))
                 throw new ArgumentNullException(nameof(textContent));
 
-            var post = new Post(textContent, userId);
+            var post = new Post();
             return await _postRepo.CreateAsync(post);
         }
 
