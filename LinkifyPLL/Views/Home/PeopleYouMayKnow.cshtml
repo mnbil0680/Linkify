@@ -4,27 +4,140 @@
     var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
     ViewData["Title"] = "People You May Know";
     Layout = "~/Views/Shared/_AppLayout.cshtml";
-    
-    
 }
 
 <link rel="stylesheet" href="~/css/people.css" />
 
+<style>
+    .people-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        padding: 1.5rem 0 0.5rem 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .people-header h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #0a66c2;
+        margin-bottom: 0;
+    }
+    .people-header .search-box {
+        position: relative;
+        min-width: 260px;
+    }
+    .people-header .search-input {
+        padding: 10px 12px 10px 38px;
+        border-radius: 25px;
+        border: 1px solid #e0e0e0;
+        font-size: 1rem;
+        width: 100%;
+        transition: border-color 0.2s;
+    }
+    .people-header .search-input:focus {
+        border-color: #0a66c2;
+    }
+    .people-header .search-box i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #888;
+        font-size: 1.1rem;
+    }
+    .people-card .card-img-container {
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    .people-card .card-body {
+        text-align: center;
+        padding-bottom: 0.5rem;
+    }
+    .people-card .card-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #191919;
+        margin-bottom: 0.25rem;
+    }
+    .people-card .text-muted {
+        font-size: 0.95rem;
+        margin-bottom: 0.25rem;
+    }
+    .people-card .mutual-friends {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+    .people-card .card-footer {
+        background: #f8f8f8;
+        border-top: 1px solid #e0e0e0;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        display: flex;
+        gap: 0.5rem;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+    }
+    .people-card .btn-connect {
+        font-weight: 600;
+        border-radius: 25px;
+        font-size: 0.98rem;
+        box-shadow: 0 2px 8px rgba(10,102,194,0.08);
+    }
+    .people-card .btn-view-profile {
+        border-radius: 25px;
+        font-size: 0.98rem;
+    }
+    .no-image-placeholder {
+        border-radius: 50%;
+        width: 120px;
+        height: 120px;
+        margin: 0 auto;
+        background: linear-gradient(135deg, #e0e0e0 0%, #f3f3f3 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #bbb;
+        font-size: 3rem;
+    }
+    @@media (max-width: 768px) {
+        .people-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        .no-image-placeholder {
+            width: 80px;
+            height: 80px;
+            font-size: 2rem;
+        }
+    }
+</style>
+
 <div class="container mt-4">
-    <h2 class="mb-4">People You May Know</h2>
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    <div class="people-header">
+        <h2>People You May Know</h2>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" class="search-input" id="peopleSearchInput" placeholder="Search people..." autocomplete="off" />
+        </div>
+    </div>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="peopleContainer">
         @foreach (var user in Model)
         {
             if (user == null)
             {
                 continue; // skip null users
             }
-            <div class="col">
+            <div class="col people-item" data-name="@user.Name.ToLower()">
                 <div class="card h-100 people-card shadow-sm">
-                    <div class="card-img-container">
+                    <div class="card-img-container d-flex justify-content-center align-items-center" style="height: 180px;">
                         @if (!string.IsNullOrEmpty(user.ImgPath))
                         {
-                            <img src="@user.ImgPath" class="card-img-top" alt="@user.Name">
+                            <img src="@user.ImgPath" class="card-img-top" alt="@user.Name" style="width:120px;height:120px;border-radius:50%;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
                         }
                         else
                         {
@@ -40,7 +153,6 @@
                             <p class="text-muted mb-0">@user.Status</p>
                         }
                     </div>
-                    
                     @if (user.MutualFriendsCount > 0)
                     {
                         <div class="mutual-friends">
@@ -48,7 +160,6 @@
                             @user.MutualFriendsCount mutual connection@(user.MutualFriendsCount == 1 ? "" : "s")
                         </div>
                     }
-
                     <div class="card-footer d-flex gap-2 justify-content-between">
                         <button class="btn btn-connect add-friend-btn flex-grow-1" data-user-id="@user.Id">
                             <i class="fas fa-user-plus me-2"></i>Connect
@@ -66,15 +177,21 @@
 
 @section Scripts {
     <script>
+        // Search filter for people
+        $(document).on('input', '#peopleSearchInput', function () {
+            var searchTerm = $(this).val().toLowerCase();
+            $('.people-item').each(function () {
+                var name = $(this).data('name');
+                $(this).toggle(name.includes(searchTerm));
+            });
+        });
         $(document).on('click', '.add-friend-btn', function () {
             var button = $(this);
             var userId = button.data('user-id');
-
             button.prop('disabled', true)
                   .html('<i class="fas fa-spinner fa-spin me-2"></i>Connecting...');
-
             $.ajax({
-                url: '/Friends/AddFriend',
+                url: '/Friends/AddRequest',
                 type: 'POST',
                 data: { id: userId },
                 success: function () {

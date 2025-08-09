@@ -1,0 +1,263 @@
+﻿@model List<ManageUser>
+
+@if (Model != null && Model.Any())
+{
+    <div class="list-group list-group-flush">
+        @foreach (var friend in Model)
+        {
+            <div class="list-group-item d-flex align-items-center py-3">
+                <!-- Avatar -->
+                <div class="flex-shrink-0 me-3">
+                    @if (!string.IsNullOrEmpty(friend.AvatarUrl))
+                    {
+                        <img src="@friend.AvatarUrl"
+                             alt="@friend.FullName"
+                             class="rounded-circle"
+                             style="width: 50px; height: 50px; object-fit: cover;">
+                    }
+                    else
+                    {
+                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white"
+                             style="width: 50px; height: 50px; font-size: 1.2rem;">
+                            @friend.FullName.First()
+                        </div>
+                    }
+                </div>
+
+                <!-- User Info -->
+                <div class="flex-grow-1">
+                    <h6 class="mb-1 fw-bold">@friend.FullName</h6>
+                    @if (friend.Since.HasValue)
+                    {
+                        <small class="text-muted">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            Friends since @friend.Since.Value.ToString("MMM dd, yyyy")
+                        </small>
+                    }
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex-shrink-0">
+                    <div class="btn-group" role="group">
+                        <button type="button"
+                                class="btn btn-outline-primary btn-sm"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="View Profile"
+                                onclick="viewProfile('@friend.UserId')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-secondary btn-sm"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="Send Message"
+                                onclick="sendMessage('@friend.UserId')">
+                            <i class="fas fa-envelope"></i>
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-danger btn-sm"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="Unfriend"
+                                onclick="unfriend('@friend.UserId', '@friend.FullName')">
+                            <i class="fas fa-user-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="fas fa-user-friends fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">No Friends Yet</h5>
+        <p class="text-muted">Start connecting with people to build your network!</p>
+    </div>
+}
+
+<script>
+    function viewProfile(userId) {
+        window.location.href = '/Profile/Details/' + userId;
+    }
+
+    function sendMessage(userId) {
+        window.location.href = '/Messages/Compose?to=' + userId;
+    }
+
+    function unfriend(userId, userName) {
+        if (confirm('Are you sure you want to unfriend ' + userName + '?')) {
+            // Add AJAX call to unfriend action
+            $.post('/ManageNetwork/Unfriend', { userId: userId })
+                .done(function() {
+                    location.reload();
+                })
+                .fail(function() {
+                    alert('Failed to unfriend user. Please try again.');
+                });
+        }
+    }
+</script>
+
+<style>
+    /* ManageNetwork Custom Styles */
+
+    .nav-pills .nav-link {
+        border-radius: 25px;
+        margin: 0 5px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+        .nav-pills .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .nav-pills .nav-link.active {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+    .list-group-item {
+        border: none;
+        border-bottom: 1px solid #e9ecef;
+        transition: all 0.2s ease;
+    }
+
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .list-group-item:last-child {
+            border-bottom: none;
+        }
+
+    .btn-group .btn {
+        border-radius: 20px !important;
+        margin: 0 2px;
+        transition: all 0.2s ease;
+    }
+
+        .btn-group .btn:hover {
+            transform: scale(1.1);
+        }
+
+    .card {
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+        .card:hover {
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+        }
+
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+    }
+
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.5em 0.75em;
+    }
+
+    .toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1050;
+        min-width: 250px;
+    }
+
+    /* Avatar Animations */
+    .rounded-circle {
+        transition: all 0.3s ease;
+    }
+
+    .list-group-item:hover .rounded-circle {
+        transform: scale(1.05);
+    }
+
+    /* Loading States */
+    .btn-loading {
+        position: relative;
+        pointer-events: none;
+    }
+
+        .btn-loading:after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-left: -8px;
+            margin-top: -8px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: #ffffff;
+            animation: button-loading-spinner 1s linear infinite;
+        }
+
+    keyframes button-loading-spinner {
+        from
+
+    {
+        transform: rotate(0turn);
+    }
+
+    to {
+        transform: rotate(1turn);
+    }
+
+    }
+
+    /* Empty State Styling */
+    .text-center.py-5 {
+        padding: 3rem 1rem !important;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 10px;
+        margin: 1rem 0;
+    }
+
+        .text-center.py-5 i {
+            opacity: 0.6;
+        }
+
+    /* Responsive Design */
+    media (max-width: 768px) {
+        .nav-pills
+
+    {
+        flex-direction: column;
+    }
+
+    .nav-pills .nav-link {
+        margin: 5px 0;
+        text-align: center;
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+
+        .btn-group .btn {
+            margin: 2px 0;
+            border-radius: 5px !important;
+        }
+
+    .list-group-item {
+        flex-direction: column;
+        text-align: center;
+    }
+
+        .list-group-item .flex-shrink-0 {
+            margin: 0 0 15px 0 !important;
+        }
+
+    }
+</style>

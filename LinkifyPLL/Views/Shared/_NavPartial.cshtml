@@ -5,17 +5,26 @@
     var userName = User.Identity?.Name;
     var userEmail = User.FindFirstValue(ClaimTypes.Email);
     // Assume image path is in the model
-    var userImage = Model?.ImgPath ?? "/imgs/Account/default.png";
+    //var userImage = Model?.ImgPath ?? "/imgs/Account/default.png";
+    var userImage = ViewBag.UserImage as string ?? "/imgs/Account/default.png";
 }
   <!-- Top Navigation Bar -->
 
 <nav class="topbar" role="navigation" aria-label="Main navigation">
     <div class="nav-container">
         <div class="logo-section">
-            <div class="logo" role="img" aria-label="ProConnect logo">
-                <img src="~/imgs/Account/logo.png" alt="Alternate Text" class="img-fluid" style="max-height:40px;" />
-            </div>
-            <a href="#" class="brand-name" aria-label="Linkify home">Linkify</a>
+            <a href ="/Home/index">
+
+                 <div class="logo" role="img" aria-label="ProConnect logo">
+                        <img src="~/imgs/Account/logo.png" alt="Alternate Text" class="img-fluid" style="max-height:40px;" />
+                 </div>
+
+                            
+                <a class ="brand-name" style="cursor:pointer">
+                     Linkify
+                </a> 
+
+            </a>
         </div>
 
         <div class="search-container">

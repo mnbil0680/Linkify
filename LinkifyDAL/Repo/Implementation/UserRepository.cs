@@ -1,7 +1,9 @@
-﻿using LinkifyDAL.Entities;
+﻿using LinkifyDAL.DataBase;
+using LinkifyDAL.Entities;
 using LinkifyDAL.Enums;
 using LinkifyDAL.Repo.Abstraction;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
 namespace LinkifyDAL.Repo.Implementation
@@ -9,8 +11,9 @@ namespace LinkifyDAL.Repo.Implementation
     public class UserRepository : IUserRepository
     {
         private readonly UserManager<User> _userManager;
+        private readonly LinkifyDbContext _db;
 
-        public UserRepository(UserManager<User> userManager)
+        public UserRepository(UserManager<User> userManager, LinkifyDbContext db)
         {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
@@ -90,6 +93,14 @@ namespace LinkifyDAL.Repo.Implementation
         {
             if (string.IsNullOrWhiteSpace(userId)) return false;
             return (await _userManager.FindByIdAsync(userId)) != null;
+        }
+
+
+
+        public async Task<User> GetUserByIdAsync(string userId)
+        {
+            return await _db.User.FirstOrDefaultAsync(user => user.Id == userId);
+           
         }
     }
 }
