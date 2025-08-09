@@ -90,11 +90,6 @@ namespace LinkifyBLL.Services.Implementation
         }
     
 
-
-        public Task<User> GetUserByIdAsync(string userId)
-        {
-            return _userRepo.GetUserByIdAsync(userId);
-        }
     }
 }
 

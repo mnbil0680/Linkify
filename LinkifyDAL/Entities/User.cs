@@ -26,6 +26,7 @@ namespace LinkifyDAL.Entities
             this.Title = title;
             this.Bio = bio;
         }
+
         public void Edit(string? userName, string? imgPath, string? CVPath, string? title, string? bio)
         {
             if (userName != null)

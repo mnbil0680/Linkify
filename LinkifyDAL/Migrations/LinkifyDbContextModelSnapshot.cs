@@ -193,7 +193,7 @@ namespace LinkifyDAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Jobs");
+                    b.ToTable("Job");
                 });
 
             modelBuilder.Entity("LinkifyDAL.Entities.JobApplication", b =>

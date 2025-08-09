@@ -1,0 +1,25 @@
+﻿@model LinkifyPLL.Models.UserStatsVM
+
+<div class="user-stats-card">
+    <div class="stats-header">
+        <img src="@Model.User?.ImgPath ?? " /api/placeholder/50/50"" alt="@Model.User?.UserName" class="user-avatar">
+        <div class="user-info">
+            <h3>@Model.User?.UserName</h3>
+            <p>@Model.User?.Email</p>
+        </div>
+    </div>
+    <div class="stats-grid">
+        <div class="stat-item">
+            <span class="stat-number">@Model.Connections</span>
+            <span class="stat-label">Connections</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">@Model.Posts</span>
+            <span class="stat-label">Posts</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">@Model.Reactions</span>
+            <span class="stat-label">Reactions</span>
+        </div>
+    </div>
+</div>

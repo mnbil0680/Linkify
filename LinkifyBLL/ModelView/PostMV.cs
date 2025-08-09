@@ -8,19 +8,23 @@ namespace LinkifyBLL.ModelView
 {
     public class PostMV
     {
-        public int Id { get; set; }
+        public string PostUserName { get; set; }
+        public string PostUserTitle { get; set; }
+        public string PostUserImg { get; set; }
+
+
+
         public string TextContent { get; set; }
-        public string UserName { get; set; }
-        public string UserAvatar { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public TimeSpan Since { get; set; }
         public List<string> Images { get; set; }
+        public int imageCount { get; set; }
 
-        // Begin::Mohamed Nabil Editing
 
-        //additional Properties
-        public List<string> Tags { get; set; }
-        public List<CommentCreateMV> Comments;
-        // End::Mohamed Nabil Editing 
+
+        //public List<CommentCreateMV> Comments { get; set; }
+        public int CommentsCount { get; set; }
+
+        public int NumberOfShares { get; set; }
 
         //no of reactions 
         public int ReactionCount { get; set; }

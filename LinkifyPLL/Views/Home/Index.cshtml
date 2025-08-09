@@ -3,7 +3,7 @@
     Layout = "~/Views/Shared/_HomeLayout.cshtml";
 }
 
-
+@model List<PostMV>
 @section Styles{
     <style>
 
@@ -134,6 +134,12 @@
             color: #e74c3c;
         }
 
+        .sad {
+            color: #2196f3;
+        }
+
+        
+
         .support {
             color: #9b59b6;
         }
@@ -158,6 +164,11 @@
         .reaction-item.support {
             background: linear-gradient(135deg, #9b59b6, #ba68c8);
         }
+
+        .reaction-item.sad {
+            background: linear-gradient(135deg, #2196f3, #90caf9);
+        }
+
 
         .reaction-item {
             color: white;
@@ -449,226 +460,372 @@
 
 }
 
-<!-- Feed Posts -->
-<div class="feed-posts">
-    <!-- Text Only Post -->
-    <article class="post-card" role="article">
-        <header class="post-header">
-            <img src="/api/placeholder/50/50" alt="John Smith" class="post-avatar">
-            <div class="post-author-info">
-                <h4 class="post-author-name">John Smith</h4>
-                <p class="post-author-title">Senior Software Engineer at TechCorp</p>
-                <div class="post-meta">
-                    <time datetime="2024-01-15T10:30:00">2 hours ago</time>
-                    <span class="post-visibility">
-                        <i class="fas fa-globe-americas"></i> Public
-                    </span>
-                </div>
-            </div>
-            <button class="post-menu-btn" aria-label="Post options">
-                <i class="fas fa-ellipsis-h"></i>
-            </button>
-        </header>
+<div id="to-do-list">
+    <form id="new-task-form" style="display: none">
+        <textarea id="text-area"
+                  placeholder="Enter a Task..."></textarea>
+        <input type="button" id="add-new-task-button" value="Save" />
+    </form>
 
-        <div class="post-content">
-            <p class="post-text">
-                Just finished implementing a new machine learning algorithm that improved our system's accuracy by 15%! 🚀
-                It's incredible how small optimizations can make such a big difference. Excited to share more about this journey
-                at the upcoming Tech Conference. #MachineLearning #Innovation #TechLife
-            </p>
+    <form id="edit-task-form" style="display: none">
+        <textarea id="edit-text-area"
+                  placeholder="Edit Task..."></textarea>
+        <input type="button" id="save-edit-button" value="Save" />
+    </form>
+
+    <nav id="nav" class="modal-backdrop">
+        <h2>To Do List</h2>
+        <form id="search-form">
+            <input id="search-bar" type="search" placeholder="Search" />
+        </form>
+        <input type="button"
+               id="input-button"
+               value="+"
+               title="New Task" />
+        <div id="color">
+            <input type="color" id="color-picker" />
+            <input type="button" id="apply-color" value="Apply" />
         </div>
+    </nav>
+    <hr />
+    <ol class="modal-backdrop" id="task-list"></ol>
+</div>
 
-        <footer class="post-footer">
-            <div class="post-reactions">
-                
-                <div class="post-stats">
-                    <span class="comment-count">28 comments</span>
-                    <span class="share-count">12 shares</span>
-                </div>
+<script>
+    // State variables
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    let searchTerm = "";
+    let color =
+        JSON.parse(localStorage.getItem("color")) ||
+        "rgba(9, 24, 241, 1)";
+    let isNewTaskFormVisible = false;
+    let isEditTaskFormVisible = false;
+    let editingIndex = null;
+
+    // DOM elements
+    const newTaskForm = document.getElementById("new-task-form");
+    const editTaskForm = document.getElementById("edit-task-form");
+    const textArea = document.getElementById("text-area");
+    const editTextArea = document.getElementById("edit-text-area");
+    const addNewTaskButton = document.getElementById(
+        "add-new-task-button"
+    );
+    const saveEditButton = document.getElementById("save-edit-button");
+    const searchBar = document.getElementById("search-bar");
+    const inputButton = document.getElementById("input-button");
+    const colorPicker = document.getElementById("color-picker");
+    const applyColorButton = document.getElementById("apply-color");
+    const taskList = document.getElementById("task-list");
+
+    // Initialize
+    function init() {
+        // Set initial color
+        document.documentElement.style.setProperty(
+            "--main-color",
+            color
+        );
+        colorPicker.value = color;
+
+        // Render tasks
+        renderTasks();
+
+        // Add event listeners
+        addEventListeners();
+    }
+
+    function addEventListeners() {
+        // New task form
+        addNewTaskButton.addEventListener("click", () => {
+            addTask();
+            textArea.value = "";
+        });
+
+        // Edit task form
+        saveEditButton.addEventListener("click", () => {
+            editTask();
+            editTextArea.value = "";
+        });
+
+        // Search
+        searchBar.addEventListener("input", (e) => {
+            searchTerm = e.target.value;
+            renderTasks();
+        });
+
+        // New task button
+        inputButton.addEventListener("click", newTaskTextArea);
+
+        // Mouse events for input button
+        inputButton.addEventListener("mouseenter", () => {
+            inputButton.value = "-";
+        });
+
+        inputButton.addEventListener("mouseleave", () => {
+            inputButton.value = "+";
+        });
+
+        // Color picker
+        applyColorButton.addEventListener("click", changeColor);
+
+        // Click outside to close forms
+        document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    function handleClickOutside(e) {
+        if (isNewTaskFormVisible && !newTaskForm.contains(e.target)) {
+            setNewTaskFormVisible(false);
+        }
+        if (isEditTaskFormVisible && !editTaskForm.contains(e.target)) {
+            setEditTaskFormVisible(false);
+        }
+    }
+
+    function setNewTaskFormVisible(visible) {
+        isNewTaskFormVisible = visible;
+        newTaskForm.style.display = visible ? "flex" : "none";
+
+        const modalBackdrops =
+            document.querySelectorAll(".modal-backdrop");
+        modalBackdrops.forEach((el) => {
+            el.style.opacity = visible ? "0.1" : "1";
+        });
+    }
+
+    function setEditTaskFormVisible(visible) {
+        isEditTaskFormVisible = visible;
+        editTaskForm.style.display = visible ? "flex" : "none";
+
+        const modalBackdrops =
+            document.querySelectorAll(".modal-backdrop");
+        modalBackdrops.forEach((el) => {
+            el.style.opacity = visible ? "0.1" : "1";
+        });
+    }
+
+    function addTask() {
+        setNewTaskFormVisible(false);
+        const taskText = textArea.value.trim();
+        if (taskText !== "") {
+            tasks.push(taskText);
+            saveTasks();
+            renderTasks();
+        }
+    }
+
+    function deleteTask(index) {
+        tasks = tasks.filter((_, i) => i !== index);
+        saveTasks();
+        renderTasks();
+    }
+
+    function moveTaskUp(index) {
+        if (index !== 0) {
+            const newTasks = [...tasks];
+            [newTasks[index - 1], newTasks[index]] = [
+                newTasks[index],
+                newTasks[index - 1],
+            ];
+            tasks = newTasks;
+            saveTasks();
+            renderTasks();
+        }
+    }
+
+    function moveTaskDown(index) {
+        if (index < tasks.length - 1) {
+            const newTasks = [...tasks];
+            [newTasks[index], newTasks[index + 1]] = [
+                newTasks[index + 1],
+                newTasks[index],
+            ];
+            tasks = newTasks;
+            saveTasks();
+            renderTasks();
+        }
+    }
+
+    function changeColor() {
+        const newColor = colorPicker.value;
+        color = newColor;
+        document.documentElement.style.setProperty(
+            "--main-color",
+            newColor
+        );
+
+        try {
+            localStorage.setItem("color", JSON.stringify(color));
+        } catch (error) {
+            console.error("Failed to save color:", error);
+        }
+    }
+
+    function newTaskTextArea() {
+        setNewTaskFormVisible(true);
+    }
+
+    function editTaskTextArea(task, index) {
+        setEditTaskFormVisible(true);
+        editingIndex = index;
+        editTextArea.value = task;
+    }
+
+    function editTask() {
+        if (editingIndex !== null && editTextArea.value.trim() !== "") {
+            tasks[editingIndex] = editTextArea.value.trim();
+            saveTasks();
+            renderTasks();
+        }
+        setEditTaskFormVisible(false);
+        editingIndex = null;
+    }
+
+    function saveTasks() {
+        try {
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        } catch (error) {
+            console.error("Failed to save tasks:", error);
+        }
+    }
+
+    function renderTasks() {
+        const filteredTasks = tasks.filter((task) =>
+            task.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+
+        taskList.innerHTML = "";
+
+        filteredTasks.forEach((task, index) => {
+            const originalIndex = tasks.indexOf(task);
+            const li = document.createElement("li");
+            li.className = "text";
+
+            li.innerHTML = `
+            <div id="to-move">
+                <input type="button" class="move" id="move-up" value="◀">
+                <input type="button" class="move" id="move-down" value="▶">
             </div>
+            <input type="button" id="delete-button" value="Delete">
+            <hr>
+            <span class="task-text">${task}</span>
+        `;
 
-            <div class="post-actions">
+            // Add event listeners for this task
+            const moveUpBtn = li.querySelector("#move-up");
+            const moveDownBtn = li.querySelector("#move-down");
+            const deleteBtn = li.querySelector("#delete-button");
+            const taskText = li.querySelector(".task-text");
 
+            moveUpBtn.addEventListener("click", () =>
+                moveTaskUp(originalIndex)
+            );
+            moveDownBtn.addEventListener("click", () =>
+                moveTaskDown(originalIndex)
+            );
+            deleteBtn.addEventListener("click", () =>
+                deleteTask(originalIndex)
+            );
+            taskText.addEventListener("click", () =>
+                editTaskTextArea(task, originalIndex)
+            );
 
-                <!-- Post Reactions button-->
-                <div class="reactions-container">
-                    <button class="reactions-button" id="reactionsBtn">
-                        <span class="selected-reaction">👍</span>
-                        <span class="reaction-text">Like</span>
+            taskList.appendChild(li);
+        });
+    }
+
+    // Initialize the app
+    init();
+</script>
+
+    @if (Model != null && Model.Any())
+    {
+        foreach (var post in Model)
+        {
+            <article class="post-card" role="article">
+                <header class="post-header">
+                    <img src="@(post.PostUserImg ?? "/api/placeholder/50/50")" alt="@post.PostUserName" class="post-avatar" />
+                    <div class="post-author-info">
+                        <h4 class="post-author-name">@post.PostUserName</h4>
+                        <p class="post-author-title">@post.PostUserTitle</p>
+                        <div class="post-meta">
+                            <time>@(post.Since.TotalHours < 1 ? $"{post.Since.Minutes} min ago" : $"{(int)post.Since.TotalHours} hours ago")</time>
+                            <span class="post-visibility">
+                                <i class="fas fa-globe-americas"></i> Public
+                            </span>
+                        </div>
+                    </div>
+                    <button class="post-menu-btn" aria-label="Post options">
+                        <i class="fas fa-ellipsis-h"></i>
                     </button>
+                </header>
 
-                    <div class="reactions-popup">
-                        <div class="reaction-item like"
-                             data-label="Like"
-                             data-reaction="like">
-                            👍
+                <div class="post-content">
+                    @if (!string.IsNullOrWhiteSpace(post.TextContent))
+                    {
+                        <p class="post-text">@post.TextContent</p>
+                    }
+                    @if (post.Images != null && post.Images.Any())
+                    {
+                        <div class="post-media">
+                            @foreach (var img in post.Images)
+                            {
+                                <img src="@img" alt="Post image" class="post-image" />
+                            }
                         </div>
-                        <div class="reaction-item love"
-                             data-label="Love"
-                             data-reaction="love">
-                            ❤️
+                    }
+                </div>
+
+                <footer class="post-footer">
+                    <div class="post-reactions">
+                        <div class="reaction-summary">
+                            <div class="reaction-icons">
+                                <span class="reaction-icon like">👍</span>
+                                <span class="reaction-icon love">❤️</span>
+                                <span class="reaction-icon haha">😂</span>
+                                <span class="reaction-icon angry">😡</span>
+                                <span class="reaction-icon support">🤗</span>
+                            </div>
+                            <span class="reaction-count">@post.ReactionCount reactions</span>
                         </div>
-                        <div class="reaction-item haha"
-                             data-label="Haha"
-                             data-reaction="haha">
-                            😂
-                        </div>
-                        <div class="reaction-item angry"
-                             data-label="Angry"
-                             data-reaction="angry">
-                            😡
-                        </div>
-                        <div class="reaction-item support"
-                             data-label="Support"
-                             data-reaction="support">
-                            🤗
+                        <div class="post-stats">
+                            <span class="comment-count">@((post.CommentsCount.ToString() ?? "0")) comments</span>
+                            <span class="share-count">@post.NumberOfShares shares</span>
                         </div>
                     </div>
-                </div>
-
-
-
-                <button class="action-btn" aria-label="Comment on post">
-                    <i class="far fa-comment"></i>
-                    <span>Comment</span>
-                </button>
-                <button class="action-btn" aria-label="Share post">
-                    <i class="far fa-share"></i>
-                    <span>Share</span>
-                </button>
-                <button class="action-btn" aria-label="Send post">
-                    <i class="far fa-paper-plane"></i>
-                    <span>Send</span>
-                </button>
-            </div>
-        </footer>
-    </article>
-
-    <!-- Text and Image Post -->
-    <article class="post-card" role="article">
-        <header class="post-header">
-            <img src="/api/placeholder/50/50" alt="Sarah Johnson" class="post-avatar">
-            <div class="post-author-info">
-                <h4 class="post-author-name">Sarah Johnson</h4>
-                <p class="post-author-title">UX Designer at DesignHub</p>
-                <div class="post-meta">
-                    <time datetime="2024-01-15T08:15:00">4 hours ago</time>
-                    <span class="post-visibility">
-                        <i class="fas fa-globe-americas"></i> Public
-                    </span>
-                </div>
-            </div>
-            <button class="post-menu-btn" aria-label="Post options">
-                <i class="fas fa-ellipsis-h"></i>
-            </button>
-        </header>
-
-        <div class="post-content">
-            <p class="post-text">
-                Thrilled to share the final design for our new mobile app! 📱✨ After months of user research, iterations,
-                and countless coffee cups, we've created something truly user-centered. The feedback from beta users has been
-                overwhelmingly positive. Can't wait for the official launch next month!
-                #UXDesign #MobileApp #UserExperience #Design
-            </p>
-
-            <div class="post-media">
-                <img src="/api/placeholder/600/400" alt="Mobile app design mockup showing clean interface" class="post-image">
-            </div>
-        </div>
-
-        <footer class="post-footer">
-            <div class="post-reactions">
-                <div class="reaction-summary">
-                    <div class="reaction-icons">
-                        <span class="reaction-icon like">👍</span>
-                        <span class="reaction-icon love">❤️</span>
-                        <span class="reaction-icon insightful">💡</span>
+                    <div class="post-actions">
+                        <div class="reactions-container">
+                            <button class="reactions-button" type="button">
+                                <span class="selected-reaction">👍</span>
+                                <span class="reaction-text">Like</span>
+                            </button>
+                            <div class="reactions-popup">
+                                <div class="reaction-item like" data-label="Like" data-reaction="like">👍</div>
+                                <div class="reaction-item love" data-label="Love" data-reaction="love">❤️</div>
+                                <div class="reaction-item haha" data-label="Haha" data-reaction="haha">😂</div>
+                                <div class="reaction-item sad" data-label="Sad" data-reaction="sad">😢</div>
+                                <div class="reaction-item angry" data-label="Angry" data-reaction="angry">😡</div>
+                            </div>
+                        </div>
+                        <button class="action-btn" aria-label="Comment on post">
+                            <i class="far fa-comment"></i>
+                            <span>Comment</span>
+                        </button>
+                        <button class="action-btn" aria-label="Share post">
+                            <i class="far fa-share"></i>
+                            <span>Share</span>
+                        </button>
+                        <button class="action-btn" aria-label="Send post">
+                            <i class="far fa-paper-plane"></i>
+                            <span>Send</span>
+                        </button>
                     </div>
-                    <span class="reaction-count">89 reactions</span>
-                </div>
-                <div class="post-stats">
-                    <span class="comment-count">15 comments</span>
-                    <span class="share-count">7 shares</span>
-                </div>
-            </div>
-
-            <div class="post-actions">
-                <button class="action-btn" aria-label="Like post">
-                    <i class="far fa-thumbs-up"></i>
-                    <span>Like</span>
-                </button>
-                <button class="action-btn" aria-label="Comment on post">
-                    <i class="far fa-comment"></i>
-                    <span>Comment</span>
-                </button>
-                <button class="action-btn" aria-label="Share post">
-                    <i class="far fa-share"></i>
-                    <span>Share</span>
-                </button>
-                <button class="action-btn" aria-label="Send post">
-                    <i class="far fa-paper-plane"></i>
-                    <span>Send</span>
-                </button>
-            </div>
-        </footer>
-    </article>
-
-    <!-- Image Only Post -->
-    <article class="post-card" role="article">
-        <header class="post-header">
-            <img src="/api/placeholder/50/50" alt="Mike Chen" class="post-avatar">
-            <div class="post-author-info">
-                <h4 class="post-author-name">Mike Chen</h4>
-                <p class="post-author-title">Data Scientist at Analytics Pro</p>
-                <div class="post-meta">
-                    <time datetime="2024-01-15T06:45:00">6 hours ago</time>
-                    <span class="post-visibility">
-                        <i class="fas fa-globe-americas"></i> Public
-                    </span>
-                </div>
-            </div>
-            <button class="post-menu-btn" aria-label="Post options">
-                <i class="fas fa-ellipsis-h"></i>
-            </button>
-        </header>
-
-        <div class="post-content">
-            <div class="post-media">
-                <img src="/api/placeholder/600/500" alt="Data visualization dashboard showing analytics charts and graphs" class="post-image">
-            </div>
-        </div>
-
-        <footer class="post-footer">
-            <div class="post-reactions">
-                <div class="reaction-summary">
-                    <div class="reaction-icons">
-                        <span class="reaction-icon like">👍</span>
-                        <span class="reaction-icon insightful">💡</span>
-                    </div>
-                    <span class="reaction-count">67 reactions</span>
-                </div>
-                <div class="post-stats">
-                    <span class="comment-count">12 comments</span>
-                    <span class="share-count">5 shares</span>
-                </div>
-            </div>
-
-            <div class="post-actions">
-                <button class="action-btn" aria-label="Like post">
-                    <i class="far fa-thumbs-up"></i>
-                    <span>Like</span>
-                </button>
-                <button class="action-btn" aria-label="Comment on post">
-                    <i class="far fa-comment"></i>
-                    <span>Comment</span>
-                </button>
-                <button class="action-btn" aria-label="Share post">
-                    <i class="far fa-share"></i>
-                    <span>Share</span>
-                </button>
-            </div>
-        </footer>
-    </article>
+                </footer>
+            </article>
+        }
+    }
+    else
+    {
+        <div class="demo-note">No posts to display.</div>
+    }
 </div>
 
 <div class="reactions-popup">
@@ -692,10 +849,10 @@
          data-reaction="angry">
         😡
     </div>
-    <div class="reaction-item support"
-         data-label="Support"
-         data-reaction="support">
-        🤗
+    <div class="reaction-item sad"
+         data-label="Sad"
+         data-reaction="sad">
+         😢
     </div>
 </div>
 
@@ -703,13 +860,14 @@
 @section Scripts{
     <script>
             // Reaction data
-            const reactions = {
-                like: { emoji: "👍", text: "Like", color: "#1877f2" },
-                love: { emoji: "❤️", text: "Love", color: "#e91e63" },
-                haha: { emoji: "😂", text: "Haha", color: "#f39c12" },
-                angry: { emoji: "😡", text: "Angry", color: "#e74c3c" },
-                support: { emoji: "🤗", text: "Support", color: "#9b59b6" },
-            };
+                    const reactions = {
+            like: { emoji: "👍", text: "Like", color: "#1877f2" },
+            love: { emoji: "❤️", text: "Love", color: "#e91e63" },
+            haha: { emoji: "😂", text: "Haha", color: "#f39c12" },
+            sad: { emoji: "😢", text: "Sad", color: "#2196f3" },
+            angry: { emoji: "😡", text: "Angry", color: "#e74c3c" },
+        };
+
 
             let currentReaction = "like";
 

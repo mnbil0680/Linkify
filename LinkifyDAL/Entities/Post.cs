@@ -25,5 +25,16 @@ namespace LinkifyDAL.Entities
             IsDeleted = true;
             this.DeletedOn = DateTime.Now;
         }
+
+        public Post(string textContent, string userId)
+        {
+            TextContent = textContent;
+            UserId = userId;
+            CreatedOn = DateTime.Now;
+            IsDeleted = false;
+            UpdatedOn = null;
+            DeletedOn = null;
+        }
+
     }
 }

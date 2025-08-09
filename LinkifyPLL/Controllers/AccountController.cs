@@ -47,7 +47,7 @@ namespace LinkifyPLL.Controllers
             }
 
             // Map User entity to ProfileMV
-            var profileMV = MapUserToProfileMV(user);
+            var profileMV = await MapUserToProfileMVAsync(user);
 
 
             return View(profileMV);
@@ -63,12 +63,12 @@ namespace LinkifyPLL.Controllers
 
             var user = await IUS.GetUserByIdAsync(UserId);
 
-            var profileMV =  await MapUserToProfileMV(user); // Added await
+            var profileMV =  await MapUserToProfileMVAsync(user); // Added await
             return View("index", profileMV);
         }
 
         // Manual Mapping
-        private async Task<ProfileMV> MapUserToProfileMV(User user)
+        private async Task<ProfileMV> MapUserToProfileMVAsync(User user)
         {
             return new ProfileMV
             {
@@ -83,7 +83,7 @@ namespace LinkifyPLL.Controllers
                 // Professional Information (from User entity)
                 Title = user.Title,
                 Bio = user.Bio,
-                Status = user.Status,
+                Status = user.Status.ToString(),
 
                 // Properties not in User entity - set to null/defaults
                 Company = "UnKnow Company",
@@ -102,8 +102,8 @@ namespace LinkifyPLL.Controllers
                 IsPremiumMember = false, // default
 
                 // Stats - set to 0 (you can calculate these later)
-                ConnectionsCount = IFS.GetFriendCount(user.Id),
-                PostsCount =  await IPS.GetUserPostCountAsync(user.Id),
+                ConnectionsCount = await IFS.GetFriendCountAsync(user.Id),
+                PostsCount = await IPS.GetUserPostCountAsync(user.Id),
                 ProfileViews = 0,
                 LikesCount = 0,
                 CommentsCount = 0,
@@ -121,7 +121,7 @@ namespace LinkifyPLL.Controllers
                 Posts = new List<PostMV>(),
 
 
-                Connections = IFS.GetFriends(user.Id).ToList()
+                Connections = (await IFS.GetFriendsAsync(user.Id)).ToList()
             };
         }
 
@@ -147,14 +147,13 @@ namespace LinkifyPLL.Controllers
         [HttpGet]
         public async Task<IActionResult> Signup()
         {
+
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> Signup(UserRegisterMV model)
         {
-
-            ////////////////////////
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -168,7 +167,10 @@ namespace LinkifyPLL.Controllers
                 return View(model);
             }
 
-            return RedirectToAction("SuccessfulRegister");
+            string EmailTitle = "Welcome To Linkify";
+            await IES.SendEmail(model.Email, EmailTitle); //SendEmail
+
+            return RedirectToAction("SuccessfulRegister", model);
         }
 
 
@@ -181,7 +183,6 @@ namespace LinkifyPLL.Controllers
 
         public IActionResult SuccessfulRegister(UserRegisterMV model)
         {
-            //
 
             return View("SuccessfulRegister", model);
 
