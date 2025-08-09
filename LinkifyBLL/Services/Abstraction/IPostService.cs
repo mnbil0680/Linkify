@@ -14,7 +14,6 @@ namespace LinkifyBLL.Services.Abstraction
         Task<IEnumerable<Post>> GetRecentPostsAsync(int count = 10);
         Task<IEnumerable<Post>> GetPopularPostsAsync(TimeSpan since); 
         Task<bool> IsPostOwnerAsync(int postId, string userId);
-        //for()
     }
 }
 
