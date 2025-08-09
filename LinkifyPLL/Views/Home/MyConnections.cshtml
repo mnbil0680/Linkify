@@ -3,9 +3,6 @@
     ViewData["Title"] = "My Connections";
     var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 }
-
-<link rel="stylesheet" href="~/css/connections.css" />
-
 <div class="container">
     <div class="connections-header">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -21,18 +18,18 @@
                 </button>
             </div>
         </div>
-        
+
         <div class="search-sort-container">
-            <div class="search-box flex-grow-1">
+            <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" 
-                       id="searchInput" 
-                       class="form-control search-input" 
+                <input type="text"
+                       id="searchInput"
+                       class="search-input"
                        placeholder="Search your connections..."
                        autocomplete="off">
             </div>
-            
-            <select class="form-select sort-dropdown" id="sortSelect">
+
+            <select class="sort-dropdown" id="sortSelect">
                 <option value="firstName">Sort by first name</option>
                 <option value="lastName">Sort by last name</option>
                 <option value="recent">Sort by recently added</option>
@@ -43,85 +40,87 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4" id="connectionsContainer">
         @foreach (var connection in Model)
         {
-            <div class="col connection-item" 
+            <div class="col connection-item"
                  data-name="@connection.Name.ToLower()"
-                 data-date="@connection.Id"> 
-                <div class="connection-card">
-                    <div class="position-relative">
-                        @if (!string.IsNullOrEmpty(connection.ImgPath))
+                 data-date="@connection.Id">
+                <div class="card connection-card">
+                    <div class="card-body">
+                        <div class="position-relative">
+                            @if (!string.IsNullOrEmpty(connection.ImgPath))
+                            {
+                                <img src="@connection.ImgPath"
+                                     alt="@connection.Name"
+                                     class="connection-image">
+                            }
+                            else
+                            {
+                                <div class="connection-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            }
+                        </div>
+
+                        <h3 class="connection-name">
+                            <a href="@Url.Action("Profile", "Home", new { id = connection.Id })"
+                               class="text-decoration-none text-dark">
+                                @connection.Name
+                            </a>
+                        </h3>
+
+                        @if (!string.IsNullOrEmpty(connection.Title))
                         {
-                            <img src="@connection.ImgPath" 
-                                 alt="@connection.Name" 
-                                 class="connection-image">
+                            <p class="connection-title">@connection.Title</p>
                         }
-                        else
+
+                        @if (connection.MutualFriendsCount > 0)
                         {
-                            <div class="connection-placeholder">
-                                <i class="fas fa-user"></i>
+                            <div class="mutual-friends">
+                                <i class="fas fa-user-friends"></i>
+                                @connection.MutualFriendsCount mutual connection@(connection.MutualFriendsCount == 1 ? "" : "s")
                             </div>
                         }
-                    </div>
-                    
-                    <h3 class="connection-name">
-                        <a href="@Url.Action("Profile", "Home", new { id = connection.Id })" 
-                           class="text-decoration-none text-dark">
-                            @connection.Name
-                        </a>
-                    </h3>
-                    
-                    @if (!string.IsNullOrEmpty(connection.Title))
-                    {
-                        <p class="connection-title">@connection.Title</p>
-                    }
-                    
-                    @if (connection.MutualFriendsCount > 0)
-                    {
-                        <div class="mutual-friends">
-                            <i class="fas fa-user-friends"></i>
-                            @connection.MutualFriendsCount mutual connection@(connection.MutualFriendsCount == 1 ? "" : "s")
-                        </div>
-                    }
-                    
-                    <div class="connection-actions">
-                        <button class="btn btn-message" 
-                                onclick="location.href='#'" 
-                                title="Send message">
-                            <i class="fas fa-comment-dots me-2"></i>Message
-                        </button>
-                        
-                        <div class="dropdown">
-                            <button class="btn btn-light" 
-                                    data-bs-toggle="dropdown" 
-                                    aria-expanded="false"
-                                    title="More actions">
-                                <i class="fas fa-ellipsis-h"></i>
+
+                        <div class="connection-actions">
+                            <button class="btn btn-message"
+                                    onclick="location.href='#'"
+                                    title="Send message">
+                                <i class="fas fa-comment-dots me-2"></i>Message
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a class="dropdown-item" 
-                                       href="@Url.Action("Profile", "Home", new { id = connection.Id })">
-                                        <i class="fas fa-user"></i>View Full Profile
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        <i class="fas fa-share"></i>Share Profile
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        <i class="fas fa-bell"></i>Follow Posts
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item text-danger remove-connection" 
-                                       href="#" 
-                                       data-user-id="@connection.Id">
-                                        <i class="fas fa-user-minus"></i>Remove Connection
-                                    </a>
-                                </li>
-                            </ul>
+
+                            <div class="dropdown">
+                                <button class="btn btn-light"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                        title="More actions">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item"
+                                           href="@Url.Action("Profile", "Home", new { id = connection.Id })">
+                                            <i class="fas fa-user"></i>View Full Profile
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fas fa-share"></i>Share Profile
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fas fa-bell"></i>Follow Posts
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger remove-connection"
+                                           href="#"
+                                           data-user-id="@connection.Id">
+                                            <i class="fas fa-user-minus"></i>Remove Connection
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -131,18 +130,259 @@
 
     @if (!Model.Any())
     {
-        <div class="text-center py-5">
-            <div class="mb-3">
-                <i class="fas fa-user-friends fa-3x text-muted"></i>
-            </div>
+        <div class="empty-state">
+            <i class="fas fa-user-friends"></i>
             <h3>No connections yet</h3>
-            <p class="text-muted">Start growing your network by connecting with people you know.</p>
+            <p>Start growing your network by connecting with people you know.</p>
             <a href="@Url.Action("PeopleYouMayKnow", "Home")" class="btn btn-primary rounded-pill">
                 Find Connections
             </a>
         </div>
     }
 </div>
+
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px;
+    }
+
+    .connections-header {
+        background: var(--background-primary);
+        border-radius: 10px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: var(--shadow);
+    }
+
+    .search-sort-container {
+        display: flex;
+        gap: 16px;
+        margin-top: 20px;
+    }
+
+    .search-box {
+        position: relative;
+        flex-grow: 1;
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--dark-gray);
+    }
+
+    .search-input {
+        padding: 12px 12px 12px 40px;
+        border: 1px solid var(--border-light);
+        border-radius: 25px;
+        width: 100%;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 2px rgba(27, 132, 255, 0.1);
+    }
+
+    .sort-dropdown {
+        min-width: 200px;
+        padding: 12px;
+        border-radius: 25px;
+        border: 1px solid var(--border-light);
+        background-color: var(--background-primary);
+        color: var(--text-dark);
+        font-size: 0.95rem;
+        cursor: pointer;
+    }
+
+    .card.connection-card {
+        background: var(--background-primary);
+        border-radius: 10px;
+        border: 1px solid var(--border-light);
+        padding: 0;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        box-shadow: none;
+    }
+
+    .card-body {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .connection-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-hover);
+        border-color: var(--primary-blue);
+    }
+
+    .connection-image, .connection-placeholder {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin: 0 auto 16px;
+        display: block;
+        object-fit: cover;
+        border: 2px solid var(--border-light);
+    }
+
+    .connection-placeholder {
+        background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2.5rem;
+    }
+
+    .connection-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    .connection-title {
+        color: var(--text-light);
+        text-align: center;
+        font-size: 0.9rem;
+        margin-bottom: 12px;
+    }
+
+    .mutual-friends {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        color: var(--text-light);
+        font-size: 0.85rem;
+        margin-bottom: 16px;
+    }
+
+    .connection-actions {
+        margin-top: auto;
+        display: flex;
+        gap: 8px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border-light);
+    }
+
+    .btn-message {
+        flex: 1;
+        padding: 8px 16px;
+        border: 1px solid var(--primary-blue);
+        color: var(--primary-blue);
+        background: transparent;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .btn-message:hover {
+        background: rgba(27, 132, 255, 0.1);
+    }
+
+    .btn-light {
+        padding: 8px;
+        border: 1px solid var(--border-light);
+        background: transparent;
+        border-radius: 50%;
+        color: var(--text-light);
+        transition: all 0.2s ease;
+    }
+
+    .btn-light:hover {
+        background: var(--background-secondary);
+    }
+
+    .dropdown-menu {
+        padding: 8px 0;
+        border-radius: 8px;
+        border: 1px solid var(--border-light);
+        box-shadow: var(--shadow);
+    }
+
+    .dropdown-item {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .dropdown-item i {
+        width: 16px;
+    }
+
+    .btn-outline-primary {
+        border: 2px solid var(--primary-blue);
+        color: var(--primary-blue);
+        background: transparent;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .btn-outline-primary:hover {
+        background: rgba(27, 132, 255, 0.1);
+    }
+
+    .connections-count {
+        color: var(--text-light);
+        font-size: 1.1rem;
+    }
+
+    /* Empty state styling */
+    .empty-state {
+        text-align: center;
+        padding: 48px 24px;
+        background: var(--background-primary);
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--primary-blue);
+        margin-bottom: 24px;
+    }
+
+    .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 12px;
+        color: var(--text-dark);
+    }
+
+    .empty-state p {
+        color: var(--text-light);
+        margin-bottom: 24px;
+    }
+
+    @@media (max-width: 768px) {
+        .search-sort-container {
+            flex-direction: column;
+        }
+
+        .sort-dropdown {
+            width: 100%;
+        }
+
+        .connection-card {
+            margin-bottom: 16px;
+        }
+    }
+</style>
+
+
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

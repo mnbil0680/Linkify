@@ -162,7 +162,7 @@ namespace LinkifyDAL.Repo.Implementation
         {
             return _db.Friends
             .Where(f => f.AddresseeId == userId && f.Status == FriendStatus.Pending)
-            .Include(f => f.Addressee)
+            .Include(f => f.Requester)
             .ToList();
         }
 

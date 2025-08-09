@@ -1,0 +1,139 @@
+﻿@model List<ManageUser>
+
+@if (Model != null && Model.Any())
+{
+    <div class="list-group list-group-flush">
+        @foreach (var blockedUser in Model)
+        {
+            <div class="list-group-item d-flex align-items-center py-3">
+                <!-- Avatar -->
+                <div class="flex-shrink-0 me-3 position-relative">
+                    @if (!string.IsNullOrEmpty(blockedUser.AvatarUrl))
+                    {
+                        <img src="@blockedUser.AvatarUrl"
+                             alt="@blockedUser.FullName"
+                             class="rounded-circle opacity-50"
+                             style="width: 50px; height: 50px; object-fit: cover;">
+                    }
+                    else
+                    {
+                        <div class="rounded-circle bg-danger d-flex align-items-center justify-content-center text-white opacity-50"
+                             style="width: 50px; height: 50px; font-size: 1.2rem;">
+                            @blockedUser.FullName.First()
+                        </div>
+                    }
+                    <!-- Blocked overlay icon -->
+                    <div class="position-absolute top-0 end-0 bg-danger rounded-circle d-flex align-items-center justify-content-center"
+                         style="width: 20px; height: 20px;">
+                        <i class="fas fa-ban text-white" style="font-size: 0.7rem;"></i>
+                    </div>
+                </div>
+
+                <!-- User Info -->
+                <div class="flex-grow-1">
+                    <h6 class="mb-1 fw-bold text-muted">@blockedUser.FullName</h6>
+                    @if (blockedUser.Since.HasValue)
+                    {
+                        <small class="text-muted">
+                            <i class="fas fa-ban me-1"></i>
+                            Blocked on @blockedUser.Since.Value.ToString("MM, dd, yyyy")
+                        </small>
+                    }
+                    <div class="mt-1">
+                        <span class="badge bg-danger">
+                            <i class="fas fa-user-slash me-1"></i>
+                            Blocked
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex-shrink-0">
+                    <div class="btn-group" role="group">
+                        <button type="button"
+                                class="btn btn-outline-primary btn-sm"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="View Profile"
+                                onclick="viewProfile('@blockedUser.UserId')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-success btn-sm"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="Unblock User"
+                                onclick="unblockUser('@blockedUser.UserId', '@blockedUser.FullName')">
+                            <i class="fas fa-unlock"></i>
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-danger btn-sm"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="Report User"
+                                onclick="reportUser('@blockedUser.UserId', '@blockedUser.FullName')">
+                            <i class="fas fa-flag"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">No Blocked Users</h5>
+        <p class="text-muted">You haven't blocked any users.</p>
+    </div>
+}
+
+<script>
+    function viewProfile(userId) {
+        window.location.href = '/Profile/Details/' + userId;
+    }
+
+    function unblockUser(userId, userName) {
+        if (confirm('Are you sure you want to unblock ' + userName + '? They will be able to contact you again.')) {
+            $.post('/ManageNetwork/UnblockUser', { userId: userId })
+                .done(function() {
+                    location.reload();
+                    showNotification(userName + ' has been unblocked.', 'success');
+                })
+                .fail(function() {
+                    alert('Failed to unblock user. Please try again.');
+                });
+        }
+    }
+
+    function reportUser(userId, userName) {
+        const reason = prompt('Please provide a reason for reporting ' + userName + ':');
+        if (reason && reason.trim()) {
+            $.post('/ManageNetwork/ReportUser', {
+                userId: userId,
+                reason: reason.trim()
+            })
+                .done(function() {
+                    showNotification('User reported successfully.', 'info');
+                })
+                .fail(function() {
+                    alert('Failed to report user. Please try again.');
+                });
+        }
+    }
+
+    function showNotification(message, type) {
+        // Simple toast notification
+        const toast = $('<div class="toast align-items-center text-white bg-' + (type === 'success' ? 'success' : 'primary') + ' border-0" role="alert">')
+            .append('<div class="d-flex"><div class="toast-body">' + message + '</div></div>');
+
+        $('body').append(toast);
+        const bsToast = new bootstrap.Toast(toast[0]);
+        bsToast.show();
+
+        toast.on('hidden.bs.toast', function() {
+            $(this).remove();
+        });
+    }
+</script>

@@ -1,5 +1,6 @@
 using LinkifyBLL.ModelView;
 using LinkifyBLL.Services.Abstraction;
+using LinkifyDAL.Enums;
 using LinkifyPLL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -62,6 +63,7 @@ namespace LinkifyPLL.Controllers
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var peopleYouMayKnow = _IFS.GetPeopleYouMayKnow(currentUserId).ToList();
+            
             return View(peopleYouMayKnow);
         }
 
@@ -77,6 +79,23 @@ namespace LinkifyPLL.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var poepleList = _IFS.MyConnections(userId);
             return View(poepleList); 
+        }
+
+        public IActionResult Invitation()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var pendingRequests = _IFS.GetPendingRequests(userId);
+            var model = pendingRequests
+                .Where(pr => pr.Requester != null )
+                .Select(pr => new ManageUser
+            {
+                UserId = pr.RequesterId,
+                FullName = pr.Requester.UserName,
+                AvatarUrl = pr.Requester.ImgPath,
+                Status = FriendStatus.Pending,
+                Since = pr.RequestDate
+            }).ToList();
+            return View(model);
         }
     }
 }

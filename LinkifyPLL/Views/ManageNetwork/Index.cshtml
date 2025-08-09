@@ -1,0 +1,304 @@
+﻿@model ManageNetworkMV
+
+@{
+    ViewData["Title"] = "Manage Network";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-users"></i> Manage Network
+            </h2>
+
+            <!-- Navigation Tabs -->
+            <ul class="nav nav-pills nav-fill mb-4" id="networkTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active position-relative"
+                            id="friends-tab"
+                            data-bs-toggle="pill"
+                            data-bs-target="#friends"
+                            type="button"
+                            role="tab"
+                            aria-controls="friends"
+                            aria-selected="true">
+                        <i class="fas fa-user-friends me-2"></i>
+                        Friends
+                        @if (Model.AcceptedFriendsCount > 0)
+                        {
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                                @Model.AcceptedFriendsCount
+                            </span>
+                        }
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link position-relative"
+                            id="pending-tab"
+                            data-bs-toggle="pill"
+                            data-bs-target="#pending"
+                            type="button"
+                            role="tab"
+                            aria-controls="pending"
+                            aria-selected="false">
+                        <i class="fas fa-clock me-2"></i>
+                        Pending
+                        @if (Model.PendingRequestsCount > 0)
+                        {
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning">
+                                @Model.PendingRequestsCount
+                            </span>
+                        }
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link position-relative"
+                            id="blocked-tab"
+                            data-bs-toggle="pill"
+                            data-bs-target="#blocked"
+                            type="button"
+                            role="tab"
+                            aria-controls="blocked"
+                            aria-selected="false">
+                        <i class="fas fa-user-slash me-2"></i>
+                        Blocked
+                        @if (Model.BlockedUsersCount > 0)
+                        {
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                @Model.BlockedUsersCount
+                            </span>
+                        }
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="networkTabContent">
+                <!-- Friends Tab -->
+                <div class="tab-pane fade show active" id="friends" role="tabpanel" aria-labelledby="friends-tab">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-user-friends me-2"></i>
+                                My Friends (@Model.AcceptedFriendsCount)
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="friends-list">
+                                @await Html.PartialAsync("_FriendsList", Model.AcceptedFriends)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Tab -->
+                <div class="tab-pane fade" id="pending" role="tabpanel" aria-labelledby="pending-tab">
+                    <div class="card">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-clock me-2"></i>
+                                Pending Requests (@Model.PendingRequestsCount)
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="pending-list">
+                                @await Html.PartialAsync("_PendingRequestsList", Model.PendingRequests)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Blocked Tab -->
+                <div class="tab-pane fade" id="blocked" role="tabpanel" aria-labelledby="blocked-tab">
+                    <div class="card">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-user-slash me-2"></i>
+                                Blocked Users (@Model.BlockedUsersCount)
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="blocked-list">
+                                @await Html.PartialAsync("_BlockedUsersList", Model.BlockedUsers)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+}
+
+<style>
+    /* ManageNetwork Custom Styles */
+
+    .nav-pills .nav-link {
+        border-radius: 25px;
+        margin: 0 5px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+        .nav-pills .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .nav-pills .nav-link.active {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+    .list-group-item {
+        border: none;
+        border-bottom: 1px solid #e9ecef;
+        transition: all 0.2s ease;
+    }
+
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .list-group-item:last-child {
+            border-bottom: none;
+        }
+
+    .btn-group .btn {
+        border-radius: 20px !important;
+        margin: 0 2px;
+        transition: all 0.2s ease;
+    }
+
+        .btn-group .btn:hover {
+            transform: scale(1.1);
+        }
+
+    .card {
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+        .card:hover {
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+        }
+
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+    }
+
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.5em 0.75em;
+    }
+
+    .toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1050;
+        min-width: 250px;
+    }
+
+    /* Avatar Animations */
+    .rounded-circle {
+        transition: all 0.3s ease;
+    }
+
+    .list-group-item:hover .rounded-circle {
+        transform: scale(1.05);
+    }
+
+    /* Loading States */
+    .btn-loading {
+        position: relative;
+        pointer-events: none;
+    }
+
+        .btn-loading:after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-left: -8px;
+            margin-top: -8px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: #ffffff;
+            animation: button-loading-spinner 1s linear infinite;
+        }
+
+    keyframes button-loading-spinner {
+        from
+
+    {
+        transform: rotate(0turn);
+    }
+
+    to {
+        transform: rotate(1turn);
+    }
+
+    }
+
+    /* Empty State Styling */
+    .text-center.py-5 {
+        padding: 3rem 1rem !important;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 10px;
+        margin: 1rem 0;
+    }
+
+        .text-center.py-5 i {
+            opacity: 0.6;
+        }
+
+    /* Responsive Design */
+    media (max-width: 768px) {
+        .nav-pills
+
+    {
+        flex-direction: column;
+    }
+
+    .nav-pills .nav-link {
+        margin: 5px 0;
+        text-align: center;
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+
+        .btn-group .btn {
+            margin: 2px 0;
+            border-radius: 5px !important;
+        }
+
+    .list-group-item {
+        flex-direction: column;
+        text-align: center;
+    }
+
+        .list-group-item .flex-shrink-0 {
+            margin: 0 0 15px 0 !important;
+        }
+
+    }
+</style>
