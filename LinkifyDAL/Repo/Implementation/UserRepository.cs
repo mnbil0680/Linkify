@@ -94,13 +94,5 @@ namespace LinkifyDAL.Repo.Implementation
             if (string.IsNullOrWhiteSpace(userId)) return false;
             return (await _userManager.FindByIdAsync(userId)) != null;
         }
-
-
-
-        public async Task<User> GetUserByIdAsync(string userId)
-        {
-            return await _db.User.FirstOrDefaultAsync(user => user.Id == userId);
-           
-        }
     }
 }

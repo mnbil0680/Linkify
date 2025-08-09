@@ -60,7 +60,7 @@ namespace LinkifyPLL.Controllers
                 // Professional Information (from User entity)
                 Title = user.Title,
                 Bio = user.Bio,
-                Status = user.Status,
+                Status = user.Status.ToString(),
 
                 // Properties not in User entity - set to null/defaults
                 Company = "UnKnow Company",

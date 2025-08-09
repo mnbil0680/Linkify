@@ -1,0 +1,1223 @@
+﻿
+    <title>Apply for Position - LinkedIn Style</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --linkedin-blue: #0a66c2;
+            --linkedin-dark-blue: #004182;
+            --linkedin-light-blue: #378fe9;
+            --linkedin-gray: #666666;
+            --linkedin-light-gray: #f3f2ef;
+            --linkedin-border: #e0e0e0;
+            --linkedin-success: #057642;
+            --linkedin-warning: #915907;
+            --linkedin-danger: #cc1016;
+            --shadow-light: 0 2px 4px rgba(0,0,0,0.08);
+            --shadow-medium: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-heavy: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--linkedin-light-gray);
+            color: #000000e6;
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px 0;
+        }
+
+        .application-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        /* Job Header Card */
+        .job-header {
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-light);
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .company-banner {
+            height: 80px;
+            background: linear-gradient(135deg, var(--linkedin-blue), var(--linkedin-light-blue));
+            position: relative;
+        }
+
+        .company-logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 8px;
+            position: absolute;
+            bottom: -40px;
+            left: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-medium);
+            border: 4px solid white;
+        }
+
+        .company-logo img {
+            width: 50px;
+            height: 50px;
+            border-radius: 4px;
+        }
+
+        .company-logo i {
+            font-size: 2rem;
+            color: var(--linkedin-blue);
+        }
+
+        .job-info {
+            padding: 60px 24px 24px 24px;
+        }
+
+        .job-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #000000e6;
+            margin: 0 0 8px 0;
+            line-height: 1.3;
+        }
+
+        .company-name {
+            font-size: 1.125rem;
+            color: var(--linkedin-blue);
+            font-weight: 500;
+            margin: 0 0 8px 0;
+        }
+
+        .job-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            color: var(--linkedin-gray);
+            font-size: 0.875rem;
+        }
+
+        .job-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Application Form Card */
+        .application-form {
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-light);
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #000000e6;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title i {
+            color: var(--linkedin-blue);
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: #000000e6;
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+        }
+
+        .required {
+            color: var(--linkedin-danger);
+        }
+
+        .form-control, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--linkedin-border);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--linkedin-blue);
+            box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: var(--linkedin-gray);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* File Upload */
+        .file-upload {
+            border: 2px dashed var(--linkedin-border);
+            border-radius: 8px;
+            padding: 32px;
+            text-align: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-upload:hover {
+            border-color: var(--linkedin-blue);
+            background-color: #f8f9fa;
+        }
+
+        .file-upload.dragover {
+            border-color: var(--linkedin-blue);
+            background-color: rgba(10, 102, 194, 0.05);
+        }
+
+        .file-upload-content {
+            pointer-events: none;
+        }
+
+        .file-upload i {
+            font-size: 2.5rem;
+            color: var(--linkedin-blue);
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .file-upload-text {
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #000000e6;
+            margin-bottom: 8px;
+        }
+
+        .file-upload-subtext {
+            color: var(--linkedin-gray);
+            font-size: 0.875rem;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .uploaded-file {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-top: 16px;
+        }
+
+        .uploaded-file i {
+            color: var(--linkedin-success);
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #000000e6;
+        }
+
+        .file-size {
+            font-size: 0.875rem;
+            color: var(--linkedin-gray);
+        }
+
+        .remove-file {
+            background: none;
+            border: none;
+            color: var(--linkedin-gray);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .remove-file:hover {
+            background: #e0e0e0;
+            color: var(--linkedin-danger);
+        }
+
+        /* Checkboxes and Radio buttons */
+        .form-check {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .form-check-input {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--linkedin-border);
+            border-radius: 4px;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--linkedin-blue);
+            border-color: var(--linkedin-blue);
+        }
+
+        .form-check-label {
+            cursor: pointer;
+            color: #000000e6;
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--linkedin-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--linkedin-dark-blue);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--linkedin-blue);
+            border: 1px solid var(--linkedin-blue);
+        }
+
+        .btn-outline:hover {
+            background: rgba(10, 102, 194, 0.1);
+        }
+
+        .btn-lg {
+            padding: 16px 32px;
+            font-size: 1.125rem;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--linkedin-border);
+            z-index: 1;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            height: 2px;
+            background: var(--linkedin-blue);
+            z-index: 2;
+            transition: width 0.3s ease;
+            width: 33%;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 3;
+        }
+
+        .step-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--linkedin-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-circle,
+        .step.completed .step-circle {
+            background: var(--linkedin-blue);
+        }
+
+        .step-label {
+            margin-top: 8px;
+            font-size: 0.875rem;
+            color: var(--linkedin-gray);
+            font-weight: 500;
+        }
+
+        .step.active .step-label,
+        .step.completed .step-label {
+            color: var(--linkedin-blue);
+        }
+
+        /* Action Buttons */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 24px;
+            border-top: 1px solid var(--linkedin-border);
+            margin-top: 32px;
+        }
+
+        /* Loading State */
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @@keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success Message */
+        .success-message {
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-light);
+            padding: 48px 32px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--linkedin-success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            color: white;
+            font-size: 2rem;
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 768px) {
+            .application-container {
+                padding: 0 12px;
+            }
+
+            .application-form {
+                padding: 24px 20px;
+            }
+
+            .job-info {
+                padding: 60px 20px 20px;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+                gap: 16px;
+            }
+
+            .form-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .progress-steps {
+                margin-bottom: 24px;
+            }
+
+            .step-label {
+                font-size: 0.75rem;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .job-details {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .file-upload {
+                padding: 24px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="application-container">
+        <!-- Job Header -->
+        <div class="job-header">
+            <div class="company-banner">
+                <div class="company-logo">
+                    <i class="fas fa-building"></i>
+                </div>
+            </div>
+            <div class="job-info">
+                <h1 class="job-title">Senior Software Engineer</h1>
+                <div class="company-name">TechCorp Solutions</div>
+                <div class="job-details">
+                    <div class="job-detail-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>San Francisco, CA</span>
+                    </div>
+                    <div class="job-detail-item">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Full-time</span>
+                    </div>
+                    <div class="job-detail-item">
+                        <i class="fas fa-dollar-sign"></i>
+                        <span>$120,000 - $160,000</span>
+                    </div>
+                    <div class="job-detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Posted 2 days ago</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Application Form -->
+        <div class="application-form">
+            <!-- Progress Steps -->
+            <div class="progress-steps">
+                <div class="progress-line"></div>
+                <div class="step active">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Personal Info</div>
+                </div>
+                <div class="step">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Experience</div>
+                </div>
+                <div class="step">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Review</div>
+                </div>
+            </div>
+
+            <form id="applicationForm">
+                <!-- Personal Information -->
+                <div class="form-section" id="section-1">
+                    <div class="section-title">
+                        <i class="fas fa-user"></i>
+                        Personal Information
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">First Name <span class="required">*</span></label>
+                                <input type="text" class="form-control" name="firstName" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Last Name <span class="required">*</span></label>
+                                <input type="text" class="form-control" name="lastName" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email Address <span class="required">*</span></label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" name="phone" placeholder="+1 (555) 123-4567">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">LinkedIn Profile</label>
+                        <input type="url" class="form-control" name="linkedin" placeholder="https://linkedin.com/in/yourprofile">
+                    </div>
+                </div>
+
+                <!-- Experience & Documents -->
+                <div class="form-section" id="section-2" style="display: none;">
+                    <div class="section-title">
+                        <i class="fas fa-file-alt"></i>
+                        Experience & Documents
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Resume <span class="required">*</span></label>
+                        <div class="file-upload" onclick="document.getElementById('resume').click()">
+                            <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
+                            <div class="file-upload-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <div class="file-upload-text">Upload your resume</div>
+                                <div class="file-upload-subtext">PDF, DOC, or DOCX (Max 5MB)</div>
+                            </div>
+                        </div>
+                        <div id="resumePreview"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Cover Letter</label>
+                        <div class="file-upload" onclick="document.getElementById('coverLetter').click()">
+                            <input type="file" id="coverLetter" name="coverLetter" accept=".pdf,.doc,.docx">
+                            <div class="file-upload-content">
+                                <i class="fas fa-file-upload"></i>
+                                <div class="file-upload-text">Upload cover letter</div>
+                                <div class="file-upload-subtext">PDF, DOC, or DOCX (Max 5MB)</div>
+                            </div>
+                        </div>
+                        <div id="coverLetterPreview"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Years of Experience <span class="required">*</span></label>
+                        <select class="form-select" name="experience" required>
+                            <option value="">Select experience level</option>
+                            <option value="0-1">0-1 years</option>
+                            <option value="1-3">1-3 years</option>
+                            <option value="3-5">3-5 years</option>
+                            <option value="5-10">5-10 years</option>
+                            <option value="10+">10+ years</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Why are you interested in this position?</label>
+                        <textarea class="form-control" name="motivation" rows="4" placeholder="Tell us what excites you about this opportunity..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Review & Submit -->
+                <div class="form-section" id="section-3" style="display: none;">
+                    <div class="section-title">
+                        <i class="fas fa-check-circle"></i>
+                        Review & Submit
+                    </div>
+
+                    <div id="reviewContent">
+                        <!-- Review content will be populated by JavaScript -->
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+                            <label class="form-check-label" for="terms">
+                                I agree to the <a href="#" style="color: var(--linkedin-blue);">Terms of Service</a> and <a href="#" style="color: var(--linkedin-blue);">Privacy Policy</a>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="updates" name="updates">
+                            <label class="form-check-label" for="updates">
+                                I would like to receive updates about this position and similar opportunities
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="prevBtn" style="display: none;" onclick="changeStep(-1)">
+                        <i class="fas fa-arrow-left"></i>
+                        Previous
+                    </button>
+                    <button type="button" class="btn btn-primary btn-lg" id="nextBtn" onclick="changeStep(1)">
+                        Next
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" style="display: none;">
+                        <i class="fas fa-paper-plane"></i>
+                        Submit Application
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Success Message (hidden initially) -->
+        <div class="success-message" id="successMessage" style="display: none;">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2 style="margin-bottom: 16px; color: var(--linkedin-success);">Application Submitted!</h2>
+            <p style="color: var(--linkedin-gray); margin-bottom: 24px;">
+                Thank you for your interest! We've received your application and will review it shortly. 
+                You should receive a confirmation email within the next few minutes.
+            </p>
+            <a href="#" class="btn btn-primary">
+                <i class="fas fa-search"></i>
+                Browse More Jobs
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentStep = 1;
+        const totalSteps = 3;
+
+        // Form step management
+        function showStep(step) {
+            // Hide all sections
+            for (let i = 1; i <= totalSteps; i++) {
+                document.getElementById(`section-${i}`).style.display = 'none';
+            }
+            
+            // Show current section
+            document.getElementById(`section-${step}`).style.display = 'block';
+            
+            // Update progress steps
+            updateProgressSteps(step);
+            
+            // Update buttons
+            updateButtons(step);
+        }
+
+        function updateProgressSteps(step) {
+            const steps = document.querySelectorAll('.step');
+            const progressLine = document.querySelector('.progress-line');
+            
+            steps.forEach((stepEl, index) => {
+                const stepNum = index + 1;
+                stepEl.classList.remove('active', 'completed');
+                
+                if (stepNum < step) {
+                    stepEl.classList.add('completed');
+                    stepEl.querySelector('.step-circle').innerHTML = '<i class="fas fa-check"></i>';
+                } else if (stepNum === step) {
+                    stepEl.classList.add('active');
+                    stepEl.querySelector('.step-circle').innerHTML = stepNum;
+                } else {
+                    stepEl.querySelector('.step-circle').innerHTML = stepNum;
+                }
+            });
+            
+            // Update progress line
+            const progressWidth = ((step - 1) / (totalSteps - 1)) * 100;
+            progressLine.style.width = `${progressWidth}%`;
+        }
+
+        function updateButtons(step) {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            prevBtn.style.display = step === 1 ? 'none' : 'inline-flex';
+            
+            if (step === totalSteps) {
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'inline-flex';
+            } else {
+                nextBtn.style.display = 'inline-flex';
+                submitBtn.style.display = 'none';
+            }
+        }
+
+        function changeStep(direction) {
+            const newStep = currentStep + direction;
+            
+            if (newStep < 1 || newStep > totalSteps) return;
+            
+            if (direction === 1 && !validateCurrentStep()) return;
+            
+            if (newStep === totalSteps) {
+                populateReview();
+            }
+            
+            currentStep = newStep;
+            showStep(currentStep);
+        }
+
+        function validateCurrentStep() {
+            const currentSection = document.getElementById(`section-${currentStep}`);
+            const requiredFields = currentSection.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.style.borderColor = 'var(--linkedin-danger)';
+                    isValid = false;
+                } else {
+                    field.style.borderColor = 'var(--linkedin-border)';
+                }
+            });
+            
+            return isValid;
+        }
+
+        function populateReview() {
+            const formData = new FormData(document.getElementById('applicationForm'));
+            const reviewContent = document.getElementById('reviewContent');
+            
+            let reviewHTML = '<h4 style="margin-bottom: 16px;">Application Summary</h4>';
+            
+            // Personal Information
+            reviewHTML += '<div style="margin-bottom: 24px; padding: 16px; background: #f8f9fa; border-radius: 6px;">';
+            reviewHTML += '<h6 style="margin-bottom: 12px; color: var(--linkedin-blue);">Personal Information</h6>';
+            reviewHTML += `<p><strong>Name:</strong> ${formData.get('firstName')} ${formData.get('lastName')}</p>`;
+            reviewHTML += `<p><strong>Email:</strong> ${formData.get('email')}</p>`;
+            if (formData.get('phone')) reviewHTML += `<p><strong>Phone:</strong> ${formData.get('phone')}</p>`;
+            if (formData.get('linkedin')) reviewHTML += `<p><strong>LinkedIn:</strong> ${formData.get('linkedin')}</p>`;
+            reviewHTML += '</div>';
+            
+            // Documents & Experience
+            reviewHTML += '<div style="margin-bottom: 24px; padding: 16px; background: #f8f9fa; border-radius: 6px;">';
+            reviewHTML += '<h6 style="margin-bottom: 12px; color: var(--linkedin-blue);">Experience & Documents</h6>';
+            reviewHTML += `<p><strong>Experience:</strong> ${formData.get('experience') || 'Not specified'}</p>`;
+            
+            const resumeFile = document.getElementById('resume').files[0];
+            if (resumeFile) reviewHTML += `<p><strong>Resume:</strong> ${resumeFile.name}</p>`;
+            
+            const coverLetterFile = document.getElementById('coverLetter').files[0];
+            if (coverLetterFile) reviewHTML += `<p><strong>Cover Letter:</strong> ${coverLetterFile.name}</p>`;
+            
+            if (formData.get('motivation')) {
+                reviewHTML += `<p><strong>Motivation:</strong></p><p style="font-style: italic;">${formData.get('motivation')}</p>`;
+            }
+            reviewHTML += '</div>';
+            
+            reviewContent.innerHTML = reviewHTML;
+        }
+
+        // File upload handling
+        function handleFileUpload(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                    const fileName = file.name;
+                    
+                    preview.innerHTML = `
+                        <div class="uploaded-file">
+                            <i class="fas fa-file-alt"></i>
+                            <div class="file-info">
+                                <div class="file-name">${fileName}</div>
+                                <div class="file-size">${fileSize} MB</div>
+                            </div>
+                            <button type="button" class="remove-file" onclick="removeFile('${inputId}', '${previewId}')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        function removeFile(inputId, previewId) {
+            document.getElementById(inputId).value = '';
+            document.getElementById(previewId).innerHTML = '';
+        }
+
+        // Drag and drop functionality
+        function setupDragAndDrop() {
+            const uploadAreas = document.querySelectorAll('.file-upload');
+            
+            uploadAreas.forEach(area => {
+                const input = area.querySelector('input[type="file"]');
+                
+                area.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    area.classList.add('dragover');
+                });
+                
+                area.addEventListener('dragleave', () => {
+                    area.classList.remove('dragover');
+                });
+                
+                area.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    area.classList.remove('dragover');
+                    
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        input.files = files;
+                        input.dispatchEvent(new Event('change'));
+                    }
+                });
+            });
+        }
+
+        // Form submission
+        document.getElementById('applicationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                document.querySelector('.application-form').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'block';
+                
+                // Scroll to success message
+                document.getElementById('successMessage').scrollIntoView({ 
+                    behavior: 'smooth' 
+                });
+            }, 2000);
+        });
+
+        // Auto-resize textarea
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+
+        // Form validation with real-time feedback
+        function setupFormValidation() {
+            const inputs = document.querySelectorAll('input[required], select[required], textarea[required]');
+            
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+                
+                input.addEventListener('input', function() {
+                    if (this.style.borderColor === 'var(--linkedin-danger)') {
+                        validateField(this);
+                    }
+                });
+            });
+        }
+
+        function validateField(field) {
+            const isValid = field.value.trim() !== '';
+            field.style.borderColor = isValid ? 'var(--linkedin-border)' : 'var(--linkedin-danger)';
+            
+            // Email validation
+            if (field.type === 'email' && field.value) {
+                const emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+                const isValidEmail = emailRegex.test(field.value);
+                field.style.borderColor = isValidEmail ? 'var(--linkedin-border)' : 'var(--linkedin-danger)';
+            }
+            
+            return field.style.borderColor === 'var(--linkedin-border)';
+        }
+
+        // Character counter for textarea
+        function setupCharacterCounter() {
+            const textarea = document.querySelector('textarea[name="motivation"]');
+            const maxLength = 1000;
+            
+            // Create counter element
+            const counter = document.createElement('div');
+            counter.style.cssText = `
+                font-size: 0.875rem;
+                color: var(--linkedin-gray);
+                text-align: right;
+                margin-top: 8px;
+            `;
+            textarea.parentNode.appendChild(counter);
+            
+            function updateCounter() {
+                const remaining = maxLength - textarea.value.length;
+                counter.textContent = `${remaining} characters remaining`;
+                counter.style.color = remaining < 100 ? 'var(--linkedin-danger)' : 'var(--linkedin-gray)';
+            }
+            
+            textarea.addEventListener('input', updateCounter);
+            textarea.setAttribute('maxlength', maxLength);
+            updateCounter();
+        }
+
+        // Smooth animations for form sections
+        function animateSection(sectionId, direction) {
+            const section = document.getElementById(sectionId);
+            const translateX = direction === 'next' ? '100%' : '-100%';
+            
+            section.style.transform = `translateX(${translateX})`;
+            section.style.opacity = '0';
+            
+            setTimeout(() => {
+                section.style.transition = 'all 0.3s ease';
+                section.style.transform = 'translateX(0)';
+                section.style.opacity = '1';
+            }, 50);
+        }
+
+        // Enhanced step changing with animation
+        function changeStepAnimated(direction) {
+            const newStep = currentStep + direction;
+            
+            if (newStep < 1 || newStep > totalSteps) return;
+            
+            if (direction === 1 && !validateCurrentStep()) {
+                // Shake animation for invalid form
+                const currentSection = document.getElementById(`section-${currentStep}`);
+                currentSection.style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    currentSection.style.animation = '';
+                }, 500);
+                return;
+            }
+            
+            if (newStep === totalSteps) {
+                populateReview();
+            }
+            
+            // Hide current section with animation
+            const currentSection = document.getElementById(`section-${currentStep}`);
+            currentSection.style.transform = direction === 1 ? 'translateX(-100%)' : 'translateX(100%)';
+            currentSection.style.opacity = '0';
+            
+            setTimeout(() => {
+                currentSection.style.display = 'none';
+                currentStep = newStep;
+                showStep(currentStep);
+                
+                // Show new section with animation
+                const newSection = document.getElementById(`section-${currentStep}`);
+                newSection.style.transform = direction === 1 ? 'translateX(100%)' : 'translateX(-100%)';
+                newSection.style.opacity = '0';
+                
+                setTimeout(() => {
+                    newSection.style.transition = 'all 0.3s ease';
+                    newSection.style.transform = 'translateX(0)';
+                    newSection.style.opacity = '1';
+                }, 50);
+            }, 300);
+        }
+
+        // Add shake animation to CSS
+        const shakeStyle = document.createElement('style');
+        shakeStyle.textContent = `
+            @@keyframes shake {
+                0%, 20%, 40%, 60%, 80%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            }
+            
+            .form-section {
+                transition: all 0.3s ease;
+            }
+        `;
+        document.head.appendChild(shakeStyle);
+
+        // Enhanced progress indication
+        function updateProgressWithPercentage() {
+            const progressPercentage = document.createElement('div');
+            progressPercentage.id = 'progressPercentage';
+            progressPercentage.style.cssText = `
+                text-align: center;
+                margin-top: 16px;
+                font-size: 0.875rem;
+                color: var(--linkedin-blue);
+                font-weight: 500;
+            `;
+            
+            document.querySelector('.progress-steps').appendChild(progressPercentage);
+            
+            function updatePercentage() {
+                const percentage = Math.round(((currentStep - 1) / (totalSteps - 1)) * 100);
+                progressPercentage.textContent = `${percentage}% Complete`;
+            }
+            
+            // Update percentage when step changes
+            const originalChangeStep = changeStep;
+            changeStep = function(direction) {
+                originalChangeStep(direction);
+                updatePercentage();
+            };
+            
+            updatePercentage();
+        }
+
+        // Keyboard navigation
+        function setupKeyboardNavigation() {
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey || e.metaKey) {
+                    if (e.key === 'ArrowRight' && currentStep < totalSteps) {
+                        e.preventDefault();
+                        changeStep(1);
+                    } else if (e.key === 'ArrowLeft' && currentStep > 1) {
+                        e.preventDefault();
+                        changeStep(-1);
+                    }
+                }
+            });
+        }
+
+        // Auto-save functionality (to localStorage)
+        function setupAutoSave() {
+            const form = document.getElementById('applicationForm');
+            const inputs = form.querySelectorAll('input, select, textarea');
+            
+            // Load saved data
+            inputs.forEach(input => {
+                const savedValue = localStorage.getItem(`job_app_${input.name}`);
+                if (savedValue && input.type !== 'file') {
+                    input.value = savedValue;
+                }
+            });
+            
+            // Save data on input
+            inputs.forEach(input => {
+                if (input.type !== 'file') {
+                    input.addEventListener('input', function() {
+                        localStorage.setItem(`job_app_${this.name}`, this.value);
+                    });
+                }
+            });
+            
+            // Clear saved data on successful submission
+            form.addEventListener('submit', function() {
+                inputs.forEach(input => {
+                    localStorage.removeItem(`job_app_${input.name}`);
+                });
+            });
+        }
+
+        // Initialize all functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            showStep(1);
+            handleFileUpload('resume', 'resumePreview');
+            handleFileUpload('coverLetter', 'coverLetterPreview');
+            setupDragAndDrop();
+            setupFormValidation();
+            setupCharacterCounter();
+            updateProgressWithPercentage();
+            setupKeyboardNavigation();
+            setupAutoSave();
+            
+            // Replace the basic changeStep with animated version
+            window.changeStep = changeStepAnimated;
+            
+            // Add textarea auto-resize
+            document.querySelector('textarea[name="motivation"]').addEventListener('input', function() {
+                autoResize(this);
+            });
+        });
+
+        // Add some nice hover effects and micro-interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add ripple effect to buttons
+            document.querySelectorAll('.btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.cssText = `
+                        position: absolute;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.6);
+                        transform: scale(0);
+                        animation: ripple 0.6s linear;
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        pointer-events: none;
+                    `;
+                    
+                    this.style.position = 'relative';
+                    this.style.overflow = 'hidden';
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+            
+            // Add ripple animation
+            const rippleStyle = document.createElement('style');
+            rippleStyle.textContent = `
+                @@keyframes ripple {
+                    to {
+                        transform: scale(4);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(rippleStyle);
+        });
+    </script>

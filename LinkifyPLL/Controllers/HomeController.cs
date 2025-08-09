@@ -79,10 +79,10 @@ namespace LinkifyPLL.Controllers
             return View(poepleList); 
         }
 
-        public IActionResult Invitation()
+        public async Task <IActionResult> Invitation()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var pendingRequests = _IFS.GetPendingRequests(userId);
+            var pendingRequests = await _IFS.GetPendingRequestsAsync(userId);
             var model = pendingRequests
                 .Where(pr => pr.Requester != null )
                 .Select(pr => new ManageUser
