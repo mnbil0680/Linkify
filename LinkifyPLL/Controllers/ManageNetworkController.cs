@@ -13,14 +13,18 @@ namespace LinkifyPLL.Controllers
         {
             this._IFS = ifs;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var pendingRequests = await _IFS.GetPendingRequestsAsync(userId);
+                var acceptedFriends = await _IFS.GetFriendsAsync(userId);
+                var blockedUsers = await _IFS.GetBlockedUsersAsync(userId);
+
                 var manageNetworkMV = new ManageNetworkMV
                 {
-                    PendingRequests = _IFS.GetPendingRequests(userId).Select(fr => new ManageUser
+                    PendingRequests = pendingRequests.Select(fr => new ManageUser
                     {
                         UserId = fr.AddresseeId,
                         FullName = fr.Addressee.UserName,
@@ -28,7 +32,7 @@ namespace LinkifyPLL.Controllers
                         Status = FriendStatus.Pending,
                         Since = fr.RequestDate
                     }).ToList(),
-                    AcceptedFriends = _IFS.GetFriends(userId).Select(f => new ManageUser
+                    AcceptedFriends = acceptedFriends.Select(f => new ManageUser
                     {
                         UserId = f.AddresseeId,
                         FullName = f.Addressee.UserName,
@@ -36,7 +40,7 @@ namespace LinkifyPLL.Controllers
                         Status = FriendStatus.Accepted,
                         Since = f.AcceptanceDate
                     }).ToList(),
-                    BlockedUsers = _IFS.GetBlockedUsers(userId).Select(bu => new ManageUser
+                    BlockedUsers = blockedUsers.Select(bu => new ManageUser
                     {
                         UserId = bu.AddresseeId,
                         FullName = bu.Addressee.UserName,
@@ -52,12 +56,12 @@ namespace LinkifyPLL.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        public IActionResult MyPendingRequests()
+        public async Task <IActionResult> MyPendingRequests()
         {
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var pendingRequests = _IFS.GetPendingRequests(userId);
+                var pendingRequests = await _IFS.GetPendingRequestsAsync(userId);
                 return View(pendingRequests);
             }
             catch (Exception ex)
@@ -65,12 +69,12 @@ namespace LinkifyPLL.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        public IActionResult MyPendingRequestsCount()
+        public async Task<IActionResult> MyPendingRequestsCount()
         {
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var pendingRequestCount = _IFS.GetPendingRequestCount(userId);
+                var pendingRequestCount = await _IFS.GetPendingRequestCountAsync(userId);
                 return View(pendingRequestCount);
             }
             catch (Exception ex)
@@ -79,40 +83,41 @@ namespace LinkifyPLL.Controllers
             }
         }
 
-        public IActionResult MyFriends()
+        public async Task<IActionResult> MyFriends()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var friends = _IFS.GetFriends(userId);
+            var friends = await _IFS.GetFriendsAsync(userId);
 
             return View(friends);
         }
-        public IActionResult MyFriendsCount()
+        public async Task <IActionResult> MyFriendsCount()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var friendsCount = _IFS.GetFriendCount(userId);
+            var friendsCount = await _IFS.GetFriendCountAsync(userId);
             return View(friendsCount);
         }
 
-        public IActionResult MyBlockedUsers()
+        public async Task<IActionResult> MyBlockedUsers()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var blockedUsers = _IFS.GetBlockedUsers(userId);
+            var blockedUsers = await _IFS.GetBlockedUsersAsync(userId);
             return View(blockedUsers);
         }
-        public IActionResult MyBlockedUsersCount()
+        public async Task<IActionResult> MyBlockedUsersCount()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var blockedUsersCount = _IFS.GetBlockedUsers(userId).Count();
-            return View(blockedUsersCount);
+            var blockedUsersCount = await _IFS.GetBlockedUsersAsync(userId);
+            var counts= blockedUsersCount.Count();
+            return View(counts);
         }
-        
+
         [HttpPost]
-        public IActionResult AcceptRequest(string requesterId)
+        public async Task<IActionResult> AcceptRequest(string requesterId)
         {
             try
             {
                 var addresseeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                _IFS.AcceptFriendRequest(requesterId, addresseeId);
+                await _IFS.AcceptFriendRequestAsync(requesterId, addresseeId);
                 TempData["SuccessMessage"] = "Friend request accepted successfully.";
             }
             catch (KeyNotFoundException ex)
@@ -128,12 +133,12 @@ namespace LinkifyPLL.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeclineRequest(string requesterId)
+        public async Task <IActionResult> DeclineRequest(string requesterId)
         {
             try
             {
                 var addresseeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                _IFS.DeclineFriendRequest(requesterId, addresseeId);
+                await _IFS.DeclineFriendRequestAsync(requesterId, addresseeId);
                 TempData["SuccessMessage"] = "Friend request declined.";
             }
             catch (KeyNotFoundException)
@@ -148,12 +153,12 @@ namespace LinkifyPLL.Controllers
             return RedirectToAction("Index");
         }
         [HttpPost]
-        public IActionResult CancelRequest(string addresseeId)
+        public async Task <IActionResult> CancelRequest(string addresseeId)
         {
             try
             {
                 var requesterId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                _IFS.CancelFriendRequest(requesterId, addresseeId);
+                await _IFS.CancelFriendRequestAsync(requesterId, addresseeId);
                 TempData["SuccessMessage"] = "Friend request cancelled.";
             }
             catch (KeyNotFoundException)
@@ -168,12 +173,12 @@ namespace LinkifyPLL.Controllers
             return RedirectToAction("Index");
         }
         [HttpPost]
-        public IActionResult BlockUser(string blockedId)
+        public async Task<IActionResult> BlockUser(string blockedId)
         {
             try
             {
                 var blockerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                _IFS.BlockUser(blockerId, blockedId);
+                await _IFS.BlockUserAsync(blockerId, blockedId);
                 TempData["SuccessMessage"] = "User blocked successfully.";
             }
             catch (Exception)
@@ -184,33 +189,33 @@ namespace LinkifyPLL.Controllers
             return RedirectToAction("Index");
         }
         [HttpPost]
-        public IActionResult UnblockUser(string blockedId)
-        {
-            try
-            {
-                var blockerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                _IFS.UnblockUser(blockerId, blockedId);
-                TempData["SuccessMessage"] = "User unblocked successfully.";
-            }
-            catch (KeyNotFoundException)
-            {
-                TempData["ErrorMessage"] = "No blocked relationship found.";
-            }
-            catch (Exception)
-            {
-                TempData["ErrorMessage"] = "Something went wrong. Please try again.";
-            }
+        //public async Task<IActionResult> UnblockUser(string blockedId)
+        //{
+        //    try
+        //    {
+        //        var blockerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //        await _IFS.UnblockUserAsync(blockerId, blockedId);
+        //        TempData["SuccessMessage"] = "User unblocked successfully.";
+        //    }
+        //    catch (KeyNotFoundException)
+        //    {
+        //        TempData["ErrorMessage"] = "No blocked relationship found.";
+        //    }
+        //    catch (Exception)
+        //    {
+        //        TempData["ErrorMessage"] = "Something went wrong. Please try again.";
+        //    }
 
-            return RedirectToAction("Index");
-        }
+        //    return RedirectToAction("Index");
+        //}
 
         [HttpPost]
-        public IActionResult Unfriend(string userId)
+        public async Task<IActionResult> Unfriend(string userId)
         {
             try
             {
                 var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                _IFS.Unfriend(currentUserId, userId);
+                await _IFS.UnfriendAsync(currentUserId, userId);
                 TempData["SuccessMessage"] = "Unfriended successfully.";
             }
             catch (KeyNotFoundException)
