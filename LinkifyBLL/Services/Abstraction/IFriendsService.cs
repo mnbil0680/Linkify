@@ -1,27 +1,25 @@
-﻿using LinkifyBLL.ModelView;
-using LinkifyDAL.Entities;
+﻿using LinkifyDAL.Entities;
 using LinkifyDAL.Enums;
 
 namespace LinkifyBLL.Services.Abstraction
 {
     public interface IFriendsService
     {
-        bool FriendshipExists(string userId1, string userId2);
-        void AddFriendRequest(string requesterId, string addresseeId);
-        void AcceptFriendRequest(string requesterId, string addresseeId);
-        void DeclineFriendRequest(string requesterId, string addresseeId);
-        void CancelFriendRequest(string requesterId, string addresseeId);
-        void BlockUser(string blockerId, string blockedId);
-        void UnblockUser(string blockerId, string blockedId);
-        void Unfriend(string userId1, string userId2);
-        int GetFriendCount(string userId);
-        int GetPendingRequestCount(string userId);
-        IEnumerable<Friends> GetPendingRequests(string userId);
-        IEnumerable<Friends> GetFriends(string userId);
-        IEnumerable<Friends> GetBlockedUsers(string userId);
-        FriendStatus GetFriendshipStatus(string userId1, string userId2);
-        IEnumerable<PoepleMV> GetAllUsers();
-        IEnumerable<PoepleMV> GetPeopleYouMayKnow(string userId);
-        IEnumerable<PoepleMV> MyConnections(string userId);
+        Task<bool> FriendshipExistsAsync(string userId1, string userId2);
+        Task AddFriendRequestAsync(string requesterId, string addresseeId);
+        Task AcceptFriendRequestAsync(string requesterId, string addresseeId);
+        Task DeclineFriendRequestAsync(string requesterId, string addresseeId);
+        Task CancelFriendRequestAsync(string requesterId, string addresseeId);
+        Task BlockUserAsync(string blockerId, string blockedId);
+        Task UnfriendAsync(string userId1, string userId2);
+        Task<int> GetFriendCountAsync(string userId);
+        Task<int> GetPendingRequestCountAsync(string userId);
+        Task<int> GetMutualFriendCountAsync(string currentUserId, string otherUserId);
+        Task<IEnumerable<Friends>> GetPendingRequestsAsync(string userId);
+        Task<IEnumerable<Friends>> GetFriendsAsync(string userId);
+        Task<IEnumerable<Friends>> GetBlockedUsersAsync(string userId);
+        Task<IEnumerable<User>> GetAllUsersAsync();
+        Task<IEnumerable<User>> GetPeopleYouMayKnowAsync(string currentUserId);
+        Task<FriendStatus> GetFriendshipStatusAsync(string userId1, string userId2);
     }
 }

@@ -14,73 +14,55 @@ namespace LinkifyDAL.Repo.Implementation
         {
             _db = db;
         }
-        public void AcceptFriendRequest(string requesterId, string addresseeId)
+        public async Task AcceptFriendRequestAsync(string requesterId, string addresseeId)
         {
-            var friendship = _db.Friends.FirstOrDefault(f =>
-            f.RequesterId == requesterId &&
-            f.AddresseeId == addresseeId &&
-            f.Status == FriendStatus.Pending);
+            var friendship = await _db.Friends.FirstOrDefaultAsync(f =>
+                f.RequesterId == requesterId &&
+                f.AddresseeId == addresseeId &&
+                f.Status == FriendStatus.Pending);
 
             if (friendship == null)
                 throw new KeyNotFoundException("Friend request not found");
 
             friendship.EditStatus(FriendStatus.Accepted);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
         }
-
-        public void AddFriendRequest(string requesterId, string addresseeId)
+        public async Task AddFriendRequestAsync(string requesterId, string addresseeId)
         {
             if (requesterId == addresseeId)
                 throw new ArgumentException("Cannot send friend request to yourself");
 
-            if (FriendshipExists(requesterId, addresseeId))
+            if (await FriendshipExistsAsync(requesterId, addresseeId))
                 throw new InvalidOperationException("Friendship already exists");
 
             var friendship = new Friends(requesterId, addresseeId);
 
-            _db.Friends.Add(friendship);
-            _db.SaveChanges();
+            await _db.Friends.AddAsync(friendship);
+            await _db.SaveChangesAsync();
         }
-
-        public void BlockUser(string blockerId, string blockedId)
+        public async Task BlockUserAsync(string blockerId, string blockedId)
         {
             if (string.IsNullOrEmpty(blockerId) || string.IsNullOrEmpty(blockedId))
                 throw new ArgumentException("User IDs cannot be null or empty");
-
             if (blockerId == blockedId)
                 throw new InvalidOperationException("Cannot block yourself");
-
-            var existingRelationship = _db.Friends
-                .FirstOrDefault(f =>
+            var existingRelationship = await _db.Friends
+                .FirstOrDefaultAsync(f =>
                     (f.RequesterId == blockerId && f.AddresseeId == blockedId) ||
                     (f.RequesterId == blockedId && f.AddresseeId == blockerId));
-
             if (existingRelationship == null)
             {
-                _db.Friends.Add(new Friends(blockerId, blockedId));
+                await _db.Friends.AddAsync(new Friends(blockerId, blockedId));
             }
             else
             {
                 existingRelationship.EditStatus(FriendStatus.Blocked);
             }
-
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
         }
-        public void UnblockUser(string blockerId, string blockedId)
+        public async Task DeclineFriendRequestAsync(string requesterId, string addresseeId)
         {
-            var relationship = _db.Friends
-                .FirstOrDefault(f =>
-                    (f.RequesterId == blockerId && f.AddresseeId == blockedId) ||
-                    (f.RequesterId == blockedId && f.AddresseeId == blockerId));
-            if (relationship == null || relationship.Status != FriendStatus.Blocked)
-                throw new KeyNotFoundException("No blocked relationship found");
-            relationship.EditStatus(FriendStatus.None);
-            _db.SaveChanges();
-        }
-
-        public void DeclineFriendRequest(string requesterId, string addresseeId)
-        {
-            var request = _db.Friends.FirstOrDefault(f =>
+            var request = await _db.Friends.FirstOrDefaultAsync(f =>
                 ((f.RequesterId == addresseeId && f.AddresseeId == requesterId)) &&
                 f.Status == FriendStatus.Pending);
 
@@ -88,135 +70,118 @@ namespace LinkifyDAL.Repo.Implementation
                 throw new KeyNotFoundException("No pending friend request found");
 
             request.EditStatus(FriendStatus.Declined);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
         }
-
-        public void CancelFriendRequest(string requesterId, string addresseeId)
+        public async Task CancelFriendRequestAsync(string requesterId, string addresseeId)
         {
-            var request = _db.Friends.FirstOrDefault(f =>
+            var request = await _db.Friends.FirstOrDefaultAsync(f =>
                     ((f.RequesterId == requesterId && f.AddresseeId == addresseeId)) &&
                     f.Status == FriendStatus.Pending);
             if (request == null)
                 throw new KeyNotFoundException("No pending friend request found");
 
             request.EditStatus(FriendStatus.None);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
         }
-
-        public bool FriendshipExists(string userId1, string userId2)
+        public async Task<bool> FriendshipExistsAsync(string userId1, string userId2)
         {
-            return _db.Friends.Any(f =>
+            return await _db.Friends.AnyAsync(f =>
                 (f.RequesterId == userId1 && f.AddresseeId == userId2) ||
                 (f.RequesterId == userId2 && f.AddresseeId == userId1));
         }
-
-        public IEnumerable<Friends> GetBlockedUsers(string userId)
+        public async Task<IEnumerable<Friends>> GetBlockedUsersAsync(string userId)
         {
-            return _db.Friends
-            .Where(f =>
-                (f.RequesterId == userId || f.AddresseeId == userId) &&
-                f.Status == FriendStatus.Blocked)
-            .Include(f => f.Requester)
-            .Include(f => f.Addressee)
-            .AsNoTracking()
-            .ToList();
+            return await _db.Friends
+                .Where(f =>
+                    (f.RequesterId == userId || f.AddresseeId == userId) &&
+                    f.Status == FriendStatus.Blocked)
+                .Include(f => f.Requester)
+                .Include(f => f.Addressee)
+                .AsNoTracking()
+                .ToListAsync();
         }
-
-        public int GetFriendCount(string userId)
+        public async Task<int> GetFriendCountAsync(string userId)
         {
-            return _db.Friends
-            .Count(f =>
-                (f.RequesterId == userId || f.AddresseeId == userId) &&
-                f.Status == FriendStatus.Accepted);
+            return await _db.Friends
+                .CountAsync(f =>
+                    (f.RequesterId == userId || f.AddresseeId == userId) &&
+                    f.Status == FriendStatus.Accepted);
         }
-
-        public IEnumerable<Friends> GetFriends(string userId)
+        public async Task<IEnumerable<Friends>> GetFriendsAsync(string userId)
         {
-            return _db.Friends
-            .Where(f => (f.RequesterId == userId || f.AddresseeId == userId) &&
-                        f.Status == FriendStatus.Accepted)
-            .Include(f => f.Requester)
-            .Include(f => f.Addressee)
-            .ToList();
+            return await _db.Friends
+                .Where(f => (f.RequesterId == userId || f.AddresseeId == userId) &&
+                            f.Status == FriendStatus.Accepted)
+                .Include(f => f.Requester)
+                .Include(f => f.Addressee)
+                .ToListAsync();
         }
-
-        public FriendStatus GetFriendshipStatus(string userId1, string userId2)
+        public async Task<FriendStatus> GetFriendshipStatusAsync(string userId1, string userId2)
         {
-            var relationship = _db.Friends
-            .FirstOrDefault(f =>
-                (f.RequesterId == userId1 && f.AddresseeId == userId2) ||
-                (f.RequesterId == userId2 && f.AddresseeId == userId1));
-
+            var relationship = await _db.Friends
+                .FirstOrDefaultAsync(f =>
+                    (f.RequesterId == userId1 && f.AddresseeId == userId2) ||
+                    (f.RequesterId == userId2 && f.AddresseeId == userId1));
             return relationship?.Status ?? FriendStatus.None;
         }
-
-        public int GetPendingRequestCount(string userId)
+        public async Task<int> GetPendingRequestCountAsync(string userId)
         {
-            return _db.Friends
-            .Count(f =>
-                f.AddresseeId == userId &&
-                f.Status == FriendStatus.Pending);
+            return await _db.Friends
+                .CountAsync(f =>
+                    f.AddresseeId == userId &&
+                    f.Status == FriendStatus.Pending);
         }
-
-        public IEnumerable<Friends> GetPendingRequests(string userId)
+        public async Task<IEnumerable<Friends>> GetPendingRequestsAsync(string userId)
         {
-            return _db.Friends
-            .Where(f => f.AddresseeId == userId && f.Status == FriendStatus.Pending)
-            .Include(f => f.Requester)
-            .ToList();
+            return await _db.Friends
+                .Where(f => f.AddresseeId == userId && f.Status == FriendStatus.Pending)
+                .Include(f => f.Requester)
+                .ToListAsync();
         }
-
-        public void Unfriend(string userId1, string userId2)
+        public async Task UnfriendAsync(string userId1, string userId2)
         {
-            var friendship = _db.Friends
-            .FirstOrDefault(f =>
-                ((f.RequesterId == userId1 && f.AddresseeId == userId2) ||
-                 (f.RequesterId == userId2 && f.AddresseeId == userId1)) &&
-                f.Status == FriendStatus.Accepted);
-
+            var friendship = await _db.Friends
+                .FirstOrDefaultAsync(f =>
+                    ((f.RequesterId == userId1 && f.AddresseeId == userId2) ||
+                     (f.RequesterId == userId2 && f.AddresseeId == userId1)) &&
+                    f.Status == FriendStatus.Accepted);
             if (friendship == null)
                 throw new KeyNotFoundException("No active friendship found");
-
             friendship.EditStatus(FriendStatus.Removed);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
         }
-
-        public IEnumerable<User> GetAllUsers()
+        public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
-            return _db.User.ToList();
+            return await _db.User.ToListAsync();
         }
-
-        public IEnumerable<User> GetPeopleYouMayKnow(string currentUserId)
+        public async Task<IEnumerable<User>> GetPeopleYouMayKnowAsync(string currentUserId)
         {
-            var relatedIds = _db.Friends.Where(u =>
-                (u.RequesterId == currentUserId || u.AddresseeId == currentUserId) && // me as a Requester or Addressee 
-                ( u.Status == FriendStatus.Pending || // if i am pending friend request or i have been being pended
-                  u.Status == FriendStatus.Accepted ||
-                  u.Status == FriendStatus.Blocked))
+            var relatedIds = await _db.Friends
+                .Where(u =>
+                    (u.RequesterId == currentUserId || u.AddresseeId == currentUserId) &&
+                    (u.Status == FriendStatus.Pending ||
+                     u.Status == FriendStatus.Accepted ||
+                     u.Status == FriendStatus.Blocked))
                 .Select(u =>
-                    u.RequesterId == currentUserId ? u.AddresseeId : u.RequesterId) // extract the ID of the person i am connected to 
-                .Distinct() // distinct to avoid duplicates
-                .ToList();
+                    u.RequesterId == currentUserId ? u.AddresseeId : u.RequesterId)
+                .Distinct()
+                .ToListAsync();
 
-            // Get all users except the current user and those already related
-            return _db.User
+            return await _db.User
                 .Where(u => u.Id != currentUserId && !relatedIds.Contains(u.Id))
-                .ToList(); //
-
+                .ToListAsync();
         }
-        public int GetMutualFriendCount(string currentUserId, string otherUserId)
+        public async Task<int> GetMutualFriendCountAsync(string currentUserId, string otherUserId)
         {
-            var currentUserFriends = _db.Friends
-                .Where( f => f.RequesterId == currentUserId || f.AddresseeId == currentUserId)
+            var currentUserFriends = await _db.Friends
+                .Where(f => f.RequesterId == currentUserId || f.AddresseeId == currentUserId)
                 .Select(f => f.RequesterId == currentUserId ? f.AddresseeId : f.RequesterId)
-                .ToList();
-            var otherUserFriends = _db.Friends
+                .ToListAsync();
+            var otherUserFriends = await _db.Friends
                 .Where(f => f.RequesterId == otherUserId || f.AddresseeId == otherUserId)
                 .Select(f => f.RequesterId == otherUserId ? f.AddresseeId : f.RequesterId)
-                .ToList();
+                .ToListAsync();
             return currentUserFriends.Intersect(otherUserFriends).Count();
-
         }
-
     }
 }

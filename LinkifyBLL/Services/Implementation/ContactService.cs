@@ -3,13 +3,8 @@ using LinkifyBLL.Services.Abstraction;
 using LinkifyDAL.Entities;
 using LinkifyDAL.Repo.Abstraction;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace LinkifyBLL.Services.Implementation
 {

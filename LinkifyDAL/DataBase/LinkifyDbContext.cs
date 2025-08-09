@@ -18,5 +18,7 @@ namespace LinkifyDAL.DataBase
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Job> Jobs { get; set; }
         public DbSet<JobApplication> JobApplications { get; set; }
+        public DbSet<SaveJob> SaveJobs { get; set; }
+        public DbSet<CommentReactions> CommentReactions { get; set; }
     }
 }

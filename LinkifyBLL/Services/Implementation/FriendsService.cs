@@ -3,145 +3,209 @@ using LinkifyBLL.Services.Abstraction;
 using LinkifyDAL.Entities;
 using LinkifyDAL.Enums;
 using LinkifyDAL.Repo.Abstraction;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace LinkifyBLL.Services.Implementation
 {
     public class FriendsService : IFriendsService
     {
-        private readonly IFriendsRepository _IFR;
-        public FriendsService(IFriendsRepository ifr)
+        private readonly IFriendsRepository _friendsRepository;
+
+        public FriendsService(IFriendsRepository friendsRepository)
         {
-            this._IFR = ifr;
-        }
-        public void AcceptFriendRequest(string requesterId, string addresseeId)
-        {
-            _IFR.AcceptFriendRequest(requesterId, addresseeId);
+            _friendsRepository = friendsRepository ?? throw new ArgumentNullException(nameof(friendsRepository));
         }
 
-        public void AddFriendRequest(string requesterId, string addresseeId)
+        public async Task<bool> FriendshipExistsAsync(string userId1, string userId2)
         {
-            _IFR.AddFriendRequest(requesterId, addresseeId);
-        }
-
-        public void BlockUser(string blockerId, string blockedId)
-        {
-            _IFR.BlockUser(blockerId, blockedId);
-        }
-        public void UnblockUser(string blockerId, string blockedId)
-        {
-            _IFR.UnblockUser(blockerId, blockedId);
-        }
-
-        public void CancelFriendRequest(string requesterId, string addresseeId)
-        {
-            _IFR.CancelFriendRequest(requesterId, addresseeId);
-        }
-
-        public void DeclineFriendRequest(string requesterId, string addresseeId)
-        {
-            _IFR.DeclineFriendRequest(requesterId, addresseeId);
-        }
-
-        public bool FriendshipExists(string userId1, string userId2)
-        {
-            return _IFR.FriendshipExists(userId1, userId2);
-        }
-
-        public IEnumerable<PoepleMV> GetAllUsers()
-        {
-            List<PoepleMV> ll = new List<PoepleMV>();
-            var list = _IFR.GetAllUsers();
-
-            foreach (var item in list)
+            if (string.IsNullOrEmpty(userId1) || string.IsNullOrEmpty(userId2))
             {
-                ll.Add(new PoepleMV
-                {
-                    Id = item.Id,
-                    Name = item.UserName,
-                    ImgPath = item.ImgPath,
-                    Status = _IFR.GetFriendshipStatus(item.Id, item.Id),
-                    MutualFriendsCount = _IFR.GetMutualFriendCount(item.Id, item.Id)
-                    
-                });
+                throw new ArgumentException("User IDs cannot be null or empty");
             }
 
-
-
-
-            return ll;
+            return await _friendsRepository.FriendshipExistsAsync(userId1, userId2);
         }
 
-        public IEnumerable<Friends> GetBlockedUsers(string userId)
+        public async Task AddFriendRequestAsync(string requesterId, string addresseeId)
         {
-            return _IFR.GetBlockedUsers(userId);
-        }
-
-        public int GetFriendCount(string userId)
-        {
-            return _IFR.GetFriendCount(userId);
-        }
-
-        public IEnumerable<Friends> GetFriends(string userId)
-        {
-            return _IFR.GetFriends(userId);
-        }
-
-        public FriendStatus GetFriendshipStatus(string userId1, string userId2)
-        {
-            return _IFR.GetFriendshipStatus(userId1, userId2);
-        }
-
-        public int GetPendingRequestCount(string userId)
-        {
-            return _IFR.GetPendingRequestCount(userId);
-        }
-
-        public IEnumerable<Friends> GetPendingRequests(string userId)
-        {
-            return _IFR.GetPendingRequests(userId);
-        }
-
-        public void Unfriend(string userId1, string userId2)
-        {
-            _IFR.Unfriend(userId1, userId2);
-        }
-
-        public IEnumerable<PoepleMV> GetPeopleYouMayKnow(string userId)
-        {
-            var users = _IFR.GetPeopleYouMayKnow(userId);
-
-            return users.Select(u => new PoepleMV
+            if (string.IsNullOrEmpty(requesterId) || string.IsNullOrEmpty(addresseeId))
             {
-                Id = u.Id,
-                Name = u.UserName,
-                ImgPath = u.ImgPath,
-                Status = _IFR.GetFriendshipStatus(userId, u.Id),
-                MutualFriendsCount = _IFR.GetMutualFriendCount(userId, u.Id)
-                
-            }).ToList();
+                throw new ArgumentException("User IDs cannot be null or empty");
+            }
+
+            if (requesterId == addresseeId)
+            {
+                throw new InvalidOperationException("Cannot send friend request to yourself");
+            }
+
+            if (await _friendsRepository.FriendshipExistsAsync(requesterId, addresseeId))
+            {
+                throw new InvalidOperationException("Friendship or request already exists");
+            }
+
+            await _friendsRepository.AddFriendRequestAsync(requesterId, addresseeId);
         }
 
-        public IEnumerable<PoepleMV> MyConnections(string userId)
+        public async Task AcceptFriendRequestAsync(string requesterId, string addresseeId)
         {
-            var poepleList = _IFR.GetFriends(userId)
-                .Select(f => new PoepleMV
-                {
-                    Id = f.RequesterId == userId ? f.AddresseeId : f.RequesterId,
-                    Name = f.RequesterId == userId ? f.Addressee.UserName : f.Requester.UserName,
-                    ImgPath = f.RequesterId == userId ? f.Addressee.ImgPath : f.Requester.ImgPath,
-                    Title = f.RequesterId == userId ? f.Addressee.Title : f.Requester.Title,
-                    Status = f.Status,
-                    MutualFriendsCount = 0 
-                })
-                .ToList();
-            return poepleList;
+            if (string.IsNullOrEmpty(requesterId) || string.IsNullOrEmpty(addresseeId))
+            {
+                throw new ArgumentException("User IDs cannot be null or empty");
+            }
+
+            var status = await _friendsRepository.GetFriendshipStatusAsync(requesterId, addresseeId);
+            if (status != FriendStatus.Pending)
+            {
+                throw new InvalidOperationException("No pending friend request exists");
+            }
+
+            await _friendsRepository.AcceptFriendRequestAsync(requesterId, addresseeId);
+        }
+
+        public async Task DeclineFriendRequestAsync(string requesterId, string addresseeId)
+        {
+            if (string.IsNullOrEmpty(requesterId) || string.IsNullOrEmpty(addresseeId))
+            {
+                throw new ArgumentException("User IDs cannot be null or empty");
+            }
+
+            var status = await _friendsRepository.GetFriendshipStatusAsync(requesterId, addresseeId);
+            if (status != FriendStatus.Pending)
+            {
+                throw new InvalidOperationException("No pending friend request exists");
+            }
+
+            await _friendsRepository.DeclineFriendRequestAsync(requesterId, addresseeId);
+        }
+
+        public async Task CancelFriendRequestAsync(string requesterId, string addresseeId)
+        {
+            if (string.IsNullOrEmpty(requesterId) || string.IsNullOrEmpty(addresseeId))
+            {
+                throw new ArgumentException("User IDs cannot be null or empty");
+            }
+
+            var status = await _friendsRepository.GetFriendshipStatusAsync(requesterId, addresseeId);
+            if (status != FriendStatus.Pending)
+            {
+                throw new InvalidOperationException("No pending friend request exists");
+            }
+
+            await _friendsRepository.CancelFriendRequestAsync(requesterId, addresseeId);
+        }
+
+        public async Task BlockUserAsync(string blockerId, string blockedId)
+        {
+            if (string.IsNullOrEmpty(blockerId) || string.IsNullOrEmpty(blockedId))
+            {
+                throw new ArgumentException("User IDs cannot be null or empty");
+            }
+
+            if (blockerId == blockedId)
+            {
+                throw new InvalidOperationException("Cannot block yourself");
+            }
+
+            await _friendsRepository.BlockUserAsync(blockerId, blockedId);
+        }
+
+        public async Task UnfriendAsync(string userId1, string userId2)
+        {
+            if (string.IsNullOrEmpty(userId1) || string.IsNullOrEmpty(userId2))
+            {
+                throw new ArgumentException("User IDs cannot be null or empty");
+            }
+
+            var status = await _friendsRepository.GetFriendshipStatusAsync(userId1, userId2);
+            if (status != FriendStatus.Accepted)
+            {
+                throw new InvalidOperationException("Users are not friends");
+            }
+
+            await _friendsRepository.UnfriendAsync(userId1, userId2);
+        }
+
+        public async Task<int> GetFriendCountAsync(string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new ArgumentException("User ID cannot be null or empty");
+            }
+
+            return await _friendsRepository.GetFriendCountAsync(userId);
+        }
+
+        public async Task<int> GetPendingRequestCountAsync(string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new ArgumentException("User ID cannot be null or empty");
+            }
+
+            return await _friendsRepository.GetPendingRequestCountAsync(userId);
+        }
+
+        public async Task<IEnumerable<Friends>> GetPendingRequestsAsync(string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new ArgumentException("User ID cannot be null or empty");
+            }
+
+            return await _friendsRepository.GetPendingRequestsAsync(userId);
+        }
+
+        public async Task<IEnumerable<Friends>> GetFriendsAsync(string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new ArgumentException("User ID cannot be null or empty");
+            }
+
+            return await _friendsRepository.GetFriendsAsync(userId);
+        }
+
+        public async Task<IEnumerable<Friends>> GetBlockedUsersAsync(string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new ArgumentException("User ID cannot be null or empty");
+            }
+
+            return await _friendsRepository.GetBlockedUsersAsync(userId);
+        }
+
+        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        {
+            return await _friendsRepository.GetAllUsersAsync();
+        }
+
+        public async Task<FriendStatus> GetFriendshipStatusAsync(string userId1, string userId2)
+        {
+            if (string.IsNullOrEmpty(userId1) || string.IsNullOrEmpty(userId2))
+            {
+                throw new ArgumentException("User IDs cannot be null or empty");
+            }
+
+            return await _friendsRepository.GetFriendshipStatusAsync(userId1, userId2);
+        }
+
+        public async Task<IEnumerable<User>> GetPeopleYouMayKnowAsync(string currentUserId)
+        {
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                throw new ArgumentException("User ID cannot be null or empty");
+            }
+
+            return await _friendsRepository.GetPeopleYouMayKnowAsync(currentUserId);
+        }
+
+        public async Task<int> GetMutualFriendCountAsync(string currentUserId, string otherUserId)
+        {
+            if (string.IsNullOrEmpty(currentUserId) || string.IsNullOrEmpty(otherUserId))
+            {
+                throw new ArgumentException("User IDs cannot be null or empty");
+            }
+
+            return await _friendsRepository.GetMutualFriendCountAsync(currentUserId, otherUserId);
         }
     }
 }
