@@ -11,8 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LinkifyDAL.Migrations
 {
-
-
+    [DbContext(typeof(LinkifyDbContext))]
+    [Migration("20250809134330_initDBWithJobs")]
+    partial class initDBWithJobs : Migration
+    {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
