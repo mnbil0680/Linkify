@@ -50,16 +50,16 @@ namespace LinkifyPLL.Controllers
             await _postCommentService.CreateCommentAsync(model.PostId,user.Id, model.TextContent,model.ImagePath, model.ParentCommentId);
             return RedirectToAction("Home");
         }
+
+
         [HttpPost]
-        public async Task<IActionResult> CreateReaction(int postId, ReactionTypes reaction)
+        public async Task<IActionResult> ToggleReaction(int postId, string userId, string reactionType)
         {
-            if (!ModelState.IsValid)
-                return RedirectToAction("Index", "Home");
-            var user = await _userManager.GetUserAsync(User);
-            if(user == null)
-                return Unauthorized();
-            await _postReactionService.ToggleReactionAsync(postId, user.Id, reaction);
-            return Ok();
+
+
+            await _postReactionService.ToggleReactionAsync(postId, userId, Enum.Parse<ReactionTypes>(reactionType));
+            return RedirectToAction("Index", "Home");
         }
+
     }
 }

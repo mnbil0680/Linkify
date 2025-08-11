@@ -1,0 +1,35 @@
+﻿@{
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+@* 
+
+// Write 3 elements
+1- Text Area To Write A comment
+2- Imput Fied to insert Post Id
+3- Input Field to insert Commenter Id
+4- submit Button to send these data at asp-rout-
+*@
+<br />
+<br />
+<br />
+<br />
+<br />
+<h2>Write a Comment</h2>
+
+<form asp-controller="Comment" asp-action="TestComment" method="post">
+    <div class="mb-3">
+        <label for="CommentText" class="form-label">Comment</label>
+        <textarea class="form-control" id="CommentText" name="CommentText" rows="3" required></textarea>
+    </div>
+    <div class="mb-3">
+        <label for="PostId" class="form-label">Post Id</label>
+        <input type="number" class="form-control" id="PostId" name="PostId" required />
+    </div>
+    <div class="mb-3">
+        <label for="CommenterId" class="form-label">Commenter Id</label>
+        <input type="text" class="form-control" id="CommenterId" name="CommenterId" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Submit Comment</button>
+</form>
+

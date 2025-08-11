@@ -14,6 +14,7 @@ namespace LinkifyPLL.Controllers
         private readonly IFriendsService IFS;
         private readonly IPostService IPS;
         private readonly IEmailService IES;
+        private readonly IPostCommentsService IPCS;
 
         // Constructor to initialize IUserService
         public AccountController(IUserService ius, IAuthenticationService authService, IFriendsService ifs, IPostService ips, IEmailService ies)
@@ -106,7 +107,7 @@ namespace LinkifyPLL.Controllers
                 PostsCount = await IPS.GetUserPostCountAsync(user.Id),
                 ProfileViews = 0,
                 LikesCount = 0,
-                CommentsCount = 0,
+                CommentsCount = 0, 
                 SharesCount = 0,
 
                 // Collections - initialize as empty (populated later from other services)

@@ -5,8 +5,10 @@ using LinkifyDAL.Enums;
 using LinkifyPLL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Security.Claims;
+using System.Xml.Linq;
 
 namespace LinkifyPLL.Controllers
 {
@@ -16,12 +18,19 @@ namespace LinkifyPLL.Controllers
         public readonly IUserService IUS;
         private readonly ILogger<HomeController> _logger;
         public readonly IFriendsService _IFS;
+        // POSTs
         public readonly IPostService IPS;
         public readonly IPostCommentsService IPCS;
         public readonly IPostImagesService IPIS;
+        //Reactions
         public readonly IPostReactionsService IPRS;
+        // Share
         public readonly ISharePostService ISharePS;
-        public HomeController(ILogger<HomeController> logger, IFriendsService ifs, IPostService ips, IPostCommentsService ipcs, IPostImagesService ipis, IPostReactionsService iprs, ISharePostService ishareps )
+        // Comment
+        public readonly ICommentReactionsService ICRS;
+
+
+        public HomeController(ILogger<HomeController> logger, IFriendsService ifs, IPostService ips, IPostCommentsService ipcs, IPostImagesService ipis, IPostReactionsService iprs, ISharePostService ishareps, ICommentReactionsService icrs )
         {
             _logger = logger;
             this._IFS = ifs;
@@ -29,6 +38,7 @@ namespace LinkifyPLL.Controllers
             this.IPCS = ipcs;
             this.IPIS = ipis;
             this.IPRS = iprs;
+            this.ICRS = icrs;
             this.ISharePS = ishareps;
         }
 
@@ -41,6 +51,7 @@ namespace LinkifyPLL.Controllers
             {
                 var postMV = new PostMV
                 {
+                    postId = post.Id,
                     PostUserName = post.User.UserName,
                     PostUserTitle = post.User.Title,
                     PostUserImg = post.User.ImgPath,
@@ -50,13 +61,22 @@ namespace LinkifyPLL.Controllers
                     imageCount = await IPIS.GetImageCountForPostAsync(post.Id),
                     CommentsCount = await IPCS.GetCommentCountForPostAsync(post.Id),
                     //Comments = new list<>
+                    
                     ReactionCount = await IPRS.GetReactionCountAsync(post.Id),
+
                     LikeCount = await IPRS.GetReactionCountAsync(post.Id, ReactionTypes.Like),
                     LoveCount = await IPRS.GetReactionCountAsync(post.Id, ReactionTypes.Love),
                     LaughCount = await IPRS.GetReactionCountAsync(post.Id, ReactionTypes.Haha),
                     SadCount = await IPRS.GetReactionCountAsync(post.Id, ReactionTypes.Sad),
                     AngryCount = await IPRS.GetReactionCountAsync(post.Id, ReactionTypes.Angry),
-                    NumberOfShares = await ISharePS.GetPostShareCountAsync(post.Id)
+                    ReactionsNumbers = new List<int>
+                    {
+                        await IPRS.GetReactionCountAsync(post.Id, ReactionTypes.Like),
+                        await IPRS.GetReactionCountAsync(post.Id, ReactionTypes.Love),
+                        await IPRS.GetReactionCountAsync(post.Id, ReactionTypes.Haha),
+                        await IPRS.GetReactionCountAsync(post.Id, ReactionTypes.Sad),
+                        await IPRS.GetReactionCountAsync(post.Id, ReactionTypes.Angry)
+                    },
                 };
 
                 var images = await IPIS.GetImageByPostIdAsync(post.Id);
@@ -65,12 +85,62 @@ namespace LinkifyPLL.Controllers
                     postMV.Images.Add(img.ImagePath);
                 }
 
+                var comments = await IPCS.GetCommentsForPostAsync(post.Id);
+                postMV.Comments = new List<CommentCreateMV>();
+
+                foreach (var comment in comments)
+                {
+                    // Fetch reactions for this comment (replace with your actual service/repository)
+                    var commentReactions = await ICRS.GetReactionsByCommentAsync(comment.Id);
+
+                    // Map to CommentReactionMV
+                    var reactionMVs = commentReactions.Select(r => new CommentReactionMV
+                    {
+                        Id = r.Id,
+                        CommentId = r.CommentId,
+                        ReactorId = r.ReactorId,
+                        ReactorUserName = r.Reactor?.UserName, // if available
+                        Reaction = r.Reaction.ToString(),
+                        IsDeleted = r.IsDeleted,
+                        CreatedOn = r.CreatedOn
+                    }).ToList();
+
+                    // Create the comment view model and assign reactions
+                    var commentMV = new CommentCreateMV(
+                        commentId: comment.Id,
+                        postId: comment.PostId,
+                        textContent: comment.Content,
+                        imagePath: comment.ImgPath,
+                        parentCommentId: comment.ParentCommentId,
+                        commenterId: comment.CommenterId
+                    )
+                    {
+                        Reactions = reactionMVs
+                    };
+
+                    postMV.Comments.Add(commentMV);
+                }
+
+                var reactions = await IPRS.GetReactionsByPostAsync(post.Id);
+
+                // Map to PostReactionMV
+                postMV.Reactions = reactions.Select(r => new PostReactionMV
+                {
+                    Id = r.Id,
+                    PostId = r.PostId,
+                    ReactorId = r.ReactorId,
+                    ReactorUserName = r.Reactor?.UserName, // if available
+                    Reaction = r.Reaction.ToString(),
+                    IsDeleted = r.IsDeleted,
+                    CreatedOn = r.CreatedOn
+                }).ToList();
+
                 HomePosts.Add(postMV);
             }
 
             
 
-            return View(HomePosts);
+            return View("testHomePostsAndComments", HomePosts);
         }
 
 
@@ -146,5 +216,17 @@ namespace LinkifyPLL.Controllers
             }).ToList();
             return View(model);
         }
+        
+        
+
+        
+
+        
+
+
+
+
+
+
     }
 }
