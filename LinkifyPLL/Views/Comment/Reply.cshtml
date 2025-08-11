@@ -1,0 +1,30 @@
+﻿@{
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<h2>Write a Reply</h2>
+
+<form asp-controller="Comment" asp-action="Reply" method="post">
+    <div class="mb-3">
+        <label for="ReplyText" class="form-label">Reply</label>
+        <textarea class="form-control" id="ReplyText" name="ReplyText" rows="3" required></textarea>
+    </div>
+    <div class="mb-3">
+        <label for="PostId" class="form-label">Post Id</label>
+        <input type="number" class="form-control" id="PostId" name="PostId" required />
+    </div>
+    <div class="mb-3">
+        <label for="ParentCommentId" class="form-label">Parent Comment Id</label>
+        <input type="number" class="form-control" id="ParentCommentId" name="ParentCommentId" required />
+    </div>
+    <div class="mb-3">
+        <label for="CommenterId" class="form-label">Commenter Id</label>
+        <input type="text" class="form-control" id="CommenterId" name="CommenterId" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Submit Reply</button>
+</form>

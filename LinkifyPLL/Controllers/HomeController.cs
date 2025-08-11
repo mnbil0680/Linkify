@@ -90,22 +90,55 @@ namespace LinkifyPLL.Controllers
 
                 foreach (var comment in comments)
                 {
-                    // Fetch reactions for this comment (replace with your actual service/repository)
+                    // Fetch reactions for this comment
                     var commentReactions = await ICRS.GetReactionsByCommentAsync(comment.Id);
 
-                    // Map to CommentReactionMV
                     var reactionMVs = commentReactions.Select(r => new CommentReactionMV
                     {
                         Id = r.Id,
                         CommentId = r.CommentId,
                         ReactorId = r.ReactorId,
-                        ReactorUserName = r.Reactor?.UserName, // if available
+                        ReactorUserName = r.Reactor?.UserName,
                         Reaction = r.Reaction.ToString(),
                         IsDeleted = r.IsDeleted,
                         CreatedOn = r.CreatedOn
                     }).ToList();
 
-                    // Create the comment view model and assign reactions
+                    // Fetch replies for this comment
+                    var replies = await IPCS.GetCommentRepliesAsync(comment.Id);
+
+                    var replyMVs = new List<CommentCreateMV>();
+                    foreach (var reply in replies)
+                    {
+                        // Fetch reactions for each reply
+                        var replyReactions = await ICRS.GetReactionsByCommentAsync(reply.Id);
+                        var replyReactionMVs = replyReactions.Select(r => new CommentReactionMV
+                        {
+                            Id = r.Id,
+                            CommentId = r.CommentId,
+                            ReactorId = r.ReactorId,
+                            ReactorUserName = r.Reactor?.UserName,
+                            Reaction = r.Reaction.ToString(),
+                            IsDeleted = r.IsDeleted,
+                            CreatedOn = r.CreatedOn
+                        }).ToList();
+
+                        // Optionally, recursively fetch nested replies here if you want multi-level threading
+
+                        replyMVs.Add(new CommentCreateMV(
+                            commentId: reply.Id,
+                            postId: reply.PostId,
+                            textContent: reply.Content,
+                            imagePath: reply.ImgPath,
+                            parentCommentId: reply.ParentCommentId,
+                            commenterId: reply.CommenterId
+                        )
+                        {
+                            Reactions = replyReactionMVs,
+                            Replies = new List<CommentCreateMV>() // For now, empty; add recursion for deeper nesting if needed
+                        });
+                    }
+
                     var commentMV = new CommentCreateMV(
                         commentId: comment.Id,
                         postId: comment.PostId,
@@ -115,7 +148,8 @@ namespace LinkifyPLL.Controllers
                         commenterId: comment.CommenterId
                     )
                     {
-                        Reactions = reactionMVs
+                        Reactions = reactionMVs,
+                        Replies = replyMVs
                     };
 
                     postMV.Comments.Add(commentMV);

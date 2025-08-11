@@ -18,6 +18,7 @@ namespace LinkifyBLL.ModelView
         public int? ParentCommentId { get; set; }  // null = it's a top-level comment
         public string? CommenterId { get; set; }
         public List<CommentReactionMV> Reactions { get; set; }
+        public List<CommentCreateMV> Replies { get; set; }
 
         public CommentCreateMV(int commentId, int postId, string textContent, string? imagePath = null, int? parentCommentId = null, string? commenterId =null)
         {

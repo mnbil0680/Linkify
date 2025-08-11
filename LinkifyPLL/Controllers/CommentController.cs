@@ -67,5 +67,53 @@ namespace LinkifyPLL.Controllers
             await ICRS.ToggleReactionAsync(commentId, userId, Enum.Parse<ReactionTypes>(reactionType));
             return RedirectToAction("Index","Home");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Reply(int? parentCommentId, int? postId, string commenterId)
+        {
+            // Prepare a model for the reply form (optional, for prefilling fields)
+            var model = new CommentCreateMV(
+                commentId: 0, // New reply, so no ID yet
+                postId: postId ?? 0,
+                textContent: "",
+                imagePath: null,
+                parentCommentId: parentCommentId,
+                commenterId: commenterId
+            );
+            return View("~/Views/Comment/Reply.cshtml", model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Reply(string ReplyText, int PostId, int ParentCommentId, string CommenterId, string? imgAdded = null)
+        {
+            // Create the reply using the service
+            await IPCS.ReplyToCommentAsync(ParentCommentId, CommenterId, ReplyText, imgAdded);
+            return RedirectToAction("Index", "Home");
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> EditReply(int ReplyId, string OldText, int PostId, string CommenterId, string OldImgPath = null, int? ParentCommentId = null)
+        {
+            // Prepare the model for the edit form
+            var reply = new CommentCreateMV(ReplyId, PostId, OldText, OldImgPath, ParentCommentId, CommenterId);
+            return View("~/Views/Comment/EditReply.cshtml", reply);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditReply(int ReplyId, string newText, string imgAdded = null)
+        {
+            // Update the reply using the service
+            await IPCS.UpdateCommentAsync(ReplyId, newText, imgAdded);
+            return RedirectToAction("Index", "Home");
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteReply(int ReplyId)
+        {
+            await IPCS.DeleteCommentAsync(ReplyId);
+            return RedirectToAction("Index", "Home");
+        }
+
+
     }
 }

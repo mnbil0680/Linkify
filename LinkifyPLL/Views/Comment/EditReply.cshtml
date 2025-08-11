@@ -1,0 +1,41 @@
+﻿@model CommentCreateMV
+@{
+    ViewData["Title"] = "Edit Reply";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<h2>Edit Reply</h2>
+
+<form asp-controller="Comment" asp-action="EditReply" method="post">
+    <div class="mb-3">
+        <label for="newText" class="form-label">Reply</label>
+        <textarea class="form-control" id="newText" name="newText" rows="3" required>@Model.TextContent</textarea>
+    </div>
+    <div class="mb-3">
+        <label for="PostId" class="form-label">Post Id</label>
+        <input type="number" class="form-control" id="PostId" name="PostId" required value="@Model.PostId" />
+    </div>
+    <div class="mb-3">
+        <label for="CommentID" class="form-label">Reply Id</label>
+        <input type="text" class="form-control" id="CommentID" name="ReplyId" value="@Model.CommentID" readonly />
+    </div>
+    <div class="mb-3">
+        <label for="imgAdded" class="form-label">Image Path</label>
+        <input type="text" class="form-control" id="imgAdded" name="imgAdded" value="@Model.ImagePath" />
+    </div>
+    <div class="mb-3">
+        <label for="CommenterId" class="form-label">Commenter Id</label>
+        <input type="text" class="form-control" id="CommenterId" name="CommenterId" value="@Model.CommenterId" readonly />
+    </div>
+    <div class="mb-3">
+        <label for="ParentCommentId" class="form-label">Parent Comment Id</label>
+        <input type="text" class="form-control" id="ParentCommentId" name="ParentCommentId" value="@Model.ParentCommentId" readonly />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit Reply</button>
+</form>
