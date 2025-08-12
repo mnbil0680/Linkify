@@ -69,8 +69,9 @@ namespace LinkifyPLL.Controllers
                     Images = new List<string>(),
                     imageCount = await IPIS.GetImageCountForPostAsync(post.Id),
                     CommentsCount = await IPCS.GetCommentCountForPostAsync(post.Id),
+                    IsSavedByCurrentUser = await ISavePostS.IsPostSavedByUserAsync(post.Id,post.UserId),
                     //Comments = new list<>
-                    
+
                     ReactionCount = await IPRS.GetReactionCountAsync(post.Id),
 
                     LikeCount = await IPRS.GetReactionCountAsync(post.Id, ReactionTypes.Like),
