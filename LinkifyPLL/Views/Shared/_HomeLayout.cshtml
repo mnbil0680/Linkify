@@ -55,192 +55,26 @@
     <link rel="preload" href="~/css/Home/style.css" as="style">
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style">
     <!-- In the <head> section -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    @* <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" /> *@
 
 </head>
 <body>
-    <!-- Create Post Modal -->
-    <div id="postModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Create a Post</h3>
-                <button class="close-button" onclick="closePostModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="createPostForm" onsubmit="handlePostSubmit(event)">
-                    <div class="modal-user-info">
-                        <div class="create-post-avatar">JD</div>
-                        <div>
-                            <div style="font-weight: 600; color: var(--text-primary);">John Doe</div>
-                            <div style="font-size: 12px; color: var(--text-secondary);"><i class="fas fa-globe-americas"></i> Public</div>
-                        </div>
-                    </div>
-
-                    <textarea name="TextContent"
-                              class="post-textarea"
-                              placeholder="What's on your mind, John?"
-                              required
-                              oninput="updateSubmitButton()"></textarea>
-
-                    <div id="imageUploadSection" class="image-upload-section" onclick="document.getElementById('imageInput').click()">
-                        <div class="image-upload-icon">📷</div>
-                        <div class="image-upload-text">Add photos to your post</div>
-                    </div>
-
-                    <div id="imagePreviewContainer" class="image-preview-container"></div>
-
-                    <input type="file"
-                           id="imageInput"
-                           name="Images"
-                           multiple
-                           accept="image/*"
-                           class="hidden"
-                           onchange="handleImagePreview(event)">
-
-                    <div class="modal-footer">
-                        <div class="modal-actions">
-                            <button type="button" class="modal-action-btn" onclick="document.getElementById('imageInput').click()" title="Add Photo">
-                                <i class="fas fa-image"></i>
-                            </button>
-                            <button type="button" class="modal-action-btn" title="Tag People">
-                                <i class="fas fa-user-tag"></i>
-                            </button>
-                            <button type="button" class="modal-action-btn" title="Feeling/Activity">
-                                <i class="fas fa-smile"></i>
-                            </button>
-                            <button type="button" class="modal-action-btn" title="Location">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </button>
-                        </div>
-                        <button type="submit" id="postSubmitBtn" class="post-submit-btn" disabled>
-                            Post
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
     <partial name="_NavPartial" />
     <div class="main-container" >
+
         <!-- Left Sidebar -->
         @await Html.PartialAsync("_LeftSidebarPartial", user)
 
         <!-- Main Feed -->
         <main class="main-feed" id="main-content" role="main" aria-label="Main content">
-            <!-- Create Post Section -->
-            <div class="create-post" id="create-post">
-                <div class="create-post-header">
-                    <img src="/api/placeholder/50/50" alt="Your profile" class="create-post-avatar">
-                    <button id="openModalTrigger" class="post-trigger-button">
-                        <i class="fas fa-pen"></i> Start a post
-                    </button>
-
-                </div>
-            </div>
+            
             @await Html.PartialAsync("_CreatePostModal", new PostCreateMV())
             @RenderBody()
         </main>
 
-        <!-- Right Sidebar -->
-        <aside class="right-sidebar">
-            <div class="widget">
-                <h3 class="widget-title">
-                    <i class="fas fa-user-plus"></i>
-                <a href="/Home/PeopleYouMayKnow" style="color: inherit; text-decoration: none;">
-                    People You May Know
-                </a>
-                </h3>
-                <div class="suggestion-item">
-                    <div class="suggestion-avatar">AL</div>
-                    <div style="flex: 1">
-                        <h4 style="font-size: 14px; margin-bottom: 2px">
-                            Alice Lee
-                        </h4>
-                        <p style="font-size: 12px; color: var(--dark-gray)">
-                            Data Scientist
-                        </p>
-                    </div>
-                    <button class="connect-btn">Connect</button>
-                </div>
-                <div class="suggestion-item">
-                    <div class="suggestion-avatar">RB</div>
-                    <div style="flex: 1">
-                        <h4 style="font-size: 14px; margin-bottom: 2px">
-                            Robert Brown
-                        </h4>
-                        <p style="font-size: 12px; color: var(--dark-gray)">
-                            Marketing Manager
-                        </p>
-                    </div>
-                    <button class="connect-btn">Connect</button>
-                </div>
-                <div class="suggestion-item">
-                    <div class="suggestion-avatar">EW</div>
-                    <div style="flex: 1">
-                        <h4 style="font-size: 14px; margin-bottom: 2px">
-                            Emma Wilson
-                        </h4>
-                        <p style="font-size: 12px; color: var(--dark-gray)">
-                            Frontend Developer
-                        </p>
-                    </div>
-                    <button class="connect-btn">Connect</button>
-                </div>
-            </div>
+        @await Html.PartialAsync("_RightSidePartial")
 
-            <div class="widget">
-                <h3 class="widget-title">
-                    <i class="fas fa-briefcase"></i>
-                    Job Recommendations
-                </h3>
-                <div style="margin-bottom: 15px">
-                    <h4
-                        style="
-                            font-size: 14px;
-                            color: var(--primary-blue);
-                            margin-bottom: 5px;
-                    "
-                    >
-                        Senior Developer
-                    </h4>
-                    <p
-                        style="
-                            font-size: 12px;
-                            color: var(--dark-gray);
-                            margin-bottom: 5px;
-                    "
-                    >
-                        TechCorp Inc.
-                    </p>
-                    <p style="font-size: 12px; color: var(--dark-gray)">
-                        Remote • $80k-$120k
-                    </p>
-                </div>
-                <div style="margin-bottom: 15px">
-                    <h4
-                        style="
-                            font-size: 14px;
-                            color: var(--primary-blue);
-                            margin-bottom: 5px;
-                    "
-                    >
-                        UX Designer
-                    </h4>
-                    <p
-                        style="
-                            font-size: 12px;
-                            color: var(--dark-gray);
-                            margin-bottom: 5px;
-                    "
-                    >
-                        DesignStudio
-                    </p>
-                    <p style="font-size: 12px; color: var(--dark-gray)">
-                        New York • $70k-$95k
-                    </p>
-                </div>
-            </div>
-        </aside>
+    
     </div>
     
 
@@ -302,9 +136,12 @@
     </script>
     @RenderSection("Scripts", required: false)
     <!-- Before </body> -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script> 
+   
+    @* this Library doesn't Make Dark And Light Mode Work  *@
+    @* <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>  *@
+   
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> 
 
 
 </body>
