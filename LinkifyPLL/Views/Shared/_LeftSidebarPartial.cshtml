@@ -1,0 +1,85 @@
+﻿@* Views/Shared/_LeftSidebarPartial.cshtml *@
+@model LinkifyDAL.Entities.User
+<aside class="left-sidebar" role="complementary" aria-label="Navigation menu">
+    @await Component.InvokeAsync("UserStats")
+
+    <div class="sidebar-section">
+        <h3 class="sidebar-title">
+            <i class="fas fa-users"></i>
+            Network
+        </h3>
+        <a asp-action="MyConnections" asp-controller="Home" class="sidebar-item interactive-card" tabindex="0">
+            <i class="fas fa-user-friends sidebar-icon"></i>
+            <span>My Connections</span>
+            <span class="item-count">@Model.</span>
+        </a>
+        <a asp-action="PeopleYouMayKnow" asp-controller="Home" class="sidebar-item interactive-card" tabindex="0">
+            <i class="fas fa-users sidebar-icon"></i>
+            <span>Find People</span>
+            <i class="fas fa-external-link-alt item-external"></i>
+        </a>
+        <a asp-action="Invitation" asp-controller="Home" class="sidebar-item interactive-card" tabindex="0">
+            <i class="fas fa-user-plus sidebar-icon"></i>
+            <span>Invitations</span>
+            <span class="item-count new">5</span>
+        </a>
+        <a asp-action="Index" asp-controller="ManageNetwork" class="sidebar-item interactive-card" tabindex="0">
+            <i class="fas fa-users-cog sidebar-icon"></i>
+            <span>Manage Network</span>
+        </a>
+    </div>
+
+    <div class="sidebar-section">
+        <h3 class="sidebar-title">
+            <i class="fas fa-briefcase"></i>
+            Career
+        </h3>
+        <a asp-action="Index" asp-controller="Job" class="sidebar-item interactive-card" tabindex="0" role="button">
+            <i class="fas fa-search sidebar-icon"></i>
+            <span>Find Jobs</span>
+            <span class="item-badge hot">Hot</span>
+        </a>
+        <div class="sidebar-item interactive-card" tabindex="0" role="button">
+            <i class="fas fa-bookmark sidebar-icon"></i>
+            <span>Saved Jobs</span>
+            <span class="item-count">12</span>
+        </div>
+        <div class="sidebar-item interactive-card" tabindex="0" role="button">
+            <i class="fas fa-chart-line sidebar-icon"></i>
+            <span>Career Insights</span>
+        </div>
+        <div class="sidebar-item interactive-card" tabindex="0" role="button">
+            <i class="fas fa-file-alt sidebar-icon"></i>
+            <span>Resume Builder</span>
+            <span class="item-badge new">New</span>
+        </div>
+    </div>
+
+    <div class="sidebar-section">
+        <h3 class="sidebar-title">
+            <i class="fas fa-cogs"></i>
+            Skills & Learning
+        </h3>
+        <div class="sidebar-item interactive-card" tabindex="0" role="button">
+            <i class="fas fa-star sidebar-icon"></i>
+            <span>My Skills</span>
+            <div class="progress-bar small">
+                <div class="progress-fill" style="width: 75%"></div>
+            </div>
+        </div>
+        <div class="sidebar-item interactive-card" tabindex="0" role="button">
+            <i class="fas fa-graduation-cap sidebar-icon"></i>
+            <span>Learning Paths</span>
+            <span class="item-badge trending">Trending</span>
+        </div>
+        <div class="sidebar-item interactive-card" tabindex="0" role="button">
+            <i class="fas fa-certificate sidebar-icon"></i>
+            <span>Certifications</span>
+            <span class="item-count">3</span>
+        </div>
+        <div class="sidebar-item interactive-card" tabindex="0" role="button">
+            <i class="fas fa-trophy sidebar-icon"></i>
+            <span>Achievements</span>
+        </div>
+    </div>
+</aside>

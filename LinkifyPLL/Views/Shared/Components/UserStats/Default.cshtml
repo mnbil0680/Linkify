@@ -1,8 +1,11 @@
 ﻿@model LinkifyPLL.Models.UserStatsVM
-
+@{
+    
+    var userImage = ViewBag.UserImage as string ?? "/imgs/Account/default.png";
+}
 <div class="user-stats-card">
     <div class="stats-header">
-        <img src="@Model.User?.ImgPath ?? " /api/placeholder/50/50"" alt="@Model.User?.UserName" class="user-avatar">
+        <img src="@(string.IsNullOrEmpty(Model.User?.ImgPath) ? "/imgs/Account/default.png" : Model.User.ImgPath)" alt="@Model.User?.UserName" class="user-avatar">
         <div class="user-info">
             <h3>@Model.User?.UserName</h3>
             <p>@Model.User?.Email</p>
