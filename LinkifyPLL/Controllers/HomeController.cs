@@ -63,7 +63,7 @@ namespace LinkifyPLL.Controllers
                     postId = post.Id,
                     PostUserName = post.User.UserName,
                     PostUserTitle = post.User.Title,
-                    PostUserImg = post.User.ImgPath,
+                    PostUserImg = post.User.ImgPath ?? "/imgs/Account/default.png",
                     TextContent = post.TextContent,
                     Since = DateTime.Now - post.CreatedOn,
                     Images = new List<string>(),
