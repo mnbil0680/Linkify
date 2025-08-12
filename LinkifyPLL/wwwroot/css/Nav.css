@@ -60966,18 +60966,7 @@ fieldset:disabled .btn {
     outline: 0;
 }
 
-.modal-backdrop {
-    --bs-backdrop-zindex: 1050;
-    --bs-backdrop-bg: #000000;
-    --bs-backdrop-opacity: 0.4;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: var(--bs-backdrop-zindex);
-    width: 100vw;
-    height: 100vh;
-    background-color: var(--bs-backdrop-bg);
-}
+
 
     .modal-backdrop.fade {
         opacity: 0;

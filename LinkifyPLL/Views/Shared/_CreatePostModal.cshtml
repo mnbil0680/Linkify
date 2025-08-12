@@ -1,61 +1,437 @@
-﻿
-@model PostCreateMV
+﻿@model PostCreateMV
 
-<div id="postModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Create a Post</h3>
-            <span class="close-button" onclick="closePostModal()">&times;</span>
+<!-- Button trigger modal - Updated for Bootstrap 4 with manual trigger -->
+<button type="button" class="btn btn-primary d-inline-flex align-items-center px-4 py-2 font-weight-bold"
+        id="createPostTrigger"
+        style="background-color: #0077b5 !important; border-color: #0077b5 !important; border-radius: 20px !important;">
+    <i class="fas fa-edit mr-2"></i>Create Post
+</button>
+
+<!-- Create Post Modal - Bootstrap 4 Compatible -->
+<div class="modal fade" id="createPostModal" tabindex="-1" role="dialog"
+     aria-labelledby="createPostModalLabel" aria-hidden="true"
+     data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 520px !important;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px !important;">
+
+            <!-- Modal Header -->
+            <div class="modal-header border-0 pb-2"
+                 style="padding: 20px 24px 16px !important; border-bottom: 1px solid #e6e6e6 !important;">
+                <div class="d-flex align-items-center w-100">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white mr-3"
+                             style="width: 48px !important; height: 48px !important; background-color: #0077b5 !important;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h6 class="modal-title mb-0 font-weight-bold" style="color: #1d1d1d !important;">@(ViewBag.UserName ?? "John Doe")</h6>
+                            <small class="text-muted">@(ViewBag.UserTitle ?? "User")</small>
+                        </div>
+                    </div>
+                    <button type="button" class="close ml-auto" data-dismiss="modal" aria-label="Close"
+                            style="margin: 0 !important; opacity: 0.7;">
+                        <span aria-hidden="true" style="font-size: 1.5rem;">&times;</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body" style="padding: 20px 24px !important;">
+                <form id="createPostForm" asp-action="CreatePost" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Post Content -->
+                    <div class="form-group mb-3">
+                        <textarea class="form-control border-0 p-0 shadow-none"
+                                  asp-for="TextContent"
+                                  id="postContent"
+                                  rows="5"
+                                  placeholder="What do you want to talk about?"
+                                  maxlength="3000"
+                                  style="resize: none !important; font-size: 16px !important; background: transparent !important; outline: none !important;"></textarea>
+                        <span asp-validation-for="TextContent" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Character Count -->
+                    <div class="text-right mb-3">
+                        <small class="text-muted">
+                            <span id="charCount">0</span>/3000
+                        </small>
+                    </div>
+
+                    <!-- Media Options -->
+                    <div class="border-top pt-3 mb-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center flex-wrap">
+                                <!-- Photo Upload -->
+                                <label for="photoUpload" class="btn btn-light border-0 d-flex align-items-center px-3 py-2 mb-0 mr-2"
+                                       style="border-radius: 20px !important; cursor: pointer;">
+                                    <i class="fas fa-image text-success mr-2"></i>
+                                    <span style="font-size: 14px;">Photo</span>
+                                </label>
+                                <input type="file" id="photoUpload" asp-for="ImageFile"
+                                       accept="image/*" class="d-none">
+
+                                <!-- Video Upload -->
+                                <label for="videoUpload" class="btn btn-light border-0 d-flex align-items-center px-3 py-2 mb-0 mr-2"
+                                       style="border-radius: 20px !important; cursor: pointer;">
+                                    <i class="fas fa-video text-primary mr-2"></i>
+                                    <span style="font-size: 14px;">Video</span>
+                                </label>
+                                <input type="file" id="videoUpload" asp-for="VideoFile"
+                                       accept="video/*" class="d-none">
+
+                                <!-- Document Upload -->
+                                <label for="documentUpload" class="btn btn-light border-0 d-flex align-items-center px-3 py-2 mb-0"
+                                       style="border-radius: 20px !important; cursor: pointer;">
+                                    <i class="fas fa-paperclip text-secondary mr-2"></i>
+                                    <span style="font-size: 14px;">Document</span>
+                                </label>
+                                <input type="file" id="documentUpload" asp-for="DocumentFile"
+                                       accept=".pdf,.doc,.docx,.txt" class="d-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- File Preview Area -->
+                    <div id="filePreview" class="mb-3 d-none">
+                        <div class="border rounded p-3 bg-light">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-file mr-2 text-muted"></i>
+                                    <span id="fileName" class="small text-muted"></span>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-danger border-0"
+                                        id="removeFile">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visibility Settings -->
+                    <div class="pt-3 border-top">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-globe text-muted mr-2"></i>
+                            <select asp-for="Visibility" class="form-control border-0 bg-transparent p-0 shadow-none"
+                                    style="width: auto !important; font-size: 14px !important; color: #666 !important;">
+                                <option value="public">Anyone</option>
+                                <option value="connections">Connections only</option>
+                                <option value="private">Only me</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer border-0 pt-2 justify-content-end"
+                 style="padding: 16px 24px 20px !important; border-top: 1px solid #e6e6e6 !important;">
+                <button type="button" class="btn btn-secondary mr-2 px-3 py-2"
+                        data-dismiss="modal"
+                        style="border-radius: 20px !important; font-size: 14px !important;">
+                    Cancel
+                </button>
+                <button type="submit" form="createPostForm" class="btn btn-primary px-4 py-2 font-weight-bold"
+                        id="postBtn" disabled
+                        style="background-color: #0077b5 !important; border-color: #0077b5 !important; border-radius: 20px !important; font-size: 14px !important;">
+                    <span class="spinner-border spinner-border-sm mr-2 d-none" id="postSpinner" role="status"></span>
+                    Post
+                </button>
+            </div>
         </div>
-
-        <form asp-action="CreatePost" asp-controller="Post" method="post" enctype="multipart/form-data">
-            <textarea name="TextContent" class="post-textarea" placeholder="What’s on your mind?" required></textarea>
-            <input type="file" name="Images" multiple accept="image/*" class="post-file-upload" />
-            <button type="submit" class="btn btn-primary">Post</button>
-        </form>
     </div>
 </div>
 
-
-<style>
-    .post-trigger-button {
-        width: 100%;
-        padding: 10px;
-        font-size: 16px;
-        border: 1px solid #ccc;
-        background-color: #f9f9f9;
-        border-radius: 6px;
-        text-align: left;
-        cursor: pointer;
-    }
-
-    .post-trigger-button:hover {
-        background-color: #f0f0f0;
-    }
-
-
-</style>
+<!-- Toast for notifications -->
+<div class="toast-container position-fixed" style="top: 20px; right: 20px; z-index: 1060 !important;">
+    <div id="postToast" class="toast border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true" data-delay="3000">
+        <div class="toast-header bg-success text-white border-0">
+            <i class="fas fa-check-circle mr-2"></i>
+            <strong class="mr-auto">Success</strong>
+            <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="toast-body">
+            Your post has been created successfully!
+        </div>
+    </div>
+</div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const openBtn = document.getElementById('openModalTrigger');
-        const modal = document.getElementById('postModal');
-        const closeBtn = modal.querySelector('.close-button');
+    $(document).ready(function() {
+        // Manual modal trigger to avoid conflicts
+        $('#createPostTrigger').on('click', function() {
+            console.log('Create post button clicked');
+            $('#createPostModal').modal('show');
+        });
 
-        if (openBtn && modal && closeBtn) {
-            openBtn.addEventListener('click', function () {
-                modal.style.display = 'flex';
-            });
+        const postContent = $('#postContent');
+        const charCount = $('#charCount');
+        const postBtn = $('#postBtn');
+        const form = $('#createPostForm');
+        const fileInputs = ['photoUpload', 'videoUpload', 'documentUpload'];
+        const filePreview = $('#filePreview');
+        const fileName = $('#fileName');
+        const removeFileBtn = $('#removeFile');
+        const postSpinner = $('#postSpinner');
 
-            closeBtn.addEventListener('click', function () {
-                modal.style.display = 'none';
-            });
+        // Character count and button state
+        postContent.on('input', function() {
+            const length = this.value.length;
+            charCount.text(length);
+            postBtn.prop('disabled', length === 0 || length > 3000);
 
-            window.addEventListener('click', function (e) {
-                if (e.target === modal) {
-                    modal.style.display = 'none';
+            // Auto-resize textarea
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+        });
+
+        // File upload handling
+        fileInputs.forEach(inputId => {
+            $(`#${inputId}`).on('change', function() {
+                if (this.files.length > 0) {
+                    // Clear other file inputs
+                    fileInputs.forEach(otherId => {
+                        if (otherId !== inputId) {
+                            $(`#${otherId}`).val('');
+                        }
+                    });
+
+                    // Show file preview
+                    const file = this.files[0];
+                    fileName.text(file.name);
+                    filePreview.removeClass('d-none');
                 }
             });
+        });
+
+        // Remove file
+        removeFileBtn.on('click', function() {
+            fileInputs.forEach(inputId => {
+                $(`#${inputId}`).val('');
+            });
+            filePreview.addClass('d-none');
+        });
+
+        // Form submission
+        form.on('submit', function(e) {
+            e.preventDefault();
+
+            // Show loading state
+            postBtn.prop('disabled', true);
+            postSpinner.removeClass('d-none');
+            postBtn.html('<span class="spinner-border spinner-border-sm mr-2" role="status"></span>Posting...');
+
+            // Create FormData for file upload
+            const formData = new FormData(this);
+
+            // Submit via fetch
+            fetch(this.action || '/Post/Create', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close modal
+                    $('#createPostModal').modal('hide');
+
+                    // Reset form
+                    form[0].reset();
+                    postContent[0].style.height = 'auto';
+                    charCount.text('0');
+                    filePreview.addClass('d-none');
+
+                    // Show success toast
+                    $('#postToast').toast('show');
+
+                    // Reload page or update feed
+                    if (typeof updateFeed === 'function') {
+                        updateFeed();
+                    } else {
+                        setTimeout(() => location.reload(), 1500);
+                    }
+                } else {
+                    alert('Error creating post: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while creating the post');
+            })
+            .finally(() => {
+                // Reset button state
+                postBtn.prop('disabled', false);
+                postSpinner.addClass('d-none');
+                postBtn.html('Post');
+            });
+        });
+
+        // Modal event handlers
+        $('#createPostModal').on('show.bs.modal', function() {
+            console.log('Modal is showing');
+            $('body').addClass('modal-open');
+        });
+
+        // Reset form when modal is closed
+        $('#createPostModal').on('hidden.bs.modal', function() {
+            console.log('Modal is hidden');
+            $('body').removeClass('modal-open');
+            form[0].reset();
+            postContent[0].style.height = 'auto';
+            charCount.text('0');
+            postBtn.prop('disabled', true);
+            filePreview.addClass('d-none');
+            postSpinner.addClass('d-none');
+            postBtn.html('Post');
+        });
+
+        // Debug: Check if Bootstrap modal is available
+        if (typeof $.fn.modal === 'undefined') {
+            console.error('Bootstrap modal not available');
+        } else {
+            console.log('Bootstrap modal is available');
         }
     });
 </script>
+
+<style>
+    /* Hide the custom modal to prevent conflicts */
+    #postModal {
+        display: none !important;
+    }
+
+    /* Force proper Bootstrap 4 modal positioning */
+    #createPostModal.modal {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 1050 !important;
+        width: 100% !important;
+        height: 100% !important;
+        overflow: hidden !important;
+        outline: 0 !important;
+    }
+
+        #createPostModal.modal.fade .modal-dialog {
+            transition: transform 0.3s ease-out !important;
+            transform: translate(0, -50px) !important;
+        }
+
+        #createPostModal.modal.show .modal-dialog {
+            transform: none !important;
+        }
+
+    #createPostModal .modal-dialog {
+        position: relative !important;
+        width: auto !important;
+        margin: 1.75rem auto !important;
+        pointer-events: none !important;
+    }
+
+    #createPostModal .modal-dialog-centered {
+        display: flex !important;
+        align-items: center !important;
+        min-height: calc(100% - 3.5rem) !important;
+    }
+
+    #createPostModal .modal-content {
+        position: relative !important;
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        pointer-events: auto !important;
+        background-color: #fff !important;
+        background-clip: padding-box !important;
+        border: 1px solid rgba(0,0,0,.2) !important;
+        border-radius: 12px !important;
+        outline: 0 !important;
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15) !important;
+    }
+
+    /* Modal backdrop */
+    .modal-backdrop {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 1040 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background-color: #000 !important;
+    }
+
+        .modal-backdrop.fade {
+            opacity: 0 !important;
+        }
+
+        .modal-backdrop.show {
+            opacity: 0.5 !important;
+        }
+
+    /* Scoped styles to avoid conflicts */
+    #createPostModal .form-control:focus {
+        box-shadow: none !important;
+        border-color: transparent !important;
+    }
+
+    #createPostModal .btn-light {
+        background-color: #f8f9fa !important;
+        transition: background-color 0.2s ease !important;
+    }
+
+        #createPostModal .btn-light:hover {
+            background-color: #e9ecef !important;
+        }
+
+    #createPostModal .cursor-pointer {
+        cursor: pointer !important;
+    }
+
+    #createPostModal .form-control:focus {
+        box-shadow: none !important;
+        border-color: transparent !important;
+    }
+
+    /* Prevent textarea resize handle */
+    #createPostModal textarea {
+        resize: none !important;
+    }
+
+    /* Ensure body doesn't scroll when modal is open */
+    body.modal-open {
+        overflow: hidden !important;
+    }
+
+    /* Additional positioning fixes for Bootstrap 4 */
+    @@media (min-width: 576px) {
+        #createPostModal .modal-dialog
+
+    {
+        max-width: 520px !important;
+        margin: 1.75rem auto !important;
+    }
+
+    #createPostModal .modal-dialog-centered {
+        min-height: calc(100% - 3.5rem) !important;
+    }
+
+    }
+
+    /* Override any existing modal styles */
+    #createPostModal .modal-header,
+    #createPostModal .modal-body,
+    #createPostModal .modal-footer {
+        position: relative !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Toast positioning */
+    .toast-container {
+        z-index: 1060 !important;
+    }
+</style>

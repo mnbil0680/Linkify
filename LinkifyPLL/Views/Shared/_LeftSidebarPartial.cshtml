@@ -11,7 +11,7 @@
         <a asp-action="MyConnections" asp-controller="Home" class="sidebar-item interactive-card" tabindex="0">
             <i class="fas fa-user-friends sidebar-icon"></i>
             <span>My Connections</span>
-            <span class="item-count">@Model.</span>
+            <span class="item-count">@Model.UserName</span>
         </a>
         <a asp-action="PeopleYouMayKnow" asp-controller="Home" class="sidebar-item interactive-card" tabindex="0">
             <i class="fas fa-users sidebar-icon"></i>
@@ -44,15 +44,6 @@
             <span>Saved Jobs</span>
             <span class="item-count">12</span>
         </div>
-        <div class="sidebar-item interactive-card" tabindex="0" role="button">
-            <i class="fas fa-chart-line sidebar-icon"></i>
-            <span>Career Insights</span>
-        </div>
-        <div class="sidebar-item interactive-card" tabindex="0" role="button">
-            <i class="fas fa-file-alt sidebar-icon"></i>
-            <span>Resume Builder</span>
-            <span class="item-badge new">New</span>
-        </div>
     </div>
 
     <div class="sidebar-section">
@@ -63,23 +54,11 @@
         <div class="sidebar-item interactive-card" tabindex="0" role="button">
             <i class="fas fa-star sidebar-icon"></i>
             <span>My Skills</span>
-            <div class="progress-bar small">
-                <div class="progress-fill" style="width: 75%"></div>
-            </div>
-        </div>
-        <div class="sidebar-item interactive-card" tabindex="0" role="button">
-            <i class="fas fa-graduation-cap sidebar-icon"></i>
-            <span>Learning Paths</span>
-            <span class="item-badge trending">Trending</span>
         </div>
         <div class="sidebar-item interactive-card" tabindex="0" role="button">
             <i class="fas fa-certificate sidebar-icon"></i>
             <span>Certifications</span>
             <span class="item-count">3</span>
-        </div>
-        <div class="sidebar-item interactive-card" tabindex="0" role="button">
-            <i class="fas fa-trophy sidebar-icon"></i>
-            <span>Achievements</span>
         </div>
     </div>
 </aside>
