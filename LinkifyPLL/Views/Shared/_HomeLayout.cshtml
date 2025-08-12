@@ -50,13 +50,13 @@
     <!-- Stylesheets -->
     <link href="~/css/Home/all.min.css">
     <link href="~/css/Home/style.css" rel="stylesheet">
-    <link href="~/css/Home/style2.css" rel="stylesheet">
+    <link href="~/css/newStyle.css" rel="stylesheet">
     <link href="~/css/Nav.css" rel="stylesheet">
     <link rel="preload" href="~/css/Home/style.css" as="style">
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style">
     <!-- In the <head> section -->
     @* <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" /> *@
-
+   
 </head>
 <body>
     <partial name="_NavPartial" />
@@ -65,6 +65,8 @@
         <!-- Left Sidebar -->
         @await Html.PartialAsync("_LeftSidebarPartial", user)
 
+
+
         <!-- Main Feed -->
         <main class="main-feed" id="main-content" role="main" aria-label="Main content">
             
@@ -72,9 +74,9 @@
             @RenderBody()
         </main>
 
+
         @await Html.PartialAsync("_RightSidePartial")
 
-    
     </div>
     
 

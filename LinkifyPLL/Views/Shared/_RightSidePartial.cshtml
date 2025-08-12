@@ -1,76 +1,90 @@
 ﻿@* Views/Shared/_RightSidePartial.cshtml *@
 <aside class="right-sidebar">
+    <!-- People You May Know Widget -->
     <div class="widget">
         <h3 class="widget-title">
             <i class="fas fa-user-plus"></i>
-            <a href="/Home/PeopleYouMayKnow" style="color: inherit; text-decoration: none;">
+            <a href="/Home/PeopleYouMayKnow">
                 People You May Know
             </a>
         </h3>
+
         <div class="suggestion-item">
             <div class="suggestion-avatar">AL</div>
             <div style="flex: 1">
-                <h4 style="font-size: 14px; margin-bottom: 2px">
-                    Alice Lee
-                </h4>
-                <p style="font-size: 12px; color: var(--text-secondary)">
-                    Data Scientist
-                </p>
+                <h4>Alice Lee</h4>
+                <p>Data Scientist</p>
             </div>
             <button class="connect-btn">Connect</button>
         </div>
+
         <div class="suggestion-item">
             <div class="suggestion-avatar">RB</div>
             <div style="flex: 1">
-                <h4 style="font-size: 14px; margin-bottom: 2px">
-                    Robert Brown
-                </h4>
-                <p style="font-size: 12px; color: var(--text-secondary)">
-                    Marketing Manager
-                </p>
+                <h4>Robert Brown</h4>
+                <p>Marketing Manager</p>
             </div>
             <button class="connect-btn">Connect</button>
         </div>
+
         <div class="suggestion-item">
             <div class="suggestion-avatar">EW</div>
             <div style="flex: 1">
-                <h4 style="font-size: 14px; margin-bottom: 2px">
-                    Emma Wilson
-                </h4>
-                <p style="font-size: 12px; color: var(--text-secondary)">
-                    Frontend Developer
-                </p>
+                <h4>Emma Wilson</h4>
+                <p>Frontend Developer</p>
             </div>
             <button class="connect-btn">Connect</button>
         </div>
+
+        <a href="/Home/PeopleYouMayKnow" class="widget-action">
+            <i class="fas fa-users"></i>
+            View All Suggestions
+        </a>
     </div>
 
+    <!-- Job Recommendations Widget -->
     <div class="widget">
         <h3 class="widget-title">
             <i class="fas fa-briefcase"></i>
             Job Recommendations
         </h3>
-        <div style="margin-bottom: 15px">
-            <h4 style="font-size: 14px; color: var(--primary-blue); margin-bottom: 5px;">
-                Senior Developer
-            </h4>
-            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">
-                TechCorp Inc.
-            </p>
-            <p style="font-size: 12px; color: var(--text-secondary)">
-                Remote • $80k-$120k
-            </p>
+
+        <div class="job-item">
+            <h4 class="job-title">Senior Developer</h4>
+            <p class="job-company">TechCorp Inc.</p>
+            <div class="job-details">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>Remote • $80k-$120k</span>
+            </div>
         </div>
-        <div style="margin-bottom: 15px">
-            <h4 style="font-size: 14px; color: var(--primary-blue); margin-bottom: 5px;">
-                UX Designer
-            </h4>
-            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">
-                DesignStudio
-            </p>
-            <p style="font-size: 12px; color: var(--text-secondary)">
-                New York • $70k-$95k
-            </p>
+
+        <div class="job-item">
+            <h4 class="job-title">UX Designer</h4>
+            <p class="job-company">DesignStudio</p>
+            <div class="job-details">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>New York • $70k-$95k</span>
+            </div>
+        </div>
+
+        <a href="/Jobs" class="widget-action">
+            <i class="fas fa-search"></i>
+            Browse All Jobs
+        </a>
+    </div>
+
+    <!-- Trending Topics Widget (Optional) -->
+    <div class="widget">
+        <h3 class="widget-title">
+            <i class="fas fa-trending-up"></i>
+            Trending Topics
+        </h3>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <span class="skill-tag" style="font-size: 11px; padding: 6px 12px;">React</span>
+            <span class="skill-tag" style="font-size: 11px; padding: 6px 12px;">AI/ML</span>
+            <span class="skill-tag" style="font-size: 11px; padding: 6px 12px;">DevOps</span>
+            <span class="skill-tag" style="font-size: 11px; padding: 6px 12px;">Web3</span>
         </div>
     </div>
 </aside>
