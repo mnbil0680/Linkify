@@ -1,5 +1,6 @@
 using LinkifyBLL.ModelView;
 using LinkifyBLL.Services.Abstraction;
+using LinkifyBLL.Services.Implementation;
 using LinkifyDAL.Entities;
 using LinkifyDAL.Enums;
 using LinkifyPLL.Models;
@@ -29,8 +30,11 @@ namespace LinkifyPLL.Controllers
         // Comment
         public readonly ICommentReactionsService ICRS;
 
+        // Save
+        public readonly ISavePostService ISavePostS;
 
-        public HomeController(ILogger<HomeController> logger, IFriendsService ifs, IPostService ips, IPostCommentsService ipcs, IPostImagesService ipis, IPostReactionsService iprs, ISharePostService ishareps, ICommentReactionsService icrs )
+
+        public HomeController(ILogger<HomeController> logger, IFriendsService ifs, IPostService ips, IPostCommentsService ipcs, IPostImagesService ipis, IPostReactionsService iprs, ISharePostService ishareps, ICommentReactionsService icrs, ISavePostService isps )
         {
             _logger = logger;
             this._IFS = ifs;
@@ -40,12 +44,17 @@ namespace LinkifyPLL.Controllers
             this.IPRS = iprs;
             this.ICRS = icrs;
             this.ISharePS = ishareps;
+            this.ISavePostS = isps;
         }
 
         public async Task<IActionResult> Index()
         {
 
-            List<PostMV> HomePosts = new List<PostMV>();
+            
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+
+                List<PostMV> HomePosts = new List<PostMV>();
             var posts = (await IPS.GetRecentPostsAsync()).ToList();
             foreach (var post in posts)
             {
@@ -174,7 +183,7 @@ namespace LinkifyPLL.Controllers
 
             
 
-            return View("testHomePostsAndComments", HomePosts);
+            return View("index", HomePosts);
         }
 
 

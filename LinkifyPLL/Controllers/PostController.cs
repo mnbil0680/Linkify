@@ -5,6 +5,7 @@ using LinkifyDAL.Entities;
 using LinkifyDAL.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SempaBLL.Helper;
 
 
 namespace LinkifyPLL.Controllers
@@ -30,16 +31,45 @@ namespace LinkifyPLL.Controllers
         {
             return View();
         }
+        [HttpGet]
+        public async Task <IActionResult> CreatePost()
+        {
+
+            return View();     
+        }
+
         [HttpPost]
-        public async Task <IActionResult> CreatePost(PostCreateMV model)
+        public async Task<IActionResult> CreatePost(PostCreateMV model)
         {
             if (!ModelState.IsValid)
-                return RedirectToAction("Index", "Home");
+                return View(model); // Show validation errors
+
+            var imageFileNames = new List<string>();
+            if (model.Images != null && model.Images.Count > 0)
+            {
+                foreach (var file in model.Images)
+                {
+                    var fileName = FileManager.UploadFile("Files", file);
+                    imageFileNames.Add(fileName);
+                }
+            }
 
             var user = await _userManager.GetUserAsync(User);
-            await _postService.CreatePostAsync(user.Id, model.TextContent);
-            return RedirectToAction("Home");
+            // You need to save imageFileNames with the post!
+            var post = await _postService.CreatePostAsync(user.Id, model.TextContent);
+
+            // Save images to the post (if you have a service for that)
+            if (imageFileNames.Count > 0)
+            {
+                foreach (var img in imageFileNames)
+                {
+                    await _postImageService.AddPostImageAsync(new PostImages(img, post.Id));
+                }
+            }
+
+            return RedirectToAction("Index", "Home");
         }
+
 
         [HttpPost]
         public async Task<IActionResult> CreateComment(CommentCreateMV model)

@@ -14,6 +14,8 @@ namespace LinkifyBLL.ModelView
         public string PostUserName { get; set; }
         public string PostUserTitle { get; set; }
         public string PostUserImg { get; set; }
+        public bool IsSavedByCurrentUser { get; set; }
+
 
 
 
@@ -26,7 +28,6 @@ namespace LinkifyBLL.ModelView
 
         public List<CommentCreateMV> Comments { get; set; }
         public int CommentsCount { get; set; }
-
         public int NumberOfShares { get; set; }
 
         //no of reactions 

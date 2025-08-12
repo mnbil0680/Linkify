@@ -897,9 +897,10 @@
                 <img src="@userImage" alt="@userName Profile" class="profile-avatar" onerror="this.src='/imgs/Account/default.png'">
                 @if (isOwner)
                 {
-                    <a href="/Profile/Edit" class="edit-profile-btn">
+                    <a asp-controller="Profile" asp-action="Edit" asp-route-id="@Model.Id" class="edit-profile-btn">
                         <i class="fas fa-edit"></i> Edit Profile
                     </a>
+
                 }
             </div>
 

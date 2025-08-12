@@ -5,6 +5,7 @@
 
     var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
+
 }
 @functions {
     string FormatSince(TimeSpan since)
@@ -53,18 +54,36 @@
                 <small>@post.PostUserTitle</small>
             </div>
             <span class="ms-auto text-muted">@FormatSince(post.Since)</span>
+            @* Place this inside your post card, e.g., in the card-header or card-body *@
+            <form asp-controller="Job" asp-action="SaveJob" method="post" style="display:inline;">
+                <input type="hidden" name="postId" value="@post.postId" />
+                <input type="hidden" name="userId" value="@currentUserId" />
+                <button type="submit" class="btn btn-link p-0" title="Save Job">
+
+                    if(){
+                    <i cxlass="fa-regular fa-bookmark"></i>
+                    }else{
+                    <i class="fa-solid    fa-bookmark"></i>
+                    }
+                </button>
+            </form>
+
         </div>
         <div class="card-body">
             <p>@post.TextContent</p>
             @if (post.Images != null && post.Images.Any())
             {
-                <div>
+                <div class="d-flex flex-wrap gap-2 mt-2 post-image-gallery">
                     @foreach (var img in post.Images)
                     {
-                        <img src="@img" alt="Post Image" style="max-width:100px;max-height:100px;margin-right:5px;" />
+                        <img src="@img"
+                             alt="Post Image"
+                             class="post-img-thumb"
+                             loading="lazy" />
                     }
                 </div>
             }
+
             <div class="mt-2">
                 <span><strong>@post.LikeCount</strong> 👍</span>
                 <span><strong>@post.LoveCount</strong> ❤️</span>
@@ -265,3 +284,30 @@
     Write Comment
 </a>
 
+<a asp-controller="Post" asp-action="CreatePost" class="btn btn-success">
+    Write Post
+</a>
+
+<style>
+    .post-image-gallery {
+        gap: 12px;
+    }
+
+    .post-img-thumb {
+        max-width: 120px;
+        max-height: 120px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border: 1px solid #e0e0e0;
+        object-fit: cover;
+        transition: transform 0.2s, box-shadow 0.2s;
+        margin-bottom: 6px;
+        background: #fafafa;
+    }
+
+        .post-img-thumb:hover {
+            transform: scale(1.08);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.16);
+            z-index: 2;
+        }
+</style>

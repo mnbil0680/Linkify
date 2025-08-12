@@ -1,0 +1,34 @@
+﻿@model LinkifyBLL.ModelView.PostCreateMV
+
+@{
+    ViewData["Title"] = "Create Post";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<h2>Create a New Post</h2>
+
+
+<form asp-action="CreatePost" asp-controller="Post" method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label asp-for="TextContent" class="form-label">Content</label>
+        <textarea asp-for="TextContent" class="form-control" rows="4" placeholder="What's on your mind?"></textarea>
+        <span asp-validation-for="TextContent" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Images" class="form-label">Images</label>
+        <input asp-for="Images" class="form-control" type="file" multiple />
+        <span asp-validation-for="Images" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Post</button>
+</form>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
