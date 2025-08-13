@@ -6,7 +6,9 @@ using LinkifyDAL.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using SempaBLL.Helper;
+using static System.Net.Mime.MediaTypeNames;
 
 
 namespace LinkifyPLL.Controllers
@@ -42,18 +44,80 @@ namespace LinkifyPLL.Controllers
             return View("~/Views/Post/CreatePost.cshtml");     
         }
 
-        
 
+        
         [HttpPost]
-        public async Task<IActionResult> CreatePost(string TextContent )
+        public async Task<IActionResult> CreatePost(PostCreateMV model)
         {
             if (!ModelState.IsValid)
-                return RedirectToAction("Index", "Home");
+            {
+                return View(model); // Return to form with validation errors
+            }
+
+            // Check if content is provided (since Images are optional)
+            if (string.IsNullOrWhiteSpace(model.TextContent) && (model.Images == null))
+            {
+                ModelState.AddModelError("", "Post Must Have Text Or Images or Both .");
+                return View(model);
+            }
 
             var user = await _userManager.GetUserAsync(User);
-            await _postService.CreatePostAsync(user.Id,TextContent);
-            return RedirectToAction("Home");
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            
+               var post =   await _postService.CreatePostAsync(user.Id, model.TextContent);
+            
+
+
+            // Get current user
+            
+
+
+            if (model.Images != null && model.Images.Any())
+            {
+                foreach (var img in model.Images)
+                {
+                    if (img != null && img.Length > 0)
+                    {
+                        string imgPath =  FileManager.UploadFile("Files", img);
+                        PostImages imgy = new PostImages(imgPath, post.Id);
+                        await _postImageService.AddPostImageAsync(imgy);
+
+                    }
+                }
+            }
+
+            // Save post to database
+            await _postService.CreatePostAsync(user.Id, model.TextContent);
+
+            // Redirect to a success page or another action
+            return RedirectToAction("Index" , "Home");
+
+
+
+
+
+
+
         }
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> EditPost(PostCreateMV model)
+        {
+            
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditPost(PostCreateMV model)
+        {
+
+        }
+
 
 
         [HttpPost("api/posts/{postId}/comments")]

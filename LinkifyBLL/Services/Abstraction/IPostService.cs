@@ -6,7 +6,6 @@ namespace LinkifyBLL.Services.Abstraction
     {
         Task<Post> GetPostByIdAsync(int postId);
         Task<Post> CreatePostAsync(string userId, string textContent);
-
         Task UpdatePostAsync(int postId, string textContent);
         Task DeletePostAsync(int postId);
         Task<IEnumerable<Post>> GetUserPostsAsync(string userId);

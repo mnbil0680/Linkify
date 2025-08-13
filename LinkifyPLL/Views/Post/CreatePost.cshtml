@@ -4,31 +4,162 @@
     ViewData["Title"] = "Create Post";
     Layout = "~/Views/Shared/_AppLayout.cshtml";
 }
-<br />
-<br />
-<br />
-<br />
-<br />
-<br />
-<br />
-<h2>Create a New Post</h2>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h2 class="mb-0">Create a New Post</h2>
+                </div>
 
 
-<form asp-action="CreatePost" asp-controller="Post" method="post" enctype="multipart/form-data">
-    <div class="mb-3">
-        <label asp-for="TextContent" class="form-label">Content</label>
-        <textarea asp-for="TextContent" class="form-control" rows="4" placeholder="What's on your mind?"></textarea>
-        <span asp-validation-for="TextContent" class="text-danger"></span>
+                <div class="card-body">
+
+                    @* Success Message *@
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @* Form *@
+                    <form asp-action="CreatePost" asp-controller="Post" method="post" enctype="multipart/form-data">
+                        @* Validation Summary *@
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        
+
+                        @* Content Field *@
+                        <div class="mb-3">
+                            <label asp-for="TextContent" class="form-label">What's on your mind?</label>
+                            <textarea asp-for="TextContent"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Share your thoughts..."
+                                      maxlength="1000"></textarea>
+                            <span asp-validation-for="TextContent" class="text-danger"></span>
+                            <div class="form-text">Maximum 1000 characters</div>
+                        </div>
+
+                        @* Images Field *@
+                        <div class="mb-3">
+                            <label asp-for="Images" class="form-label">Add Images (Optional)</label>
+                            <input asp-for="Images"
+                                   class="form-control"
+                                   type="file"
+                                   multiple
+                                   accept="image/*"
+                                   onchange="previewImages(this)" />
+                            <span asp-validation-for="Images" class="text-danger"></span>
+                            <div class="form-text">You can select multiple images. Max 5MB per image.</div>
+                        </div>
+
+                        @* Image Preview *@
+                        <div id="imagePreview" class="mb-3" style="display: none;">
+                            <label class="form-label">Preview:</label>
+                            <div id="previewContainer" class="d-flex flex-wrap gap-2"></div>
+                        </div>
+
+                        
+
+                        @* Submit Buttons *@
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Share Post
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="mb-3">
-        <label asp-for="Images" class="form-label">Images</label>
-        <input asp-for="Images" class="form-control" type="file" multiple />
-        <span asp-validation-for="Images" class="text-danger"></span>
-    </div>
-    <button type="submit" class="btn btn-primary">Post</button>
-</form>
-
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Image preview functionality
+        function previewImages(input) {
+            const previewContainer = document.getElementById('previewContainer');
+            const previewSection = document.getElementById('imagePreview');
+
+            // Clear previous previews
+            previewContainer.innerHTML = '';
+
+            if (input.files && input.files.length > 0) {
+                previewSection.style.display = 'block';
+
+                // Limit to 10 images
+                const maxImages = Math.min(input.files.length, 10);
+
+                for (let i = 0; i < maxImages; i++) {
+                    const file = input.files[i];
+
+                    // Check file size (5MB limit)
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert(`${file.name} is too large. Maximum file size is 5MB.`);
+                        continue;
+                    }
+
+                    // Check file type
+                    if (!file.type.startsWith('image/')) {
+                        alert(`${file.name} is not an image file.`);
+                        continue;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const imageDiv = document.createElement('div');
+                        imageDiv.className = 'position-relative';
+                        imageDiv.innerHTML = `
+                            <img src="${e.target.result}"
+                                 class="img-thumbnail"
+                                 style="width: 100px; height: 100px; object-fit: cover;">
+                            <button type="button"
+                                    class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                                    onclick="removePreview(this)"
+                                    style="transform: translate(50%, -50%);">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        previewContainer.appendChild(imageDiv);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            } else {
+                previewSection.style.display = 'none';
+            }
+        }
+
+        function removePreview(button) {
+            button.parentElement.remove();
+
+            // If no more previews, hide the preview section
+            const previewContainer = document.getElementById('previewContainer');
+            if (previewContainer.children.length === 0) {
+                document.getElementById('imagePreview').style.display = 'none';
+            }
+        }
+
+        // Form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const textContent = document.querySelector('#TextContent').value.trim();
+
+            if (!textContent) {
+                e.preventDefault();
+                alert('Please enter some content for your post.');
+                return false;
+            }
+
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Posting...';
+        });
+    </script>
 }
+
