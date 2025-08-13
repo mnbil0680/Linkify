@@ -1316,24 +1316,27 @@
                             @Html.AntiForgeryToken()
                             <!-- Add this line -->
                             <input type="hidden" id="currentUserId" value="@currentUserId" /> 
+                           
                             <!-- Single reaction button -->
                             <button class="reactions-button @(hasUserReacted ? "active" : "")"
                                     type="button"
                                     data-post-id="@post.postId"
                                     data-current-reaction="@userReaction"
-                                    style="color: @reactionColor2;">
+                                    style="color: @reactionColor2;"
+                                    onclick="handleReactionButtonClick(@post.postId)">
                                 <span class="selected-reaction">@reactionEmoji2</span>
                                 <span class="reaction-text">@reactionText2</span>
                             </button>
+
                             <div class="reactions-popup">
                                 <div class="reaction-item like" data-label="Like" data-reaction="like" onclick="selectReaction(@post.postId, 'like')">👍</div>
                                 <div class="reaction-item love" data-label="Love" data-reaction="love" onclick="selectReaction(@post.postId, 'love')">❤️</div>
                                 <div class="reaction-item haha" data-label="Haha" data-reaction="haha" onclick="selectReaction(@post.postId, 'haha')">😂</div>
                                 <div class="reaction-item sad" data-label="Sad" data-reaction="sad" onclick="selectReaction(@post.postId, 'sad')">😢</div>
                                 <div class="reaction-item angry" data-label="Angry" data-reaction="angry" onclick="selectReaction(@post.postId, 'angry')">😡</div>
-                            </div>
-                        </div>
-                       
+                                </div>
+                                </div>
+
                         <button class="action-btn" onclick="toggleComments(@post.postId)" aria-label="Comment on post">
                             <i class="far fa-comment" aria-hidden="true"></i>
                             <span>Comment</span>
@@ -1686,38 +1689,48 @@
 
 
 
-                function selectReaction(postId, reactionType) {
-            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-            const userId = document.getElementById("currentUserId").value; // Example: store current user id in a hidden input
 
-            fetch(`/api/posts/${postId}/reaction`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "RequestVerificationToken": token
-                },
-                body: JSON.stringify({
-                    userId: userId,
-                    reactionType: reactionType
-                })
-            })
-            .then(response => {
-                if (!response.ok) throw new Error("Failed to save reaction");
-                return response.json();
-            })
-            .then(data => {
-                console.log("Reaction updated:", data);
-                // You can update UI here
-            })
-            .catch(error => {
-                console.error("Error:", error);
-            });
+        // Post Reactions
+        function selectReaction(postId, reactionKey) {
+            const reaction = reactions[reactionKey];
+            const button = document.querySelector(`[data-post-id="${postId}"].reactions-button`);
+            const selectedReactionSpan = button.querySelector('.selected-reaction');
+            const reactionTextSpan = button.querySelector('.reaction-text');
+
+            // Check if user already has this reaction
+            const currentReaction = userReactions[postId];
+            const isCurrentReaction = currentReaction === reactionKey;
+
+            if (isCurrentReaction) {
+                // Remove reaction
+                selectedReactionSpan.textContent = reactions.like.emoji;
+                reactionTextSpan.textContent = reactions.like.text;
+                button.style.color = 'var(--text-secondary)';
+                button.classList.remove('active');
+                userReactions[postId] = null;
+                submitReaction(postId, null); // Remove reaction
+                showToast(`Removed ${reaction.text} reaction`, 'info');
+            } else {
+                // Add/change reaction
+                selectedReactionSpan.textContent = reaction.emoji;
+                reactionTextSpan.textContent = reaction.text;
+                button.style.color = reaction.color;
+                button.classList.add('active');
+
+                // Add animation
+                selectedReactionSpan.classList.add('reaction-animate');
+                setTimeout(() => selectedReactionSpan.classList.remove('reaction-animate'), 300);
+
+                // Store user reaction
+                userReactions[postId] = reactionKey;
+
+                // Send to server
+                submitReaction(postId, reactionKey);
+                showToast(`You reacted with ${reaction.text}`, 'success');
+            }
         }
 
-
-
-
-        function ajaxCall({ url, method = 'POST', data = null, headers = {}, onSuccess, onError }) {
+                function ajaxCall({ url, method = 'POST', data = null, headers = {}, onSuccess, onError }) {
             const options = {
                 method,
                 headers: {
@@ -1729,119 +1742,47 @@
             if (data) options.body = JSON.stringify(data);
 
             fetch(url, options)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(result => {
                     if (onSuccess) onSuccess(result);
                 })
                 .catch(error => {
-                    console.error('Ajax call error:', error);
                     if (onError) onError(error);
                 });
         }
 
-                 function submitReaction(postId, reaction) {
-            fetch(`/api/posts/${postId}/reaction`, {
-                method: 'POST',
-                headers: {
-                    "Content-Type": "application/json",
-                    "RequestVerificationToken": getAntiForgeryToken()
-                },
-                body: JSON.stringify({
-                    postId: postId,
-                    reactionType: reaction || "", // never null
-                    userId: '@currentUserId'
-                })
-            })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    userReactions[postId] = data.userReaction;
-                    updateReactionUI(postId, data);
-                    updateReactionCounts(postId, data);
 
-                    if (data.userReaction) {
-                        const reactionData = reactions[data.userReaction.toLowerCase()];
-                        showToast(`You reacted with ${reactionData.text}`, 'success');
+                        function submitReaction(postId, reaction) {
+            ajaxCall({
+                url: '/Post/ToggleReaction',
+                method: 'POST',
+                data: {
+                    postId: postId,
+                    reactionType: reaction,
+                    userId: '@currentUserId'
+                },
+                onSuccess: function(data) {
+                    if (data.success) {
+                        updateReactionCounts(postId, data);
                     } else {
-                        showToast('Reaction removed', 'info');
+                        showToast('Failed to save reaction', 'error');
                     }
-                } else {
-                    revertReactionUI(postId);
-                    showToast(data.message || 'Failed to save reaction', 'error');
+                },
+                onError: function(error) {
+                    console.error('Reaction error:', error);
+                    showToast('Failed to save reaction', 'error');
                 }
-            })
-            .catch(error => {
-                console.error('Reaction error:', error);
-                revertReactionUI(postId);
-                showToast('Failed to save reaction', 'error');
             });
         }
 
-
-
-
-        function updateReactionUI(postId, data) {
-            const button = document.querySelector(`[data-post-id="${postId}"].reactions-button`);
-            const selectedReactionSpan = button.querySelector('.selected-reaction');
-            const reactionTextSpan = button.querySelector('.reaction-text');
-
-            if (data.userReaction) {
-                // User has a reaction
-                const reactionData = reactions[data.userReaction.toLowerCase()];
-                selectedReactionSpan.textContent = reactionData.emoji;
-                reactionTextSpan.textContent = reactionData.text;
-                button.style.color = reactionData.color;
-                button.classList.add('active');
-            } else {
-                // User has no reaction
-                selectedReactionSpan.textContent = reactions.like.emoji;
-                reactionTextSpan.textContent = reactions.like.text;
-                button.style.color = 'var(--text-secondary)';
-                button.classList.remove('active');
-            }
-        }
-
-        function revertReactionUI(postId) {
-            // Revert to previous state on error
-            const previousReaction = userReactions[postId];
-            const button = document.querySelector(`[data-post-id="${postId}"].reactions-button`);
-            const selectedReactionSpan = button.querySelector('.selected-reaction');
-            const reactionTextSpan = button.querySelector('.reaction-text');
-
-            if (previousReaction) {
-                const reactionData = reactions[previousReaction];
-                selectedReactionSpan.textContent = reactionData.emoji;
-                reactionTextSpan.textContent = reactionData.text;
-                button.style.color = reactionData.color;
-                button.classList.add('active');
-            } else {
-                selectedReactionSpan.textContent = reactions.like.emoji;
-                reactionTextSpan.textContent = reactions.like.text;
-                button.style.color = 'var(--text-secondary)';
-                button.classList.remove('active');
-            }
-        }
-
         function updateReactionCounts(postId, data) {
-            const postCard = document.querySelector(`[data-post-id="${postId}"]`).closest('.post-card');
-
             // Update reaction count display
-            const reactionCountElement = postCard.querySelector('.reaction-count');
+            const reactionCountElement = document.querySelector(`[data-post-id="${postId}"]`).closest('.post-card').querySelector('.reaction-count');
             if (reactionCountElement && data.reactionCount !== undefined) {
-                const countContainer = reactionCountElement.parentElement;
-
                 if (data.reactionCount === 0) {
-                    countContainer.style.display = 'none';
+                    reactionCountElement.parentElement.style.display = 'none';
                 } else {
-                    countContainer.style.display = 'flex';
+                    reactionCountElement.parentElement.style.display = 'flex';
                     reactionCountElement.textContent = data.reactionCount === 1
                         ? '1 person reacted'
                         : `${data.reactionCount.toLocaleString()} reactions`;
@@ -1849,20 +1790,30 @@
             }
 
             // Update reaction icons based on top reactions
-            const reactionIcons = postCard.querySelector('.reaction-icons');
-            if (reactionIcons) {
-                if (data.topReactions && data.topReactions.length > 0) {
+            if (data.topReactions && data.topReactions.length > 0) {
+                const reactionIcons = document.querySelector(`[data-post-id="${postId}"]`).closest('.post-card').querySelector('.reaction-icons');
+                if (reactionIcons) {
                     reactionIcons.innerHTML = data.topReactions.map(reaction => {
                         const reactionData = reactions[reaction.toLowerCase()];
                         return `<span class="reaction-icon ${reaction.toLowerCase()}" title="${reactionData.text}">${reactionData.emoji}</span>`;
                     }).join('');
-                    reactionIcons.style.display = 'flex';
-                } else {
-                    reactionIcons.innerHTML = '';
-                    reactionIcons.style.display = 'none';
                 }
             }
         }
+
+
+
+
+
+
+
+        
+
+        
+
+        
+
+
         // Comments System
         function toggleComments(postId) {
             const commentsSection = document.getElementById(`comments-${postId}`);
@@ -2681,4 +2632,6 @@
         }
 
          </script>
+
+      
 }
