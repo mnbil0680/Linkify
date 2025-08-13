@@ -17,11 +17,30 @@ namespace LinkifyBLL.ModelView
         public string? ImagePath { get; set; }
         public int? ParentCommentId { get; set; }  // null = it's a top-level comment
         public string? CommenterId { get; set; }
+
+        public string AuthorName { get; set; }
+        public string AuthorAvatar { get; set; }
+
         public List<CommentReactionMV> Reactions { get; set; }
         public List<CommentCreateMV> Replies { get; set; }
+        public TimeSpan Since { get; set; }
 
-        public CommentCreateMV(int commentId, int postId, string textContent, string? imagePath = null, int? parentCommentId = null, string? commenterId =null)
+        public CommentCreateMV(string authorName, string authorAvatar, int commentId, int postId, string textContent, string? imagePath = null, int? parentCommentId = null, string? commenterId =null)
         {
+
+            AuthorAvatar = authorAvatar;
+            AuthorName = authorName;
+            CommentID = commentId;
+            PostId = postId;
+            TextContent = textContent;
+            ImagePath = imagePath;
+            ParentCommentId = parentCommentId;
+            CommenterId = commenterId;
+        }
+
+        public CommentCreateMV( int commentId, int postId, string textContent, string? imagePath = null, int? parentCommentId = null, string? commenterId = null)
+        {
+
             CommentID = commentId;
             PostId = postId;
             TextContent = textContent;

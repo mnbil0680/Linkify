@@ -3065,7 +3065,6 @@ html {
 /* Comments Section */
 .comments-section {
     border-top: 1px solid var(--border-light);
-    padding: 20px 25px;
 }
 
 .comment-input-wrapper {
@@ -3082,19 +3081,15 @@ html {
 }
 
 .comment-input-container {
-    flex: 1;
-    display: flex;
-    align-items: center;
+
     background: var(--light-gray);
-    border-radius: 25px;
-    padding: 0 15px;
+
 }
 
 .comment-input {
-    flex: 1;
-    border: none;
+
     background: transparent;
-    padding: 12px 0;
+    padding: 12px;
     font-size: 14px;
     color: var(--text-dark);
 }

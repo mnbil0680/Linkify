@@ -136,6 +136,8 @@ namespace LinkifyPLL.Controllers
                         // Optionally, recursively fetch nested replies here if you want multi-level threading
 
                         replyMVs.Add(new CommentCreateMV(
+                            authorName: comment.User.UserName,
+                            authorAvatar: comment.User.ImgPath,
                             commentId: reply.Id,
                             postId: reply.PostId,
                             textContent: reply.Content,
@@ -150,12 +152,16 @@ namespace LinkifyPLL.Controllers
                     }
 
                     var commentMV = new CommentCreateMV(
+                        authorName:comment.User.UserName,
+                        authorAvatar:comment.User.ImgPath,
                         commentId: comment.Id,
                         postId: comment.PostId,
                         textContent: comment.Content,
                         imagePath: comment.ImgPath,
                         parentCommentId: comment.ParentCommentId,
                         commenterId: comment.CommenterId
+
+                       
                     )
                     {
                         Reactions = reactionMVs,
