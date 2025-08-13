@@ -39,6 +39,7 @@ namespace LinkifyBLL.ModelView
             ImagePath = imagePath;
             ParentCommentId = parentCommentId;
             CommenterId = commenterId;
+            Since = DateTime.Now - createdAt;
         }
 
         public CommentCreateMV( int commentId, int postId, string textContent, string? imagePath = null, int? parentCommentId = null, string? commenterId = null)
@@ -50,6 +51,7 @@ namespace LinkifyBLL.ModelView
             ImagePath = imagePath;
             ParentCommentId = parentCommentId;
             CommenterId = commenterId;
+            Since = DateTime.Now - CreatedAt; //
         }
     }
 }

@@ -186,40 +186,59 @@ namespace LinkifyPLL.Controllers
             return $"{(since.TotalDays / 30):0} month{(since.TotalDays / 30 >= 2 ? "s" : "")} ago";
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ToggleReaction(int postId, string userId, string reactionType)
+        public class ToggleReactionDto
         {
-            if (string.IsNullOrEmpty(reactionType))
-            {
-                // Remove reaction
-                
-            }
-            else
-            {
-                await _postReactionService.ToggleReactionAsync(
-                    postId, userId, Enum.Parse<ReactionTypes>(reactionType)
-                );
-            }
-
-            // Get updated counts
-            var reactions = await _postReactionService.GetReactionsByPostAsync(postId);
-            var reactionCount = reactions.Count();
-            var topReactions = reactions
-                .GroupBy(r => r.Reaction)
-                .OrderByDescending(g => g.Count())
-                .Take(3)
-                .Select(g => g.Key.ToString())
-                .ToList();
-
-            return Json(new
-            {
-                success = true,
-                userReaction = reactionType,
-                reactionCount,
-                topReactions
-            });
+            public int PostId { get; set; }
+            public string UserId { get; set; }
+            public string ReactionType { get; set; }
         }
+
+
+        
+
+        [HttpPost("api/posts/{postId}/reaction")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleReaction(int postId, [FromBody] ToggleReactionDto model)
+        {
+            try
+            {
+                // Override model's PostId with route value to avoid mismatches
+                model.PostId = postId;
+
+                await _postReactionService.ToggleReactionAsync(
+                    model.PostId,
+                    model.UserId,
+                    Enum.Parse<ReactionTypes>(model.ReactionType)
+                );
+
+                var reactions = await _postReactionService.GetReactionsByPostAsync(postId);
+                var activeReactions = reactions.Where(r => !r.IsDeleted).ToList();
+
+                return Ok(new
+                {
+                    success = true,
+                    userReaction = activeReactions.FirstOrDefault(r => r.ReactorId == model.UserId)?.Reaction.ToString(),
+                    reactionCount = activeReactions.Count,
+                    topReactions = activeReactions
+                        .GroupBy(r => r.Reaction)
+                        .OrderByDescending(g => g.Count())
+                        .Take(3)
+                        .Select(g => g.Key.ToString())
+                        .ToList()
+                });
+            }
+            catch
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "An error occurred while processing your reaction"
+                });
+            }
+        }
+
+
+
 
     }
 

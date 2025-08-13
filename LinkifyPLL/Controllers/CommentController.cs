@@ -111,11 +111,215 @@ namespace LinkifyPLL.Controllers
             await IPCS.UpdateCommentAsync(ReplyId, newText, imgAdded);
             return RedirectToAction("Index", "Home");
         }
-        [HttpPost]
-        public async Task<IActionResult> DeleteReply(int ReplyId)
+
+        ////////////////////////////////
+        ///
+
+        [HttpPut]
+        [Route("api/comments/{commentId}/edit")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditCommentApi(int commentId, [FromBody] EditCommentRequest request)
         {
-            await IPCS.DeleteCommentAsync(ReplyId);
-            return RedirectToAction("Index", "Home");
+            if (request == null || string.IsNullOrWhiteSpace(request.Content))
+                return Json(new { success = false, message = "Comment cannot be empty." });
+
+            // Optionally: Check if the current user is the owner
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isOwner = await IPCS.IsCommentOwnerAsync(commentId, userId);
+            if (!isOwner)
+                return Json(new { success = false, message = "You are not authorized to edit this comment." });
+
+            try
+            {
+                await IPCS.UpdateCommentAsync(commentId, request.Content, null);
+
+                
+                // Optionally, fetch the updated comment for UI update
+                var updatedComment = await IPCS.GetCommentAsync(commentId);
+
+                return Json(new
+                {
+                    success = true,
+                    content = updatedComment.Content,
+                    updatedOn = updatedComment.UpdatedOn
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Failed to update comment." });
+            }
+        }
+
+        public class EditCommentRequest
+        {
+            public string Content { get; set; }
+        }
+
+        [HttpDelete]
+        [Route("api/comments/{commentId}/delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteCommentApi(int commentId)
+        {
+            // Optionally: Check if the current user is the owner
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isOwner = await IPCS.IsCommentOwnerAsync(commentId, userId);
+            if (!isOwner)
+                return Json(new { success = false, message = "You are not authorized to delete this comment." });
+
+            try
+            {
+                await IPCS.DeleteCommentAsync(commentId);
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return Json(new { success = false, message = "Failed to delete comment." });
+            }
+        }
+
+
+        [HttpPost]
+        [Route("api/comments/reply")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateReply([FromBody] CreateReplyRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.Content))
+                return Json(new { success = false, message = "Reply cannot be empty." });
+
+            // Get current user ID
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Json(new { success = false, message = "User not authenticated." });
+
+            try
+            {
+                // Create the reply using the service
+                var reply = await IPCS.ReplyToCommentAsync(request.ParentCommentId, userId, request.Content);
+
+                // Map to CommentCreateMV for the response
+                var replyVm = MapToCommentCreateMV(reply);
+
+                return Json(new
+                {
+                    success = true,
+                    reply = new
+                    {
+                        id = replyVm.CommentID,
+                        authorName = replyVm.AuthorName,
+                        authorAvatar = replyVm.AuthorAvatar,
+                        content = replyVm.TextContent,
+                        isEdited = replyVm.IsEdited,
+                        createdAt = replyVm.CreatedAt,
+                        since = replyVm.Since,
+                        timeAgo = FormatSince(replyVm.Since)
+                    }
+                });
+            }
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "Failed to post reply." });
+            }
+        }
+
+        // Request DTO
+        public class CreateReplyRequest
+        {
+            public int ParentCommentId { get; set; }
+            public string Content { get; set; }
+        }
+
+        // Helper: Map PostComments to CommentCreateMV
+        private CommentCreateMV MapToCommentCreateMV(PostComments comment)
+        {
+            if (comment == null) return null;
+
+            return new CommentCreateMV(
+                isEdited: comment.UpdatedOn != null,
+                createdAt: comment.CreatedOn,
+                authorName: comment.User?.UserName ?? "",
+                authorAvatar: comment.User?.ImgPath ?? "/imgs/Account/default.png",
+                commentId: comment.Id,
+                postId: comment.PostId,
+                textContent: comment.Content,
+                imagePath: comment.ImgPath,
+                parentCommentId: comment.ParentCommentId,
+                commenterId: comment.CommenterId
+            )
+            {
+                Since = DateTime.UtcNow - comment.CreatedOn
+            };
+        }
+
+        // Helper: Format time since (matches your Razor function)
+        private string FormatSince(TimeSpan since)
+        {
+            if (since.TotalMinutes < 60)
+                return $"{since.TotalMinutes:0} min ago";
+            if (since.TotalHours < 24)
+                return $"{since.TotalHours:0} hour{(since.TotalHours >= 2 ? "s" : "")} ago";
+            if (since.TotalDays < 30)
+                return $"{since.TotalDays:0} day{(since.TotalDays >= 2 ? "s" : "")} ago";
+            return $"{(since.TotalDays / 30):0} month{((since.TotalDays / 30) >= 2 ? "s" : "")} ago";
+        }
+
+        [HttpPut]
+        [Route("api/replies/{replyId}/edit")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditReply(int replyId, [FromBody] EditReplyRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.Content))
+                return Json(new { success = false, message = "Reply cannot be empty." });
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Json(new { success = false, message = "User not authenticated." });
+
+            // Check ownership
+            var isOwner = await IPCS.IsCommentOwnerAsync(replyId, userId);
+            if (!isOwner)
+                return Json(new { success = false, message = "Unauthorized." });
+
+            try
+            {
+                await IPCS.UpdateCommentAsync(replyId, request.Content);
+                return Json(new { success = true });
+            }
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "Failed to update reply." });
+            }
+        }
+
+        public class EditReplyRequest
+        {
+            public string Content { get; set; }
+        }
+
+
+
+        [HttpDelete]
+        [Route("api/replies/{replyId}/delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteReply(int replyId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Json(new { success = false, message = "User not authenticated." });
+
+            // Check ownership
+            var isOwner = await IPCS.IsCommentOwnerAsync(replyId, userId);
+            if (!isOwner)
+                return Json(new { success = false, message = "Unauthorized." });
+
+            try
+            {
+                await IPCS.DeleteCommentAsync(replyId);
+                return Json(new { success = true });
+            }
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "Failed to delete reply." });
+            }
         }
 
 

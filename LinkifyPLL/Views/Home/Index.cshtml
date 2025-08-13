@@ -1312,9 +1312,10 @@
                                 }
                                 var (reactionEmoji2, reactionText2, reactionColor2) = GetReactionDisplay(userReaction, hasUserReacted);
                             }
+
                             @Html.AntiForgeryToken()
-
-
+                            <!-- Add this line -->
+                            <input type="hidden" id="currentUserId" value="@currentUserId" /> 
                             <!-- Single reaction button -->
                             <button class="reactions-button @(hasUserReacted ? "active" : "")"
                                     type="button"
@@ -1324,7 +1325,6 @@
                                 <span class="selected-reaction">@reactionEmoji2</span>
                                 <span class="reaction-text">@reactionText2</span>
                             </button>
-
                             <div class="reactions-popup">
                                 <div class="reaction-item like" data-label="Like" data-reaction="like" onclick="selectReaction(@post.postId, 'like')">👍</div>
                                 <div class="reaction-item love" data-label="Love" data-reaction="love" onclick="selectReaction(@post.postId, 'love')">❤️</div>
@@ -1333,6 +1333,7 @@
                                 <div class="reaction-item angry" data-label="Angry" data-reaction="angry" onclick="selectReaction(@post.postId, 'angry')">😡</div>
                             </div>
                         </div>
+                       
                         <button class="action-btn" onclick="toggleComments(@post.postId)" aria-label="Comment on post">
                             <i class="far fa-comment" aria-hidden="true"></i>
                             <span>Comment</span>
@@ -1356,9 +1357,16 @@
                                         <div class="comment-content">
                                             <div class="comment-bubble">
                                                 <div class="comment-author">@comment.AuthorName</div>
-                                                <div class="comment-text">@comment.TextContent</div>
-                                            </div>
+                                                <div class="comment-text">
+                                                    @comment.TextContent
+                                                    @if (comment.IsEdited)
+                                                    {
+                                                        <small class="text-muted ms-1">(edited)</small>
+                                                    }
+                                                </div>
 
+                                            </div>
+                                            
                                             <div class="comment-actions">
                                                 @{
                                                     var hasCommentReaction = HasUserReactedToComment(comment.Reactions, currentUserId, "like");
@@ -1434,9 +1442,9 @@
                                                 }
 
                                                 <!-- Time Display with Enhanced Formatting -->
-                                                <span class="comment-time" title="@comment.CreatedAt.ToString("MMMM dd, yyyy 'at' h:mm tt")">
+                                                <time datetime="@DateTime.Now.Subtract(comment.Since).ToString("yyyy-MM-ddTHH:mm:ss")">
                                                     @FormatSince(comment.Since)
-                                                </span>
+                                                </time>
 
                                                 <!-- Report Action -->
                                                 @if (currentUserId != comment.CommenterId)
@@ -1447,6 +1455,65 @@
                                                     </button>
                                                 }
                                             </div>
+
+                                            @* // Show Relpies *@
+                                            @if (comment.Replies != null && comment.Replies.Any())
+                                            {
+                                                <div class="replies-container" style="margin-left:44px;">
+                                                    @foreach (var reply in comment.Replies)
+                                                    {
+                                                        <div class="comment-item reply-item" data-comment-id="@reply.CommentID">
+                                                            <img src="@(reply.AuthorAvatar ?? "/imgs/Account/default.png")" alt="@reply.AuthorName" class="comment-avatar" loading="lazy" />
+                                                            <div class="comment-content">
+                                                                <div class="comment-bubble">
+                                                                    <div class="comment-author">@reply.AuthorName</div>
+                                                                    <div class="comment-text">
+                                                                        @reply.TextContent
+                                                                        @if (reply.IsEdited)
+                                                                        {
+                                                                            <small class="text-muted ms-1">(edited)</small>
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                                <div class="comment-actions">
+                                                                    <time datetime="@DateTime.Now.Subtract(reply.Since).ToString("yyyy-MM-ddTHH:mm:ss")">
+                                                                        @FormatSince(reply.Since)
+                                                                    </time>
+                                                                    <!-- reply actions-->
+                                                                    @if (currentUserId == reply.CommenterId)
+                                                                    {
+                                                                        <div class="comment-owner-actions">
+                                                                            <div class="dropdown">
+                                                                                <button class="comment-action dropdown-toggle"
+                                                                                        type="button"
+                                                                                        id="replyMenu@(reply.CommentID)"
+                                                                                        data-bs-toggle="dropdown"
+                                                                                        aria-expanded="false">
+                                                                                    <i class="fas fa-ellipsis-h"></i>
+                                                                                </button>
+                                                                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="replyMenu@(reply.CommentID)">
+                                                                                    <li>
+                                                                                        <button class="dropdown-item" onclick="editReply(@reply.CommentID)">
+                                                                                            <i class="fas fa-edit me-2"></i>Edit
+                                                                                        </button>
+                                                                                    </li>
+                                                                                    <li>
+                                                                                        <button class="dropdown-item text-danger" onclick="deleteReply(@reply.CommentID)">
+                                                                                            <i class="fas fa-trash me-2"></i>Delete
+                                                                                        </button>
+                                                                                    </li>
+                                                                                </ul>
+                                                                            </div>
+                                                                        </div>
+                                                                    }
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+
 
                                             <!-- Reply Input Section (Initially Hidden) -->
                                             <div class="reply-input-section" id="reply-@comment.CommentID" style="display: none;">
@@ -1617,45 +1684,38 @@
             }
         }
 
-        // Post Reactions
-        function selectReaction(postId, reactionKey) {
-            const reaction = reactions[reactionKey];
-            const button = document.querySelector(`[data-post-id="${postId}"].reactions-button`);
-            const selectedReactionSpan = button.querySelector('.selected-reaction');
-            const reactionTextSpan = button.querySelector('.reaction-text');
 
-            // Check if user already has this reaction
-            const currentReaction = userReactions[postId];
-            const isCurrentReaction = currentReaction === reactionKey;
 
-            if (isCurrentReaction) {
-                // Remove reaction
-                selectedReactionSpan.textContent = reactions.like.emoji;
-                reactionTextSpan.textContent = reactions.like.text;
-                button.style.color = 'var(--text-secondary)';
-                button.classList.remove('active');
-                userReactions[postId] = null;
-                submitReaction(postId, null); // Remove reaction
-                showToast(`Removed ${reaction.text} reaction`, 'info');
-            } else {
-                // Add/change reaction
-                selectedReactionSpan.textContent = reaction.emoji;
-                reactionTextSpan.textContent = reaction.text;
-                button.style.color = reaction.color;
-                button.classList.add('active');
-                
-                // Add animation
-                selectedReactionSpan.classList.add('reaction-animate');
-                setTimeout(() => selectedReactionSpan.classList.remove('reaction-animate'), 300);
+                function selectReaction(postId, reactionType) {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            const userId = document.getElementById("currentUserId").value; // Example: store current user id in a hidden input
 
-                // Store user reaction
-                userReactions[postId] = reactionKey;
-
-                // Send to server
-                submitReaction(postId, reactionKey);
-                showToast(`You reacted with ${reaction.text}`, 'success');
-            }
+            fetch(`/api/posts/${postId}/reaction`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "RequestVerificationToken": token
+                },
+                body: JSON.stringify({
+                    userId: userId,
+                    reactionType: reactionType
+                })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Failed to save reaction");
+                return response.json();
+            })
+            .then(data => {
+                console.log("Reaction updated:", data);
+                // You can update UI here
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
         }
+
+
+
 
         function ajaxCall({ url, method = 'POST', data = null, headers = {}, onSuccess, onError }) {
             const options = {
@@ -1669,64 +1729,140 @@
             if (data) options.body = JSON.stringify(data);
 
             fetch(url, options)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(result => {
                     if (onSuccess) onSuccess(result);
                 })
                 .catch(error => {
+                    console.error('Ajax call error:', error);
                     if (onError) onError(error);
                 });
         }
 
-        function submitReaction(postId, reaction) {
-            ajaxCall({
-                url: '/Post/ToggleReaction',
+                 function submitReaction(postId, reaction) {
+            fetch(`/api/posts/${postId}/reaction`, {
                 method: 'POST',
-                data: {
+                headers: {
+                    "Content-Type": "application/json",
+                    "RequestVerificationToken": getAntiForgeryToken()
+                },
+                body: JSON.stringify({
                     postId: postId,
-                    reactionType: reaction,
+                    reactionType: reaction || "", // never null
                     userId: '@currentUserId'
-                },
-                onSuccess: function(data) {
-                    if (data.success) {
-                        updateReactionCounts(postId, data);
+                })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    userReactions[postId] = data.userReaction;
+                    updateReactionUI(postId, data);
+                    updateReactionCounts(postId, data);
+
+                    if (data.userReaction) {
+                        const reactionData = reactions[data.userReaction.toLowerCase()];
+                        showToast(`You reacted with ${reactionData.text}`, 'success');
                     } else {
-                        showToast('Failed to save reaction', 'error');
+                        showToast('Reaction removed', 'info');
                     }
-                },
-                onError: function(error) {
-                    console.error('Reaction error:', error);
-                    showToast('Failed to save reaction', 'error');
+                } else {
+                    revertReactionUI(postId);
+                    showToast(data.message || 'Failed to save reaction', 'error');
                 }
+            })
+            .catch(error => {
+                console.error('Reaction error:', error);
+                revertReactionUI(postId);
+                showToast('Failed to save reaction', 'error');
             });
         }
 
+
+
+
+        function updateReactionUI(postId, data) {
+            const button = document.querySelector(`[data-post-id="${postId}"].reactions-button`);
+            const selectedReactionSpan = button.querySelector('.selected-reaction');
+            const reactionTextSpan = button.querySelector('.reaction-text');
+
+            if (data.userReaction) {
+                // User has a reaction
+                const reactionData = reactions[data.userReaction.toLowerCase()];
+                selectedReactionSpan.textContent = reactionData.emoji;
+                reactionTextSpan.textContent = reactionData.text;
+                button.style.color = reactionData.color;
+                button.classList.add('active');
+            } else {
+                // User has no reaction
+                selectedReactionSpan.textContent = reactions.like.emoji;
+                reactionTextSpan.textContent = reactions.like.text;
+                button.style.color = 'var(--text-secondary)';
+                button.classList.remove('active');
+            }
+        }
+
+        function revertReactionUI(postId) {
+            // Revert to previous state on error
+            const previousReaction = userReactions[postId];
+            const button = document.querySelector(`[data-post-id="${postId}"].reactions-button`);
+            const selectedReactionSpan = button.querySelector('.selected-reaction');
+            const reactionTextSpan = button.querySelector('.reaction-text');
+
+            if (previousReaction) {
+                const reactionData = reactions[previousReaction];
+                selectedReactionSpan.textContent = reactionData.emoji;
+                reactionTextSpan.textContent = reactionData.text;
+                button.style.color = reactionData.color;
+                button.classList.add('active');
+            } else {
+                selectedReactionSpan.textContent = reactions.like.emoji;
+                reactionTextSpan.textContent = reactions.like.text;
+                button.style.color = 'var(--text-secondary)';
+                button.classList.remove('active');
+            }
+        }
+
         function updateReactionCounts(postId, data) {
+            const postCard = document.querySelector(`[data-post-id="${postId}"]`).closest('.post-card');
+
             // Update reaction count display
-            const reactionCountElement = document.querySelector(`[data-post-id="${postId}"]`).closest('.post-card').querySelector('.reaction-count');
+            const reactionCountElement = postCard.querySelector('.reaction-count');
             if (reactionCountElement && data.reactionCount !== undefined) {
+                const countContainer = reactionCountElement.parentElement;
+
                 if (data.reactionCount === 0) {
-                    reactionCountElement.parentElement.style.display = 'none';
+                    countContainer.style.display = 'none';
                 } else {
-                    reactionCountElement.parentElement.style.display = 'flex';
-                    reactionCountElement.textContent = data.reactionCount === 1 
-                        ? '1 person reacted' 
+                    countContainer.style.display = 'flex';
+                    reactionCountElement.textContent = data.reactionCount === 1
+                        ? '1 person reacted'
                         : `${data.reactionCount.toLocaleString()} reactions`;
                 }
             }
 
             // Update reaction icons based on top reactions
-            if (data.topReactions && data.topReactions.length > 0) {
-                const reactionIcons = document.querySelector(`[data-post-id="${postId}"]`).closest('.post-card').querySelector('.reaction-icons');
-                if (reactionIcons) {
+            const reactionIcons = postCard.querySelector('.reaction-icons');
+            if (reactionIcons) {
+                if (data.topReactions && data.topReactions.length > 0) {
                     reactionIcons.innerHTML = data.topReactions.map(reaction => {
                         const reactionData = reactions[reaction.toLowerCase()];
                         return `<span class="reaction-icon ${reaction.toLowerCase()}" title="${reactionData.text}">${reactionData.emoji}</span>`;
                     }).join('');
+                    reactionIcons.style.display = 'flex';
+                } else {
+                    reactionIcons.innerHTML = '';
+                    reactionIcons.style.display = 'none';
                 }
             }
         }
-
         // Comments System
         function toggleComments(postId) {
             const commentsSection = document.getElementById(`comments-${postId}`);
@@ -2216,14 +2352,12 @@
             }
         }
 
-        // Additional utility functions for better UX
-        function replyToComment(commentId) {
-            showToast('Reply functionality coming soon!', 'info');
-        }
+  
 
         function sendPost(postId) {
             showToast('Send functionality coming soon!', 'info');
         }
+
 
      </script>
      
@@ -2284,18 +2418,19 @@
                     content: content
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    replyInput.value = '';
-                    replyInput.style.height = 'auto';
-                    toggleReplyInput(commentId); // Hide reply input
-                    showToast('Reply posted successfully', 'success');
-                    // Optionally reload comments or add reply to UI
-                } else {
-                    showToast(data.message || 'Failed to post reply', 'error');
-                }
-            })
+                    .then(data => {
+            if (data.success) {
+                addReplyToUI(commentId, data.reply);
+                replyInput.value = '';
+                replyInput.style.height = 'auto';
+                toggleReplyInput(commentId); // Hide reply input
+                showToast('Reply posted successfully', 'success');
+            } else {
+                showToast(data.message || 'Failed to post reply', 'error');
+            }
+        })
+
+
             .catch(error => {
                 console.error('Reply error:', error);
                 showToast('Failed to post reply', 'error');
@@ -2305,6 +2440,41 @@
                 submitBtn.innerHTML = originalHTML;
             });
         }
+
+                function addReplyToUI(parentCommentId, reply) {
+            // Find the replies container for this comment
+            const commentContent = document.querySelector(`[data-comment-id="${parentCommentId}"] .comment-content`);
+            let repliesContainer = commentContent.querySelector('.replies-container');
+            if (!repliesContainer) {
+                // Create replies container if it doesn't exist
+                repliesContainer = document.createElement('div');
+                repliesContainer.className = 'replies-container';
+                repliesContainer.style.marginLeft = '44px';
+                commentContent.appendChild(repliesContainer);
+            }
+
+            // Build the reply HTML
+            const replyHTML = `
+                <div class="comment-item reply-item" data-comment-id="${reply.id}">
+                    <img src="${reply.authorAvatar || '/imgs/Account/default.png'}" alt="${reply.authorName}" class="comment-avatar" loading="lazy" />
+                    <div class="comment-content">
+                        <div class="comment-bubble">
+                            <div class="comment-author">${reply.authorName}</div>
+                            <div class="comment-text">
+                                ${reply.content}
+                                ${reply.isEdited ? '<small class="text-muted ms-1">(edited)</small>' : ''}
+                            </div>
+                        </div>
+                        <div class="comment-actions">
+                            <time datetime="${reply.createdAt}">${reply.timeAgo}</time>
+                        </div>
+                    </div>
+                </div>
+            `;
+            repliesContainer.insertAdjacentHTML('beforeend', replyHTML);
+        }
+
+
 
         // Enhanced Comment Reaction Details
         function showCommentReactionDetails(commentId) {
@@ -2369,6 +2539,8 @@
             .catch(error => {
                 showToast('Failed to update comment', 'error');
             });
+        
+        
         }
 
         function cancelCommentEdit(commentId, originalText) {
@@ -2423,6 +2595,88 @@
             })
             .catch(error => {
                 showToast('Failed to report comment', 'error');
+            });
+        }
+
+         </script>
+
+         <script>
+                     function editReply(replyId) {
+            const replyBubble = document.querySelector(`[data-comment-id="${replyId}"] .comment-bubble`);
+            const replyText = replyBubble.querySelector('.comment-text');
+            const originalText = replyText.textContent.trim();
+
+            // Replace with editable textarea
+            replyText.innerHTML = `
+                <textarea class="edit-reply-input" style="width: 100%; border: 1px solid var(--border-light); border-radius: 8px; padding: 8px;">${originalText}</textarea>
+                <div class="edit-actions" style="margin-top: 8px;">
+                    <button class="btn btn-sm btn-primary" onclick="saveReplyEdit(${replyId})">Save</button>
+                    <button class="btn btn-sm btn-secondary" onclick="cancelReplyEdit(${replyId}, \`${originalText.replace(/`/g, '\\`')}\`)">Cancel</button>
+                </div>
+            `;
+            replyBubble.querySelector('.edit-reply-input').focus();
+        }
+
+        function saveReplyEdit(replyId) {
+            const replyBubble = document.querySelector(`[data-comment-id="${replyId}"] .comment-bubble`);
+            const newContent = replyBubble.querySelector('.edit-reply-input').value.trim();
+
+            if (!newContent) {
+                showToast('Reply cannot be empty', 'error');
+                return;
+            }
+
+            fetch(`/api/replies/${replyId}/edit`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': getAntiForgeryToken()
+                },
+                body: JSON.stringify({ content: newContent })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const replyText = replyBubble.querySelector('.comment-text');
+                    replyText.innerHTML = newContent + ' <small class="text-muted">(edited)</small>';
+                    showToast('Reply updated successfully', 'success');
+                } else {
+                    showToast(data.message || 'Failed to update reply', 'error');
+                }
+            })
+            .catch(error => {
+                showToast('Failed to update reply', 'error');
+            });
+        }
+
+        function cancelReplyEdit(replyId, originalText) {
+            const replyBubble = document.querySelector(`[data-comment-id="${replyId}"] .comment-bubble`);
+            const replyText = replyBubble.querySelector('.comment-text');
+            replyText.innerHTML = originalText;
+        }
+
+        function deleteReply(replyId) {
+            if (!confirm('Are you sure you want to delete this reply?')) return;
+
+            fetch(`/api/replies/${replyId}/delete`, {
+                method: 'DELETE',
+                headers: {
+                    'RequestVerificationToken': getAntiForgeryToken()
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const replyItem = document.querySelector(`[data-comment-id="${replyId}"]`);
+                    replyItem.style.opacity = '0';
+                    setTimeout(() => replyItem.remove(), 300);
+                    showToast('Reply deleted successfully', 'success');
+                } else {
+                    showToast(data.message || 'Failed to delete reply', 'error');
+                }
+            })
+            .catch(error => {
+                showToast('Failed to delete reply', 'error');
             });
         }
 
