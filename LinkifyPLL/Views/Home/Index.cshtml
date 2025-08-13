@@ -1729,51 +1729,117 @@
                 showToast(`You reacted with ${reaction.text}`, 'success');
             }
         }
-
-                function ajaxCall({ url, method = 'POST', data = null, headers = {}, onSuccess, onError }) {
+                // Enhanced AJAX call function with comprehensive error handling
+        function ajaxCall({ url, method = 'POST', data = null, headers = {}, onSuccess, onError }) {
             const options = {
                 method,
                 headers: {
                     'Content-Type': 'application/json',
                     'RequestVerificationToken': getAntiForgeryToken(),
+                    'X-Requested-With': 'XMLHttpRequest',
                     ...headers
                 }
             };
+
             if (data) options.body = JSON.stringify(data);
 
             fetch(url, options)
-                .then(response => response.json())
+                .then(response => {
+                    // Check if response is ok
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    // Check content type
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        return response.json();
+                    } else {
+                        throw new Error('Invalid response format - expected JSON');
+                    }
+                })
                 .then(result => {
                     if (onSuccess) onSuccess(result);
                 })
                 .catch(error => {
-                    if (onError) onError(error);
+                    console.error('AJAX Error:', error);
+                    if (onError) {
+                        onError(error);
+                    } else {
+                        // Default error handling
+                        showToast(`Request failed: ${error.message}`, 'error');
+                    }
                 });
         }
 
+               // Updated AJAX call with better error handling
+        function submitReaction(postId, reaction) {
+            console.log('submitReaction called:', { postId, reaction });
 
-                        function submitReaction(postId, reaction) {
+            // Validate postId
+            if (!postId || postId === 'undefined' || postId === 'null') {
+                console.error('Invalid postId in submitReaction:', postId);
+                showToast('Invalid post ID', 'error');
+                return;
+            }
+
+            // Convert postId to number and validate
+            const numericPostId = parseInt(postId);
+            if (isNaN(numericPostId) || numericPostId <= 0) {
+                console.error('Invalid numeric postId:', postId, 'converted to:', numericPostId);
+                showToast('Invalid post ID format', 'error');
+                return;
+            }
+
+            const currentUserId = document.getElementById('currentUserId')?.value;
+            if (!currentUserId) {
+                console.error('No current user ID found in submitReaction');
+                showToast('Please log in to react to posts', 'error');
+                return;
+            }
+
+            // Use the correct URL format for your routing
             ajaxCall({
                 url: '/Post/ToggleReaction',
                 method: 'POST',
                 data: {
-                    postId: postId,
-                    reactionType: reaction,
-                    userId: '@currentUserId'
+                    postId: numericPostId,
+                    userId: currentUserId,
+                    reactionType: reaction || ''
                 },
                 onSuccess: function(data) {
-                    if (data.success) {
+                    console.log('Reaction response:', data);
+                    if (data && data.success) {
                         updateReactionCounts(postId, data);
+                        showToast(data.message || 'Reaction updated successfully', 'success');
                     } else {
-                        showToast('Failed to save reaction', 'error');
+                        const errorMessage = data?.message || 'Failed to save reaction';
+                        showToast(errorMessage, 'error');
+                        console.error('Server returned success=false:', data);
                     }
                 },
                 onError: function(error) {
                     console.error('Reaction error:', error);
-                    showToast('Failed to save reaction', 'error');
+                    let errorMessage = 'Failed to save reaction';
+
+                    if (error.message.includes('404')) {
+                        errorMessage = 'Reaction endpoint not found. Check your routing.';
+                    } else if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+                        errorMessage = 'Please log in to react to posts.';
+                        // Redirect to login page
+                        window.location.href = '/Account/Login';
+                    } else if (error.message.includes('403')) {
+                        errorMessage = 'You are not authorized to perform this action.';
+                    } else if (error.message.includes('500')) {
+                        errorMessage = 'Server error occurred. Please try again later.';
+                    }
+
+                    showToast(errorMessage, 'error');
                 }
             });
         }
+
+
 
         function updateReactionCounts(postId, data) {
             // Update reaction count display
@@ -1812,6 +1878,30 @@
         
 
         
+        //////////
+                // Add the missing function
+        function handleReactionButtonClick(postId) {
+            console.log('handleReactionButtonClick called with postId:', postId);
+
+            // Validate postId
+            if (!postId || postId === 'undefined' || postId === 'null') {
+                console.error('Invalid postId:', postId);
+                showToast('Invalid post ID', 'error');
+                return;
+            }
+
+            const currentReaction = userReactions[postId];
+            console.log('Current reaction for post', postId, ':', currentReaction);
+
+            // If user has no reaction, default to 'like'
+            if (!currentReaction || currentReaction === '' || currentReaction === 'like') {
+                selectReaction(postId, 'like');
+            } else {
+                // Remove current reaction
+                selectReaction(postId, null);
+            }
+        }
+        ///////////
 
 
         // Comments System
@@ -2234,13 +2324,7 @@
             }
         }
 
-        // Utility function to get anti-forgery token
-        function getAntiForgeryToken() {
-            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value ||
-                          document.querySelector('meta[name="__RequestVerificationToken"]')?.content ||
-                          document.querySelector('[name="__RequestVerificationToken"]')?.value;
-            return token || '';
-        }
+        
 
         // Enhanced Toast notification system
         function showToast(message, type = 'info', duration = 5000) {

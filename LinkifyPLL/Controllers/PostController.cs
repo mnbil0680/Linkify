@@ -3,6 +3,7 @@ using LinkifyBLL.Services.Abstraction;
 using LinkifyBLL.Services.Implementation;
 using LinkifyDAL.Entities;
 using LinkifyDAL.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SempaBLL.Helper;
@@ -237,6 +238,103 @@ namespace LinkifyPLL.Controllers
             }
         }
 
+
+        [HttpPost]
+        [Authorize] // Ensure this action requires authentication
+        [ValidateAntiForgeryToken] // Add this to validate the anti-forgery token
+        public async Task<IActionResult> ToggleReaction([FromBody] ToggleReactionRequest request)
+        {
+            try
+            {
+                // Log the incoming request
+                Console.WriteLine($"ToggleReaction called: PostId={request.PostId}, UserId={request.UserId}, ReactionType={request.ReactionType}");
+
+                // Validate input
+                if (string.IsNullOrEmpty(request.UserId))
+                {
+                    return Json(new { success = false, message = "User ID is required" });
+                }
+
+                if (request.PostId <= 0)
+                {
+                    return Json(new { success = false, message = "Invalid post ID" });
+                }
+
+                // Check if user is authenticated
+                if (!User.Identity.IsAuthenticated)
+                {
+                    return Json(new { success = false, message = "Authentication required" });
+                }
+
+                // Validate that the provided userId matches the authenticated user
+                var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (currentUserId != request.UserId)
+                {
+                    return Json(new { success = false, message = "User ID mismatch" });
+                }
+
+                // Parse reaction type if provided
+                ReactionTypes? reactionEnum = null;
+                if (!string.IsNullOrEmpty(request.ReactionType))
+                {
+                    if (!Enum.TryParse<ReactionTypes>(request.ReactionType, true, out var parsedReaction))
+                    {
+                        return Json(new { success = false, message = $"Invalid reaction type: {request.ReactionType}" });
+                    }
+                    reactionEnum = parsedReaction;
+                }
+
+                // Toggle the reaction
+                if (reactionEnum.HasValue)
+                {
+                    await _postReactionService.ToggleReactionAsync(request.PostId, request.UserId, reactionEnum.Value);
+                }
+                else
+                {
+                    // Remove reaction logic if your service supports it
+                    // await _postReactionService.RemoveReactionAsync(request.PostId, request.UserId);
+                }
+
+                // Get updated counts
+                var reactions = await _postReactionService.GetReactionsByPostAsync(request.PostId);
+                var reactionCount = reactions.Count(r => !r.IsDeleted);
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Reaction updated successfully",
+                    reactionCount = reactionCount,
+                    topReactions = reactions
+                        .Where(r => !r.IsDeleted)
+                        .GroupBy(r => r.Reaction)
+                        .OrderByDescending(g => g.Count())
+                        .Take(3)
+                        .Select(g => g.Key.ToString().ToLower())
+                        .ToArray()
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log the full exception
+                Console.WriteLine($"Error in ToggleReaction: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while processing your reaction",
+                    error = ex.Message // Remove this in production
+                });
+            }
+        }
+
+        // Add this class to represent the request model
+        public class ToggleReactionRequest
+        {
+            public int PostId { get; set; }
+            public string UserId { get; set; }
+            public string ReactionType { get; set; }
+        }
 
 
 
