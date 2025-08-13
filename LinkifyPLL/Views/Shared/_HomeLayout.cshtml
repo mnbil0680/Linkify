@@ -69,8 +69,11 @@
 
         <!-- Main Feed -->
         <main class="main-feed" id="main-content" role="main" aria-label="Main content">
-            
-            @await Html.PartialAsync("_CreatePostModal", new PostCreateMV())
+            <button type="button" class="btn btn-primary" onclick="openCreatePostModal()">
+                <i class="fas fa-plus me-2"></i>Create Post
+            </button>
+
+            @await Html.PartialAsync("_CreatePostModal")
             @RenderBody()
         </main>
 

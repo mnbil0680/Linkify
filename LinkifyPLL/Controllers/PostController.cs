@@ -42,47 +42,146 @@ namespace LinkifyPLL.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreatePost(PostCreateMV model)
         {
-            if (!ModelState.IsValid)
-                return View(model); // Show validation errors
-
-            var imageFileNames = new List<string>();
-            if (model.Images != null && model.Images.Count > 0)
+            try
             {
-                foreach (var file in model.Images)
+                if (!ModelState.IsValid)
                 {
-                    var fileName = FileManager.UploadFile("Files", file);
-                    imageFileNames.Add(fileName);
+                    // For AJAX requests, return JSON error
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
+                        Request.ContentType?.Contains("multipart/form-data") == true)
+                    {
+                        var errors = ModelState.Values
+                            .SelectMany(v => v.Errors)
+                            .Select(e => e.ErrorMessage)
+                            .ToList();
+
+                        return Json(new
+                        {
+                            success = false,
+                            message = "Validation failed",
+                            errors = errors
+                        });
+                    }
+                    return View(model); // For regular form submissions
                 }
-            }
 
-            var user = await _userManager.GetUserAsync(User);
-            // You need to save imageFileNames with the post!
-            var post = await _postService.CreatePostAsync(user.Id, model.TextContent);
-
-            // Save images to the post (if you have a service for that)
-            if (imageFileNames.Count > 0)
-            {
-                foreach (var img in imageFileNames)
+                var imageFileNames = new List<string>();
+                if (model.Images != null && model.Images.Count > 0)
                 {
-                    await _postImageService.AddPostImageAsync(new PostImages(img, post.Id));
+                    foreach (var file in model.Images)
+                    {
+                        var fileName = FileManager.UploadFile("Files", file);
+                        imageFileNames.Add(fileName);
+                    }
                 }
-            }
 
-            return RedirectToAction("Index", "Home");
-        }
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "User not authenticated" });
+                }
 
+                // Create the post
+                var post = await _postService.CreatePostAsync(user.Id, model.TextContent);
 
-        [HttpPost]
-        public async Task<IActionResult> CreateComment(CommentCreateMV model)
-        {
-            if (!ModelState.IsValid)
+                // Save images to the post
+                if (imageFileNames.Count > 0)
+                {
+                    foreach (var img in imageFileNames)
+                    {
+                        await _postImageService.AddPostImageAsync(new PostImages(img, post.Id));
+                    }
+                }
+
+                // For AJAX requests, return JSON success
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
+                    Request.ContentType?.Contains("multipart/form-data") == true)
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        message = "Post created successfully!",
+                        postId = post.Id
+                    });
+                }
+
                 return RedirectToAction("Index", "Home");
-            var user = await _userManager.GetUserAsync(User);
-            await _postCommentService.CreateCommentAsync(model.PostId,user.Id, model.TextContent,model.ImagePath, model.ParentCommentId);
-            return RedirectToAction("Home");
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                // _logger.LogError(ex, "Error creating post");
+
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while creating the post. Please try again."
+                });
+            }
         }
+
+
+        [HttpPost("api/posts/{postId}/comments")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateCommentApi(int postId, [FromBody] CreateCommentRequest request)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(request.Content))
+                {
+                    return Json(new { success = false, message = "Comment content is required" });
+                }
+
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "User not authenticated" });
+                }
+
+                // Create the comment
+                var comment = await _postCommentService.CreateCommentAsync(
+                    postId,
+                    user.Id,
+                    request.Content
+                );
+
+                // Return the created comment data
+                var commentData = new
+                {
+                    id = comment.Id,
+                    authorName = user.UserName,
+                    authorAvatar = user.ImgPath ?? "/images/default-avatar.png",
+                    content = comment.Content,
+                    timeAgo = "now",
+                    reactions = new List<object>()
+                };
+
+                return Json(new
+                {
+                    success = true,
+                    comment = commentData,
+                    message = "Comment posted successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Failed to post comment"
+                });
+            }
+        }
+
+        // Add this class for the request model
+        public class CreateCommentRequest
+        {
+            public string Content { get; set; }
+        }
+
 
 
         [HttpGet("api/posts/{postId}/comments")]

@@ -1,1 +1,288 @@
-﻿
+﻿<!-- Create Post Modal -->
+<div class="modal fade" id="createPostModal" tabindex="-1" aria-labelledby="createPostModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createPostModalLabel">
+                    <i class="fas fa-plus-circle me-2"></i>Create Post
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="createPostForm" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Post Content -->
+                    <div class="mb-3">
+                        <label for="postContent" class="form-label">What's on your mind?</label>
+                        <textarea class="form-control" id="postContent" name="TextContent" rows="4"
+                                  placeholder="Share your thoughts..." required></textarea>
+                        <div class="invalid-feedback">
+                            Please enter some content for your post.
+                        </div>
+                    </div>
+
+                    <!-- Image Upload -->
+                    <div class="mb-3">
+                        <label for="postImages" class="form-label">
+                            <i class="fas fa-image me-2"></i>Add Images
+                        </label>
+                        <input type="file" class="form-control" id="postImages" name="Images"
+                               multiple accept="image/*" onchange="previewImages(this)">
+                        <div class="form-text">You can select multiple images (JPG, PNG, GIF)</div>
+                    </div>
+
+                    <!-- Image Preview -->
+                    <div id="imagePreview" class="mb-3" style="display: none;">
+                        <div class="row g-2" id="previewContainer"></div>
+                    </div>
+
+                    <!-- Visibility -->
+                    <div class="mb-3">
+                        <label for="postVisibility" class="form-label">
+                            <i class="fas fa-eye me-2"></i>Visibility
+                        </label>
+                        <select class="form-select" id="postVisibility" name="Visibility">
+                            <option value="Public">🌍 Public</option>
+                            <option value="Friends">👥 Friends Only</option>
+                            <option value="Private">🔒 Only Me</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="submitPostBtn" onclick="submitPost()">
+                    <i class="fas fa-paper-plane me-2"></i>
+                    <span id="submitBtnText">Post</span>
+                    <div class="spinner-border spinner-border-sm ms-2" id="submitSpinner" style="display: none;" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .image-preview-item {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+        .image-preview-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+    .remove-image {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+        .remove-image:hover {
+            background: rgba(255, 0, 0, 0.8);
+        }
+
+    #createPostModal .modal-content {
+        border-radius: 12px;
+    }
+
+    #createPostModal .modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px 12px 0 0;
+    }
+
+    #createPostModal .btn-close {
+        filter: invert(1);
+    }
+</style>
+
+<script>
+    let selectedFiles = [];
+
+    // Initialize modal
+    function openCreatePostModal() {
+        // Reset form
+        document.getElementById('createPostForm').reset();
+        selectedFiles = [];
+        document.getElementById('imagePreview').style.display = 'none';
+        document.getElementById('previewContainer').innerHTML = '';
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('createPostModal'));
+        modal.show();
+    }
+
+    // Preview selected images
+    function previewImages(input) {
+        const previewContainer = document.getElementById('previewContainer');
+        const imagePreview = document.getElementById('imagePreview');
+
+        selectedFiles = Array.from(input.files);
+        previewContainer.innerHTML = '';
+
+        if (selectedFiles.length > 0) {
+            imagePreview.style.display = 'block';
+
+            selectedFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const colDiv = document.createElement('div');
+                    colDiv.className = 'col-md-3 col-sm-4 col-6';
+                    colDiv.innerHTML = `
+                        <div class="image-preview-item">
+                            <img src="${e.target.result}" alt="Preview">
+                            <button type="button" class="remove-image" onclick="removeImage(${index})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                    previewContainer.appendChild(colDiv);
+                };
+                reader.readAsDataURL(file);
+            });
+        } else {
+            imagePreview.style.display = 'none';
+        }
+    }
+
+    // Remove image from preview
+    function removeImage(index) {
+        selectedFiles.splice(index, 1);
+
+        // Update file input
+        const dt = new DataTransfer();
+        selectedFiles.forEach(file => dt.items.add(file));
+        document.getElementById('postImages').files = dt.files;
+
+        // Refresh preview
+        previewImages(document.getElementById('postImages'));
+    }
+
+    // Submit post using AJAX
+        // Submit post using AJAX
+    function submitPost() {
+        const form = document.getElementById('createPostForm');
+        const submitBtn = document.getElementById('submitPostBtn');
+        const submitBtnText = document.getElementById('submitBtnText');
+        const submitSpinner = document.getElementById('submitSpinner');
+        const textContent = document.getElementById('postContent').value.trim();
+
+        // Validate content
+        if (!textContent) {
+            document.getElementById('postContent').classList.add('is-invalid');
+            return;
+        } else {
+            document.getElementById('postContent').classList.remove('is-invalid');
+        }
+
+        // Disable submit button
+        submitBtn.disabled = true;
+        submitBtnText.textContent = 'Posting...';
+        submitSpinner.style.display = 'inline-block';
+
+        // Create FormData for AJAX
+        const formData = new FormData();
+        formData.append('TextContent', textContent);
+        formData.append('Visibility', document.getElementById('postVisibility').value);
+        formData.append('__RequestVerificationToken', getAntiForgeryToken());
+
+        // Add selected images
+        selectedFiles.forEach((file, index) => {
+            formData.append('Images', file);
+        });
+
+        // Submit using AJAX
+        fetch('/Post/CreatePost', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'  // Add this header
+            },
+            body: formData
+        })
+        .then(response => {
+            // Check if response is JSON or HTML
+            const contentType = response.headers.get('content-type');
+
+            if (contentType && contentType.includes('application/json')) {
+                // Handle JSON response
+                return response.json().then(data => {
+                    if (data.success) {
+                        showToast('Post created successfully!', 'success');
+
+                        // Close modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('createPostModal'));
+                        modal.hide();
+
+                        // Refresh the page to show new post
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        throw new Error(data.message || 'Failed to create post');
+                    }
+                });
+            } else if (response.redirected || response.url.includes('/Home')) {
+                // Handle redirect response (success)
+                showToast('Post created successfully!', 'success');
+
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('createPostModal'));
+                modal.hide();
+
+                // Redirect to home
+                setTimeout(() => {
+                    window.location.href = '/Home';
+                }, 1000);
+            } else {
+                throw new Error('Unexpected response format');
+            }
+        })
+        .catch(error => {
+            console.error('Error creating post:', error);
+            showToast(error.message || 'Failed to create post. Please try again.', 'error');
+        })
+        .finally(() => {
+            // Re-enable submit button
+            submitBtn.disabled = false;
+            submitBtnText.textContent = 'Post';
+            submitSpinner.style.display = 'none';
+        });
+    }
+
+    // Get anti-forgery token
+    function getAntiForgeryToken() {
+        return document.querySelector('input[name="__RequestVerificationToken"]')?.value ||
+               document.querySelector('meta[name="__RequestVerificationToken"]')?.content ||
+               '';
+    }
+
+    // Auto-resize textarea
+    document.addEventListener('DOMContentLoaded', function() {
+        const textarea = document.getElementById('postContent');
+        if (textarea) {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+            });
+        }
+    });
+</script>
