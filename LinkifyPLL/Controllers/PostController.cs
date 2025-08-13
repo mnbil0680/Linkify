@@ -38,89 +38,20 @@ namespace LinkifyPLL.Controllers
         public async Task <IActionResult> CreatePost()
         {
 
-            return View();     
+            return View("~/Views/Post/CreatePost.cshtml");     
         }
 
+        
+
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreatePost(PostCreateMV model)
+        public async Task<IActionResult> CreatePost(string TextContent )
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    // For AJAX requests, return JSON error
-                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
-                        Request.ContentType?.Contains("multipart/form-data") == true)
-                    {
-                        var errors = ModelState.Values
-                            .SelectMany(v => v.Errors)
-                            .Select(e => e.ErrorMessage)
-                            .ToList();
-
-                        return Json(new
-                        {
-                            success = false,
-                            message = "Validation failed",
-                            errors = errors
-                        });
-                    }
-                    return View(model); // For regular form submissions
-                }
-
-                var imageFileNames = new List<string>();
-                if (model.Images != null && model.Images.Count > 0)
-                {
-                    foreach (var file in model.Images)
-                    {
-                        var fileName = FileManager.UploadFile("Files", file);
-                        imageFileNames.Add(fileName);
-                    }
-                }
-
-                var user = await _userManager.GetUserAsync(User);
-                if (user == null)
-                {
-                    return Json(new { success = false, message = "User not authenticated" });
-                }
-
-                // Create the post
-                var post = await _postService.CreatePostAsync(user.Id, model.TextContent);
-
-                // Save images to the post
-                if (imageFileNames.Count > 0)
-                {
-                    foreach (var img in imageFileNames)
-                    {
-                        await _postImageService.AddPostImageAsync(new PostImages(img, post.Id));
-                    }
-                }
-
-                // For AJAX requests, return JSON success
-                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
-                    Request.ContentType?.Contains("multipart/form-data") == true)
-                {
-                    return Json(new
-                    {
-                        success = true,
-                        message = "Post created successfully!",
-                        postId = post.Id
-                    });
-                }
-
+            if (!ModelState.IsValid)
                 return RedirectToAction("Index", "Home");
-            }
-            catch (Exception ex)
-            {
-                // Log the error
-                // _logger.LogError(ex, "Error creating post");
 
-                return Json(new
-                {
-                    success = false,
-                    message = "An error occurred while creating the post. Please try again."
-                });
-            }
+            var user = await _userManager.GetUserAsync(User);
+            await _postService.CreatePostAsync(user.Id,TextContent);
+            return RedirectToAction("Home");
         }
 
 

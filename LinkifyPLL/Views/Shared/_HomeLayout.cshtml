@@ -69,9 +69,9 @@
 
         <!-- Main Feed -->
         <main class="main-feed" id="main-content" role="main" aria-label="Main content">
-            <button type="button" class="btn btn-primary" onclick="openCreatePostModal()">
+            <a type="button" class="btn btn-primary" asp-action="CreatePost" asp-controller="Post" formmethod="get">
                 <i class="fas fa-plus me-2"></i>Create Post
-            </button>
+            </a>
 
             @await Html.PartialAsync("_CreatePostModal")
             @RenderBody()

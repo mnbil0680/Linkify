@@ -829,6 +829,283 @@
             margin-bottom: 8px;
         }
     </style>
+
+    <style>
+        /* Enhanced Comment Actions */
+        .comment-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-left: 16px;
+            flex-wrap: wrap;
+        }
+
+        .comment-reactions-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+        }
+
+        .comment-reaction-button-wrapper {
+            position: relative;
+        }
+
+        .comment-reaction-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            padding: 4px 8px;
+            border-radius: var(--radius-small);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: var(--transition-fast);
+        }
+
+            .comment-reaction-btn:hover {
+                background-color: var(--hover-light);
+            }
+
+            .comment-reaction-btn.active {
+                font-weight: 700;
+            }
+
+        .comment-reaction-emoji {
+            font-size: 14px;
+            transition: var(--transition-fast);
+        }
+
+        .comment-reaction-btn:hover .comment-reaction-emoji {
+            transform: scale(1.1);
+        }
+
+        .comment-reaction-count {
+            background: var(--hover-light);
+            color: var(--text-primary);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+            .comment-reaction-count:hover {
+                background: var(--border-light);
+                transform: scale(1.05);
+            }
+
+        /* Comment Reactions Popup */
+        .comment-reactions-popup {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--background-secondary);
+            border-radius: 20px;
+            box-shadow: var(--shadow-heavy);
+            padding: 6px 12px;
+            display: flex;
+            gap: 6px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-50%) translateY(8px) scale(0.8);
+            transition: var(--transition-medium);
+            margin-bottom: 8px;
+            z-index: 1001;
+            border: 1px solid var(--border-light);
+        }
+
+        .comment-reaction-button-wrapper:hover .comment-reactions-popup {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0) scale(1);
+        }
+
+        .comment-reaction-item {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-medium);
+            font-size: 18px;
+            position: relative;
+        }
+
+            .comment-reaction-item:hover {
+                transform: scale(1.2);
+                z-index: 2;
+            }
+
+            .comment-reaction-item.like {
+                background: linear-gradient(135deg, #1877f2, #42a5f5);
+            }
+
+            .comment-reaction-item.love {
+                background: linear-gradient(135deg, #e91e63, #f06292);
+            }
+
+            .comment-reaction-item.haha {
+                background: linear-gradient(135deg, #f39c12, #ffb74d);
+            }
+
+            .comment-reaction-item.angry {
+                background: linear-gradient(135deg, #e74c3c, #ef5350);
+            }
+
+        /* Enhanced Reply Actions */
+        .comment-reply-container {
+            position: relative;
+        }
+
+        .reply-btn {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .reply-input-section {
+            margin-top: 12px;
+            padding-left: 44px;
+            animation: slideInReply 0.3s ease-out;
+        }
+
+        @@keyframes slideInReply {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .reply-input-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .reply-input-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--border-light);
+        }
+
+        .reply-input {
+            flex: 1;
+            background: var(--background-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 6px 12px;
+            font-size: 13px;
+            resize: none;
+            min-height: 32px;
+            max-height: 80px;
+            transition: var(--transition-fast);
+        }
+
+            .reply-input:focus {
+                outline: none;
+                border-color: var(--primary-blue);
+                box-shadow: 0 0 0 1px rgba(24, 119, 242, 0.1);
+            }
+
+        .reply-submit-btn {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            font-size: 10px;
+        }
+
+            .reply-submit-btn:hover:not(:disabled) {
+                background: var(--primary-blue-hover);
+                transform: scale(1.05);
+            }
+
+            .reply-submit-btn:disabled {
+                background: var(--text-tertiary);
+                cursor: not-allowed;
+            }
+
+        /* Owner Actions */
+        .comment-owner-actions .dropdown-toggle {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 4px 6px;
+        }
+
+            .comment-owner-actions .dropdown-toggle:hover {
+                background: var(--hover-light);
+                color: var(--text-primary);
+            }
+
+        /* Report Button */
+        .report-btn {
+            color: var(--text-tertiary);
+            font-size: 11px;
+        }
+
+            .report-btn:hover {
+                color: var(--danger-red);
+            }
+
+        /* Enhanced Time Display */
+        .comment-time {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            cursor: help;
+        }
+
+            .comment-time:hover {
+                color: var(--text-secondary);
+            }
+
+        /* Responsive Design for Comments */
+        @@media (max-width: 768px) {
+            .comment-actions
+
+        {
+            gap: 8px;
+            font-size: 11px;
+        }
+
+        .comment-reaction-btn {
+            padding: 2px 6px;
+        }
+
+        .reply-input-section {
+            padding-left: 32px;
+        }
+
+        }
+    </style>
+
 }
 
 <div class="feed-container">
@@ -1075,31 +1352,161 @@
                                 @foreach (var comment in post.Comments.Take(3)) // Show only first 3 comments initially
                                 {
                                     <div class="comment-item" data-comment-id="@comment.CommentID">
-                                        <img src="@(comment.AuthorAvatar ?? "/images/default-avatar.png")" alt="@comment.AuthorName" class="comment-avatar" loading="lazy" />
+                                        <img src="@(comment.AuthorAvatar ?? "/imgs/Account/default.png")" alt="@comment.AuthorName" class="comment-avatar" loading="lazy" />
                                         <div class="comment-content">
                                             <div class="comment-bubble">
                                                 <div class="comment-author">@comment.AuthorName</div>
                                                 <div class="comment-text">@comment.TextContent</div>
                                             </div>
+
                                             <div class="comment-actions">
                                                 @{
                                                     var hasCommentReaction = HasUserReactedToComment(comment.Reactions, currentUserId, "like");
+                                                    var userCommentReaction = comment.Reactions?.FirstOrDefault(r =>
+                                                    r.ReactorId == currentUserId &&
+                                                    (r.IsDeleted == false || r.IsDeleted == null));
+                                                    var commentReactionType = userCommentReaction?.Reaction?.ToString()?.ToLower() ?? "like";
+                                                    var hasAnyCommentReaction = userCommentReaction != null;
+
+                                                    // Get reaction counts for this comment
+                                                    var commentLikeCount = comment.Reactions?.Count(r => r.Reaction == "Like" && !r.IsDeleted) ?? 0;
+                                                    var commentLoveCount = comment.Reactions?.Count(r => r.Reaction == "Love" && !r.IsDeleted) ?? 0;
+                                                    var commentHahaCount = comment.Reactions?.Count(r => r.Reaction == "Haha" && !r.IsDeleted) ?? 0;
+                                                    var commentAngryCount = comment.Reactions?.Count(r => r.Reaction == "Angry" && !r.IsDeleted) ?? 0;
+                                                    var totalCommentReactions = commentLikeCount + commentLoveCount + commentHahaCount + commentAngryCount;
                                                 }
-                                                <div class="comment-reactions">
-                                                    <span class="comment-action comment-like @(hasCommentReaction ? "active" : "")" 
-                                                          onclick="toggleCommentReaction(@comment.CommentID, 'like')">
-                                                        @(hasCommentReaction ? "Like" : "Like")
-                                                    </span>
+
+                                                <!-- Enhanced Comment Reactions -->
+                                                <div class="comment-reaction-button-wrapper">
+                                                    <button class="comment-reaction-btn @(hasAnyCommentReaction ? "active" : "")"
+                                                            type="button"
+                                                            data-comment-id="@comment.CommentID"
+                                                            data-current-reaction="@commentReactionType"
+                                                            style="@(hasAnyCommentReaction ? GetCommentReactionColor(commentReactionType) : "")">
+                                                        <span class="comment-reaction-emoji">@GetCommentReactionEmoji(commentReactionType, hasAnyCommentReaction)</span>
+                                                        <span class="comment-reaction-text">@GetCommentReactionText(commentReactionType, hasAnyCommentReaction)</span>
+                                                    </button>
                                                     <div class="comment-reactions-popup">
-                                                        <div class="comment-reaction-item like" onclick="selectCommentReaction(@comment.CommentID, 'like')">👍</div>
-                                                        <div class="comment-reaction-item love" onclick="selectCommentReaction(@comment.CommentID, 'love')">❤️</div>
-                                                        <div class="comment-reaction-item haha" onclick="selectCommentReaction(@comment.CommentID, 'haha')">😂</div>
-                                                        <div class="comment-reaction-item angry" onclick="selectCommentReaction(@comment.CommentID, 'angry')">😡</div>
+                                                        <div class="comment-reaction-item like" data-label="Like" data-reaction="like" onclick="selectCommentReaction(@comment.CommentID, 'like')">👍</div>
+                                                        <div class="comment-reaction-item love" data-label="Love" data-reaction="love" onclick="selectCommentReaction(@comment.CommentID, 'love')">❤️</div>
+                                                        <div class="comment-reaction-item haha" data-label="Haha" data-reaction="haha" onclick="selectCommentReaction(@comment.CommentID, 'haha')">😂</div>
+                                                        <div class="comment-reaction-item sad" data-label="Sad" data-reaction="sad" onclick="selectCommentReaction(@comment.CommentID, 'sad')">😢</div>
+                                                        <div class="comment-reaction-item angry" data-label="Angry" data-reaction="angry" onclick="selectCommentReaction(@comment.CommentID, 'angry')">😡</div>
                                                     </div>
                                                 </div>
-                                                <span class="comment-action" onclick="replyToComment(@comment.CommentID)">Reply</span>
-                                                <span class="comment-time">@FormatSince(comment.Since)</span>
+
+                                                <!-- Enhanced Reply Action -->
+                                                <div class="comment-reply-container">
+                                                    <button class="comment-action reply-btn"
+                                                            onclick="toggleReplyInput(@comment.CommentID)"
+                                                            data-comment-id="@comment.CommentID">
+                                                        <i class="fas fa-reply me-1"></i>
+                                                        <span>Reply</span>
+                                                    </button>
+                                                </div>
+
+                                                <!-- Enhanced Edit/Delete Actions (if user owns comment) -->
+                                                @if (currentUserId == comment.CommenterId)
+                                                {
+                                                    <div class="comment-owner-actions">
+                                                        <div class="dropdown">
+                                                            <button class="comment-action dropdown-toggle"
+                                                                    type="button"
+                                                                    id="commentMenu@(comment.CommentID)"
+                                                                    data-bs-toggle="dropdown"
+                                                                    aria-expanded="false">
+                                                                <i class="fas fa-ellipsis-h"></i>
+                                                            </button>
+                                                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="commentMenu@(comment.CommentID)">
+                                                                <li>
+                                                                    <button class="dropdown-item" onclick="editComment(@comment.CommentID)">
+                                                                        <i class="fas fa-edit me-2"></i>Edit
+                                                                    </button>
+                                                                </li>
+                                                                <li>
+                                                                    <button class="dropdown-item text-danger" onclick="deleteComment(@comment.CommentID)">
+                                                                        <i class="fas fa-trash me-2"></i>Delete
+                                                                    </button>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                }
+
+                                                <!-- Time Display with Enhanced Formatting -->
+                                                <span class="comment-time" title="@comment.CreatedAt.ToString("MMMM dd, yyyy 'at' h:mm tt")">
+                                                    @FormatSince(comment.Since)
+                                                </span>
+
+                                                <!-- Report Action -->
+                                                @if (currentUserId != comment.CommenterId)
+                                                {
+                                                    <button class="comment-action report-btn" onclick="reportComment(@comment.CommentID)">
+                                                        <i class="fas fa-flag me-1"></i>
+                                                        <span class="d-none d-md-inline">Report</span>
+                                                    </button>
+                                                }
                                             </div>
+
+                                            <!-- Reply Input Section (Initially Hidden) -->
+                                            <div class="reply-input-section" id="reply-@comment.CommentID" style="display: none;">
+                                                <div class="reply-input-wrapper">
+                                                    <img src="@(ViewBag.CurrentUserAvatar ?? "/imgs/Account/default.png")"
+                                                         alt="Your avatar"
+                                                         class="reply-input-avatar" />
+                                                    <textarea class="reply-input"
+                                                              placeholder="Write a reply..."
+                                                              rows="1"
+                                                              data-comment-id="@comment.CommentID"
+                                                              onkeypress="handleReplySubmit(event, @comment.CommentID)"
+                                                              oninput="autoResizeTextarea(this)"></textarea>
+                                                    <button class="reply-submit-btn"
+                                                            onclick="submitReply(@comment.CommentID)"
+                                                            disabled>
+                                                        <i class="fas fa-paper-plane"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            @functions {
+                                string GetCommentReactionEmoji(string reactionType, bool isActive)
+                                {
+                                    if (!isActive) return "👍";
+
+                                    return reactionType?.ToLower() switch
+                                    {
+                                        "love" => "❤️",
+                                        "haha" => "😂",
+                                        "angry" => "😡",
+                                        _ => "👍"
+                                    };
+                                }
+
+                                string GetCommentReactionText(string reactionType, bool isActive)
+                                {
+                                    if (!isActive) return "Like";
+
+                                    return reactionType?.ToLower() switch
+                                    {
+                                        "love" => "Love",
+                                        "haha" => "Haha",
+                                        "angry" => "Angry",
+                                        _ => "Like"
+                                    };
+                                }
+
+                                string GetCommentReactionColor(string reactionType)
+                                {
+                                    return reactionType?.ToLower() switch
+                                    {
+                                        "love" => "color: #e91e63;",
+                                        "haha" => "color: #f39c12;",
+                                        "angry" => "color: #e74c3c;",
+                                        _ => "color: #1877f2;"
+                                    };
+                                }
+                            }
+
                                         </div>
                                     </div>
                                 }
@@ -1250,7 +1657,7 @@
             }
         }
 
-                function ajaxCall({ url, method = 'POST', data = null, headers = {}, onSuccess, onError }) {
+        function ajaxCall({ url, method = 'POST', data = null, headers = {}, onSuccess, onError }) {
             const options = {
                 method,
                 headers: {
@@ -1271,8 +1678,7 @@
                 });
         }
 
-
-                        function submitReaction(postId, reaction) {
+        function submitReaction(postId, reaction) {
             ajaxCall({
                 url: '/Post/ToggleReaction',
                 method: 'POST',
@@ -1543,7 +1949,7 @@
         }
 
         function submitCommentReaction(commentId, reaction) {
-            const url = `/api/comments/${commentId}/reactions`;
+            const url = `/comments/${commentId}/reactions`;
             
             fetch(url, {
                 method: 'POST',
@@ -1820,4 +2226,205 @@
         }
 
      </script>
+     
+     
+     <script>
+                 // Enhanced Comment Reply Functionality
+        function toggleReplyInput(commentId) {
+            const replySection = document.getElementById(`reply-${commentId}`);
+            const isVisible = replySection.style.display !== 'none';
+
+            if (isVisible) {
+                replySection.style.display = 'none';
+            } else {
+                replySection.style.display = 'block';
+                const replyInput = replySection.querySelector('.reply-input');
+                setTimeout(() => replyInput.focus(), 100);
+
+                // Initialize reply input handlers
+                initializeReplyInput(replyInput);
+            }
+        }
+
+        function initializeReplyInput(input) {
+            input.addEventListener('input', function() {
+                const submitBtn = this.parentElement.querySelector('.reply-submit-btn');
+                submitBtn.disabled = this.value.trim() === '';
+                autoResizeTextarea(this);
+            });
+        }
+
+        function handleReplySubmit(event, commentId) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                submitReply(commentId);
+            }
+        }
+
+        function submitReply(commentId) {
+            const replyInput = document.querySelector(`[data-comment-id="${commentId}"].reply-input`);
+            const content = replyInput.value.trim();
+
+            if (!content) return;
+
+            const submitBtn = replyInput.parentElement.querySelector('.reply-submit-btn');
+            const originalHTML = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="loading-spinner"></div>';
+
+            // Call your reply API
+            fetch('/api/comments/reply', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': getAntiForgeryToken()
+                },
+                body: JSON.stringify({
+                    parentCommentId: commentId,
+                    content: content
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    replyInput.value = '';
+                    replyInput.style.height = 'auto';
+                    toggleReplyInput(commentId); // Hide reply input
+                    showToast('Reply posted successfully', 'success');
+                    // Optionally reload comments or add reply to UI
+                } else {
+                    showToast(data.message || 'Failed to post reply', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Reply error:', error);
+                showToast('Failed to post reply', 'error');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalHTML;
+            });
+        }
+
+        // Enhanced Comment Reaction Details
+        function showCommentReactionDetails(commentId) {
+            fetch(`/api/comments/${commentId}/reactions/details`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show modal with reaction details
+                        showToast('Comment reaction details loaded', 'info');
+                    }
+                })
+                .catch(error => {
+                    showToast('Failed to load reaction details', 'error');
+                });
+        }
+
+        // Comment Management
+        function editComment(commentId) {
+            const commentBubble = document.querySelector(`[data-comment-id="${commentId}"] .comment-bubble`);
+            const commentText = commentBubble.querySelector('.comment-text');
+            const originalText = commentText.textContent;
+
+            // Replace with editable textarea
+            commentText.innerHTML = `
+                <textarea class="edit-comment-input" style="width: 100%; border: 1px solid var(--border-light); border-radius: 8px; padding: 8px;">${originalText}</textarea>
+                <div class="edit-actions" style="margin-top: 8px;">
+                    <button class="btn btn-sm btn-primary" onclick="saveCommentEdit(${commentId})">Save</button>
+                    <button class="btn btn-sm btn-secondary" onclick="cancelCommentEdit(${commentId}, '${originalText}')">Cancel</button>
+                </div>
+            `;
+
+            commentBubble.querySelector('.edit-comment-input').focus();
+        }
+
+        function saveCommentEdit(commentId) {
+            const commentBubble = document.querySelector(`[data-comment-id="${commentId}"] .comment-bubble`);
+            const newContent = commentBubble.querySelector('.edit-comment-input').value.trim();
+
+            if (!newContent) {
+                showToast('Comment cannot be empty', 'error');
+                return;
+            }
+
+            fetch(`/api/comments/${commentId}/edit`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': getAntiForgeryToken()
+                },
+                body: JSON.stringify({ content: newContent })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const commentText = commentBubble.querySelector('.comment-text');
+                    commentText.innerHTML = newContent + ' <small class="text-muted">(edited)</small>';
+                    showToast('Comment updated successfully', 'success');
+                } else {
+                    showToast(data.message || 'Failed to update comment', 'error');
+                }
+            })
+            .catch(error => {
+                showToast('Failed to update comment', 'error');
+            });
+        }
+
+        function cancelCommentEdit(commentId, originalText) {
+            const commentBubble = document.querySelector(`[data-comment-id="${commentId}"] .comment-bubble`);
+            const commentText = commentBubble.querySelector('.comment-text');
+            commentText.innerHTML = originalText;
+        }
+
+        function deleteComment(commentId) {
+            if (!confirm('Are you sure you want to delete this comment?')) return;
+
+            fetch(`/api/comments/${commentId}/delete`, {
+                method: 'DELETE',
+                headers: {
+                    'RequestVerificationToken': getAntiForgeryToken()
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+                    commentItem.style.opacity = '0';
+                    setTimeout(() => commentItem.remove(), 300);
+                    showToast('Comment deleted successfully', 'success');
+                } else {
+                    showToast(data.message || 'Failed to delete comment', 'error');
+                }
+            })
+            .catch(error => {
+                showToast('Failed to delete comment', 'error');
+            });
+        }
+
+        function reportComment(commentId) {
+            if (!confirm('Are you sure you want to report this comment?')) return;
+
+            fetch(`/api/comments/${commentId}/report`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': getAntiForgeryToken()
+                },
+                body: JSON.stringify({ commentId: commentId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Comment reported successfully', 'success');
+                } else {
+                    showToast(data.message || 'Failed to report comment', 'error');
+                }
+            })
+            .catch(error => {
+                showToast('Failed to report comment', 'error');
+            });
+        }
+
+         </script>
 }
