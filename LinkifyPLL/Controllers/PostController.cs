@@ -16,9 +16,11 @@ namespace LinkifyPLL.Controllers
         private readonly IPostImagesService _postImageService;
         private readonly IPostReactionsService _postReactionService;
         private readonly IPostCommentsService _postCommentService;
+        private readonly ICommentReactionsService _commentReactionService;
         private readonly UserManager<User> _userManager;
+
         public PostController(IPostService postService, IPostImagesService postImageService, 
-                              IPostReactionsService postReactionService, IPostCommentsService postCommentService,
+                              IPostReactionsService postReactionService, IPostCommentsService postCommentService, ICommentReactionsService commentReaction,
         UserManager<User> userManager)
         {
             _postService = postService;
@@ -26,6 +28,7 @@ namespace LinkifyPLL.Controllers
             _postReactionService = postReactionService;
             _postCommentService = postCommentService;
             _userManager = userManager;
+            _commentReactionService = commentReaction;
         }
         public IActionResult Index()
         {
@@ -82,16 +85,112 @@ namespace LinkifyPLL.Controllers
         }
 
 
+        [HttpGet("api/posts/{postId}/comments")]
+        public async Task<IActionResult> GetComments(int postId, int skip = 0, int take = 5)
+        {
+            try
+            {
+                // Get comments from database
+                var allComments = await _postCommentService.GetCommentsForPostAsync(postId);
+                var comments = allComments.Skip(skip).Take(take).ToList();
+
+                // Check if there are more comments
+                var hasMore = allComments.Count() > (skip + take);
+
+                // Map to view models
+                var commentMVs = new List<object>();
+
+                foreach (var comment in comments)
+                {
+                    // Get reactions for this comment
+                    var commentReactions = await _commentReactionService.GetReactionsByCommentAsync(comment.Id);
+
+                    var reactionMVs = commentReactions.Select(r => new CommentReactionMV
+                    {
+                        Id = r.Id,
+                        CommentId = r.CommentId,
+                        ReactorId = r.ReactorId,
+                        ReactorUserName = r.Reactor?.UserName,
+                        Reaction = r.Reaction.ToString(),
+                        IsDeleted = r.IsDeleted,
+                        CreatedOn = r.CreatedOn
+                    }).ToList();
+
+                    commentMVs.Add(new
+                    {
+                        id = comment.Id,
+                        authorName = comment.User.UserName,
+                        authorAvatar = comment.User.ImgPath ?? "/images/default-avatar.png",
+                        content = comment.Content,
+                        timeAgo = FormatTimeAgo(DateTime.Now - comment.CreatedOn),
+                        reactions = reactionMVs
+                    });
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    comments = commentMVs,
+                    hasMore = hasMore
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Failed to load comments"
+                });
+            }
+        }
+
+        // Helper method for time formatting
+        private string FormatTimeAgo(TimeSpan since)
+        {
+            if (since.TotalMinutes < 60)
+                return $"{since.TotalMinutes:0} min ago";
+            if (since.TotalHours < 24)
+                return $"{since.TotalHours:0} hour{(since.TotalHours >= 2 ? "s" : "")} ago";
+            if (since.TotalDays < 30)
+                return $"{since.TotalDays:0} day{(since.TotalDays >= 2 ? "s" : "")} ago";
+            return $"{(since.TotalDays / 30):0} month{(since.TotalDays / 30 >= 2 ? "s" : "")} ago";
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleReaction(int postId, string userId, string reactionType)
         {
-            await _postReactionService.ToggleReactionAsync(postId, userId, Enum.Parse<ReactionTypes>(reactionType));
+            if (string.IsNullOrEmpty(reactionType))
+            {
+                // Remove reaction
+                
+            }
+            else
+            {
+                await _postReactionService.ToggleReactionAsync(
+                    postId, userId, Enum.Parse<ReactionTypes>(reactionType)
+                );
+            }
 
-            // Example: return the reaction that the user currently has, or null if removed
-            return Json(new { success = true, userReaction = reactionType });
+            // Get updated counts
+            var reactions = await _postReactionService.GetReactionsByPostAsync(postId);
+            var reactionCount = reactions.Count();
+            var topReactions = reactions
+                .GroupBy(r => r.Reaction)
+                .OrderByDescending(g => g.Count())
+                .Take(3)
+                .Select(g => g.Key.ToString())
+                .ToList();
+
+            return Json(new
+            {
+                success = true,
+                userReaction = reactionType,
+                reactionCount,
+                topReactions
+            });
         }
 
-
     }
+
 }

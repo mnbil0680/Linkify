@@ -17,7 +17,7 @@
         return $"{(since.TotalDays / 30):0} month{(since.TotalDays / 30 >= 2 ? "s" : "")} ago";
     }
 
-    bool HasUserReacted(IEnumerable<CommentReactionMV> reactions, string userId, string reactionType)
+    bool HasUserReactedToComment(IEnumerable<CommentReactionMV> reactions, string userId, string reactionType)
     {
         return reactions != null && reactions.Any(r =>
             r.ReactorId == userId &&
@@ -61,6 +61,19 @@
             .Take(maxCount)
             .Select(r => r.Key)
             .ToList();
+    }
+
+    (string emoji, string text, string color) GetReactionDisplay(string reactionType, bool isActive = false)
+    {
+        return reactionType?.ToLower() switch
+        {
+            "like" => ("👍", "Like", isActive ? "#1877f2" : "var(--text-secondary)"),
+            "love" => ("❤️", "Love", isActive ? "#e91e63" : "var(--text-secondary)"),
+            "haha" => ("😂", "Haha", isActive ? "#f39c12" : "var(--text-secondary)"),
+            "sad" => ("😢", "Sad", isActive ? "#2196f3" : "var(--text-secondary)"),
+            "angry" => ("😡", "Angry", isActive ? "#e74c3c" : "var(--text-secondary)"),
+            _ => ("", "Like", "var(--text-secondary)")
+        };
     }
 }
 
@@ -827,13 +840,15 @@
             var hasUserReacted = HasUserReactedToPost(post.Reactions, currentUserId, userReaction);
             var topReactions = GetTopReactions(post);
             
+
+
             <article class="post-card" data-post-id="@post.postId" role="article">
                 <!-- Post Header -->
                 <header class="post-header">
                     <img src="@(post.PostUserImg ?? "/images/default-avatar.png")"
-                         alt="@post.PostUserName"
-                         class="post-avatar"
-                         loading="lazy" />
+                    alt="@post.PostUserName"
+                    class="post-avatar"
+                    loading="lazy" />
                     <div class="post-author-info">
                         <h4 class="post-author-name">@post.PostUserName</h4>
                         @if (!string.IsNullOrWhiteSpace(post.PostUserTitle))
@@ -854,11 +869,11 @@
 
                     <div class="post-actions-menu">
                         <button class="bookmark-btn @(post.IsSavedByCurrentUser ? "saved" : "")"
-                                data-post-id="@post.postId"
-                                data-saved="@post.IsSavedByCurrentUser.ToString().ToLower()"
-                                onclick="toggleBookmark(this, @post.postId)"
-                                title="@(post.IsSavedByCurrentUser ? "Remove from saved posts" : "Save post")"
-                                aria-label="@(post.IsSavedByCurrentUser ? "Remove from saved posts" : "Save post")">
+                        data-post-id="@post.postId"
+                        data-saved="@post.IsSavedByCurrentUser.ToString().ToLower()"
+                        onclick="toggleBookmark(this, @post.postId)"
+                        title="@(post.IsSavedByCurrentUser ? "Remove from saved posts" : "Save post")"
+                        aria-label="@(post.IsSavedByCurrentUser ? "Remove from saved posts" : "Save post")">
                             <i class="@(post.IsSavedByCurrentUser ? "fas fa-bookmark" : "far fa-bookmark")" aria-hidden="true"></i>
                         </button>
 
@@ -902,72 +917,91 @@
                 <!-- Post Footer -->
                 <footer class="post-footer">
                     <!-- Reaction Summary -->
-                    @if (post.ReactionCount > 0 || post.CommentsCount > 0 || post.NumberOfShares > 0)
-                    {
-                        <div class="post-reactions-summary">
-                            @if (post.ReactionCount > 0)
-                            {
-                                <div class="reaction-summary" onclick="showReactionDetails(@post.postId)">
-                                    <div class="reaction-icons">
-                                        @foreach (var reaction in topReactions)
+
+                    <div class="post-reactions-summary">
+                        @if (post.ReactionCount > 0)
+                        {
+                            <div class="reaction-summary" onclick="showReactionDetails(@post.postId)">
+                                <div class="reaction-icons">
+                                    @foreach (var reaction in topReactions)
+                                    {
+                                        switch (reaction)
                                         {
-                                            switch (reaction)
-                                            {
-                                                case "like":
-                                                    <span class="reaction-icon like" title="Like">👍</span>
-                                                    break;
-                                                case "love":
-                                                    <span class="reaction-icon love" title="Love">❤️</span>
-                                                    break;
-                                                case "haha":
-                                                    <span class="reaction-icon haha" title="Haha">😂</span>
-                                                    break;
-                                                case "sad":
-                                                    <span class="reaction-icon sad" title="Sad">😢</span>
-                                                    break;
-                                                case "angry":
-                                                    <span class="reaction-icon angry" title="Angry">😡</span>
-                                                    break;
-                                            }
+                                            case "like":
+                                                <span class="reaction-icon like" title="Like">👍</span>
+                                                break;
+                                            case "love":
+                                                <span class="reaction-icon love" title="Love">❤️</span>
+                                                break;
+                                            case "haha":
+                                                <span class="reaction-icon haha" title="Haha">😂</span>
+                                                break;
+                                            case "sad":
+                                                <span class="reaction-icon sad" title="Sad">😢</span>
+                                                break;
+                                            case "angry":
+                                                <span class="reaction-icon angry" title="Angry">😡</span>
+                                                break;
                                         }
-                                    </div>
-                                    <span class="reaction-count">
-                                        @if (post.ReactionCount == 1)
-                                        {
-                                            @:1 person reacted
-                                        }
-                                        else
-                                        {
-                                            @post.ReactionCount.ToString("N0") <text>reactions</text>
-                                        }
-                                    </span>
+                                    }
                                 </div>
-                            }
-                            <div class="post-stats">
-                                @if (post.CommentsCount > 0)
-                                {
-                                    <span class="comment-count" onclick="toggleComments(@post.postId)">
-                                        @post.CommentsCount.ToString("N0") comment@(post.CommentsCount == 1 ? "" : "s")
-                                    </span>
-                                }
-                                @if (post.NumberOfShares > 0)
-                                {
-                                    <span class="share-count">
-                                        @post.NumberOfShares.ToString("N0") share@(post.NumberOfShares == 1 ? "" : "s")
-                                    </span>
-                                }
+                                <span class="reaction-count">
+                                    @if (post.ReactionCount == 1)
+                                    {
+                                        @:1 person reacted
+                                    }
+                                    else
+                                    {
+                                        @post.ReactionCount.ToString("N0") <text>reactions</text>
+                                    }
+                                </span>
                             </div>
+                        }
+                        else
+                        {
+                            <div class="reaction-summary" style="color: var(--text-tertiary); font-size: 13px;">
+                                No reactions yet
+                            </div>
+                        }
+
+                        <div class="post-stats">
+                            @if (post.CommentsCount > 0)
+                            {
+                                <span class="comment-count" onclick="toggleComments(@post.postId)">
+                                    @post.CommentsCount.ToString("N0") comment@(post.CommentsCount == 1 ? "" : "s")
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="no-comments" style="color: var(--text-tertiary); font-size: 13px;">
+                                    No comments yet
+                                </span>
+                            }
+                            @if (post.NumberOfShares > 0)
+                            {
+                                <span class="share-count">
+                                    @post.NumberOfShares.ToString("N0") share@(post.NumberOfShares == 1 ? "" : "s")
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="no-shares" style="color: var(--text-tertiary); font-size: 13px;">
+                                    Not shared yet
+                                </span>
+                            }
                         </div>
-                    }
+
+                    </div>
+
 
                     <!-- Post Actions -->
                     <div class="post-actions">
                         <div class="reactions-container">
                             @{
-                                var reactionEmoji = "👍";
+                                var reactionEmoji = "";
                                 var reactionText = "Like";
                                 var reactionColor = "var(--text-secondary)";
-                                
+
                                 if (hasUserReacted)
                                 {
                                     switch (userReaction.ToLower())
@@ -999,16 +1033,21 @@
                                             break;
                                     }
                                 }
+                                var (reactionEmoji2, reactionText2, reactionColor2) = GetReactionDisplay(userReaction, hasUserReacted);
                             }
-                            
-                            <button class="reactions-button @(hasUserReacted ? "active" : "")" 
-                                    type="button" 
+                            @Html.AntiForgeryToken()
+
+
+                            <!-- Single reaction button -->
+                            <button class="reactions-button @(hasUserReacted ? "active" : "")"
+                                    type="button"
                                     data-post-id="@post.postId"
                                     data-current-reaction="@userReaction"
-                                    style="@(hasUserReacted ? $"color: {reactionColor};" : "")">
-                                <span class="selected-reaction">@reactionEmoji</span>
-                                <span class="reaction-text">@reactionText</span>
+                                    style="color: @reactionColor2;">
+                                <span class="selected-reaction">@reactionEmoji2</span>
+                                <span class="reaction-text">@reactionText2</span>
                             </button>
+
                             <div class="reactions-popup">
                                 <div class="reaction-item like" data-label="Like" data-reaction="like" onclick="selectReaction(@post.postId, 'like')">👍</div>
                                 <div class="reaction-item love" data-label="Love" data-reaction="love" onclick="selectReaction(@post.postId, 'love')">❤️</div>
@@ -1047,7 +1086,7 @@
                                             </div>
                                             <div class="comment-actions">
                                                 @{
-                                                    var hasCommentReaction = HasUserReacted(comment.Reactions, currentUserId, "like");
+                                                    var hasCommentReaction = HasUserReactedToComment(comment.Reactions, currentUserId, "like");
                                                 }
                                                 <div class="comment-reactions">
                                                     <span class="comment-action comment-like @(hasCommentReaction ? "active" : "")" 
@@ -1214,32 +1253,48 @@
             }
         }
 
-        function submitReaction(postId, reaction) {
-            const url = reaction ? `/api/posts/${postId}/reactions` : `/api/posts/${postId}/reactions/remove`;
-            const method = 'POST';
-            
-            fetch(url, {
-                method: method,
+                function ajaxCall({ url, method = 'POST', data = null, headers = {}, onSuccess, onError }) {
+            const options = {
+                method,
                 headers: {
                     'Content-Type': 'application/json',
-                    'RequestVerificationToken': getAntiForgeryToken()
-                },
-                body: JSON.stringify({
-                    postId: postId,
-                    reaction: reaction
+                    'RequestVerificationToken': getAntiForgeryToken(),
+                    ...headers
+                }
+            };
+            if (data) options.body = JSON.stringify(data);
+
+            fetch(url, options)
+                .then(response => response.json())
+                .then(result => {
+                    if (onSuccess) onSuccess(result);
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    updateReactionCounts(postId, data);
-                } else {
+                .catch(error => {
+                    if (onError) onError(error);
+                });
+        }
+
+
+                        function submitReaction(postId, reaction) {
+            ajaxCall({
+                url: '/Post/ToggleReaction',
+                method: 'POST',
+                data: {
+                    postId: postId,
+                    reactionType: reaction,
+                    userId: '@currentUserId'
+                },
+                onSuccess: function(data) {
+                    if (data.success) {
+                        updateReactionCounts(postId, data);
+                    } else {
+                        showToast('Failed to save reaction', 'error');
+                    }
+                },
+                onError: function(error) {
+                    console.error('Reaction error:', error);
                     showToast('Failed to save reaction', 'error');
                 }
-            })
-            .catch(error => {
-                console.error('Reaction error:', error);
-                showToast('Failed to save reaction', 'error');
             });
         }
 
@@ -1379,10 +1434,10 @@
             });
         }
 
-        function createCommentHTML(comment) {
+                function createCommentHTML(comment) {
             return `
                 <div class="comment-item" data-comment-id="${comment.id}">
-                    <img src="${comment.authorAvatar || '/images/default-avatar.png'}" alt="${comment.authorName}" class="comment-avatar" loading="lazy" />
+                    <img src="${comment.authorAvatar}" alt="${comment.authorName}" class="comment-avatar" loading="lazy" />
                     <div class="comment-content">
                         <div class="comment-bubble">
                             <div class="comment-author">${comment.authorName}</div>
@@ -1399,7 +1454,7 @@
                                 </div>
                             </div>
                             <span class="comment-action" onclick="replyToComment(${comment.id})">Reply</span>
-                            <span class="comment-time">${comment.timeAgo || 'now'}</span>
+                            <span class="comment-time">${comment.timeAgo}</span>
                         </div>
                     </div>
                 </div>

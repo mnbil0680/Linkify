@@ -13,6 +13,5 @@ namespace LinkifyBLL.Services.Abstraction
         Task<IEnumerable<PostComments>> GetCommentRepliesAsync(int parentCommentId);
         Task<bool> IsCommentOwnerAsync(int commentId, string userId);
         Task<int> GetCommentCountForPostAsync(int postId);
-        //Write a 
     }
 }
