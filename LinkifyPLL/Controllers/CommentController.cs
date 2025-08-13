@@ -73,6 +73,8 @@ namespace LinkifyPLL.Controllers
         {
             // Prepare a model for the reply form (optional, for prefilling fields)
             var model = new CommentCreateMV(
+                createdAt: DateTime.Now,
+                isEdited: false,
                 authorName: "comment.User.UserName",
                 authorAvatar: "comment.User.ImgPath",
                 commentId: 0, // New reply, so no ID yet

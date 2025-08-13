@@ -83,13 +83,15 @@ namespace LinkifyPLL.Controllers
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleReaction(int postId, string userId, string reactionType)
         {
-
-
             await _postReactionService.ToggleReactionAsync(postId, userId, Enum.Parse<ReactionTypes>(reactionType));
-            return RedirectToAction("Index", "Home");
+
+            // Example: return the reaction that the user currently has, or null if removed
+            return Json(new { success = true, userReaction = reactionType });
         }
+
 
     }
 }

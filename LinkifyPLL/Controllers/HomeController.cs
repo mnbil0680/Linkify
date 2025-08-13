@@ -5,6 +5,7 @@ using LinkifyDAL.Entities;
 using LinkifyDAL.Enums;
 using LinkifyPLL.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.Design;
 using System.Diagnostics;
@@ -34,9 +35,10 @@ namespace LinkifyPLL.Controllers
         public readonly ISavePostService ISavePostS;
 
 
-        public HomeController(ILogger<HomeController> logger, IFriendsService ifs, IPostService ips, IPostCommentsService ipcs, IPostImagesService ipis, IPostReactionsService iprs, ISharePostService ishareps, ICommentReactionsService icrs, ISavePostService isps )
+        public HomeController(ILogger<HomeController> logger,IUserService ius, IFriendsService ifs, IPostService ips, IPostCommentsService ipcs, IPostImagesService ipis, IPostReactionsService iprs, ISharePostService ishareps, ICommentReactionsService icrs, ISavePostService isps )
         {
             _logger = logger;
+            this.IUS = ius;
             this._IFS = ifs;
             this.IPS = ips;
             this.IPCS = ipcs;
@@ -53,13 +55,26 @@ namespace LinkifyPLL.Controllers
             
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
+            // Get current user's avatar for ViewBag
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var currentUser = await IUS.GetUserByIdAsync(userId);
+                ViewBag.CurrentUserAvatar = currentUser?.ImgPath ?? "/imgs/Account/default.png";
+            }
+            else
+            {
+                ViewBag.CurrentUserAvatar = "/imgs/Account/default.png";
+            }
 
-                List<PostMV> HomePosts = new List<PostMV>();
+            List<PostMV> HomePosts = new List<PostMV>();
             var posts = (await IPS.GetRecentPostsAsync()).ToList();
             foreach (var post in posts)
             {
                 var postMV = new PostMV
                 {
+                    CreatedAt = post.CreatedOn,
+                    PostUserId = post.UserId,
+                    IsEdited = (post.UpdatedOn != null ? true : false),
                     postId = post.Id,
                     PostUserName = post.User.UserName,
                     PostUserTitle = post.User.Title,
@@ -69,7 +84,7 @@ namespace LinkifyPLL.Controllers
                     Images = new List<string>(),
                     imageCount = await IPIS.GetImageCountForPostAsync(post.Id),
                     CommentsCount = await IPCS.GetCommentCountForPostAsync(post.Id),
-                    IsSavedByCurrentUser = await ISavePostS.IsPostSavedByUserAsync(post.Id,post.UserId),
+                    IsSavedByCurrentUser = await ISavePostS.IsPostSavedByUserAsync(post.Id, post.UserId),
                     //Comments = new list<>
 
                     ReactionCount = await IPRS.GetReactionCountAsync(post.Id),
@@ -105,6 +120,7 @@ namespace LinkifyPLL.Controllers
 
                     var reactionMVs = commentReactions.Select(r => new CommentReactionMV
                     {
+
                         Id = r.Id,
                         CommentId = r.CommentId,
                         ReactorId = r.ReactorId,
@@ -136,6 +152,8 @@ namespace LinkifyPLL.Controllers
                         // Optionally, recursively fetch nested replies here if you want multi-level threading
 
                         replyMVs.Add(new CommentCreateMV(
+                            isEdited: (comment.CreatedOn != null ? true: false),
+                            createdAt: comment.CreatedOn,
                             authorName: comment.User.UserName,
                             authorAvatar: comment.User.ImgPath,
                             commentId: reply.Id,
@@ -152,16 +170,18 @@ namespace LinkifyPLL.Controllers
                     }
 
                     var commentMV = new CommentCreateMV(
-                        authorName:comment.User.UserName,
-                        authorAvatar:comment.User.ImgPath,
+                        isEdited: (comment.UpdatedOn != null ? true:false),
+                        authorName: comment.User.UserName,
+                        authorAvatar: comment.User.ImgPath,
                         commentId: comment.Id,
                         postId: comment.PostId,
                         textContent: comment.Content,
                         imagePath: comment.ImgPath,
                         parentCommentId: comment.ParentCommentId,
-                        commenterId: comment.CommenterId
+                        commenterId: comment.CommenterId,
+                        createdAt: comment.CreatedOn
 
-                       
+
                     )
                     {
                         Reactions = reactionMVs,

@@ -12,9 +12,14 @@ namespace LinkifyBLL.ModelView
     {
         public int postId { get; set; }
         public string PostUserName { get; set; }
+        public string PostUserId { get; set; }
         public string PostUserTitle { get; set; }
         public string PostUserImg { get; set; }
         public bool IsSavedByCurrentUser { get; set; }
+        public bool IsEdited { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public bool IsPremiumUser { get; set; } = true;
+        public bool IsVerified { get; set; } = true;
 
 
 

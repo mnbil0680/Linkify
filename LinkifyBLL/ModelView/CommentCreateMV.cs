@@ -24,10 +24,13 @@ namespace LinkifyBLL.ModelView
         public List<CommentReactionMV> Reactions { get; set; }
         public List<CommentCreateMV> Replies { get; set; }
         public TimeSpan Since { get; set; }
+        public bool IsEdited { get; set; }
+        public DateTime CreatedAt { get; set; }
 
-        public CommentCreateMV(string authorName, string authorAvatar, int commentId, int postId, string textContent, string? imagePath = null, int? parentCommentId = null, string? commenterId =null)
+        public CommentCreateMV(bool isEdited,DateTime createdAt,string authorName, string authorAvatar, int commentId, int postId, string textContent, string? imagePath = null, int? parentCommentId = null, string? commenterId =null)
         {
-
+            CreatedAt = createdAt;
+            IsEdited = isEdited;
             AuthorAvatar = authorAvatar;
             AuthorName = authorName;
             CommentID = commentId;
