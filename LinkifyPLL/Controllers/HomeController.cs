@@ -1,5 +1,6 @@
 using LinkifyBLL.ModelView;
 using LinkifyBLL.Services.Abstraction;
+using LinkifyDAL.Entities;
 using LinkifyDAL.Enums;
 using LinkifyPLL.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -15,30 +16,80 @@ namespace LinkifyPLL.Controllers
         public readonly IUserService IUS;
         private readonly ILogger<HomeController> _logger;
         public readonly IFriendsService _IFS;
-        public HomeController(ILogger<HomeController> logger, IFriendsService ifs)
+        public readonly IPostService IPS;
+        public readonly IPostCommentsService IPCS;
+        public readonly IPostImagesService IPIS;
+        public readonly IPostReactionsService IPRS;
+        public readonly ISharePostService ISharePS;
+        public HomeController(ILogger<HomeController> logger, IFriendsService ifs, IPostService ips, IPostCommentsService ipcs, IPostImagesService ipis, IPostReactionsService iprs, ISharePostService ishareps )
         {
             _logger = logger;
             this._IFS = ifs;
+            this.IPS = ips;
+            this.IPCS = ipcs;
+            this.IPIS = ipis;
+            this.IPRS = iprs;
+            this.ISharePS = ishareps;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            // Create UserMV from Identity claims
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var userName = User.Identity?.Name;
-            var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
-            var userMV = new UserMV(
-                id: userId ?? string.Empty,
-                name: userName ?? string.Empty,
-                email: userEmail ?? string.Empty,
-                password: string.Empty, // Don't pass password
-                imgPath: null, // You might want to get this from database
-                status: null   // You might want to get this from database
-            );
+            List<PostMV> HomePosts = new List<PostMV>();
+            var posts = (await IPS.GetRecentPostsAsync()).ToList();
+            foreach (var post in posts)
+            {
+                var postMV = new PostMV
+                {
+                    PostUserName = post.User.UserName,
+                    PostUserTitle = post.User.Title,
+                    PostUserImg = post.User.ImgPath,
+                    TextContent = post.TextContent,
+                    Since = DateTime.Now - post.CreatedOn,
+                    Images = new List<string>(),
+                    imageCount = await IPIS.GetImageCountForPostAsync(post.Id),
+                    CommentsCount = await IPCS.GetCommentCountForPostAsync(post.Id),
+                    //Comments = new list<>
+                    ReactionCount = await IPRS.GetReactionCountAsync(post.Id),
+                    LikeCount = await IPRS.GetReactionCountAsync(post.Id, ReactionTypes.Like),
+                    LoveCount = await IPRS.GetReactionCountAsync(post.Id, ReactionTypes.Love),
+                    LaughCount = await IPRS.GetReactionCountAsync(post.Id, ReactionTypes.Haha),
+                    SadCount = await IPRS.GetReactionCountAsync(post.Id, ReactionTypes.Sad),
+                    AngryCount = await IPRS.GetReactionCountAsync(post.Id, ReactionTypes.Angry),
+                    NumberOfShares = await ISharePS.GetPostShareCountAsync(post.Id)
+                };
+
+                var images = await IPIS.GetImageByPostIdAsync(post.Id);
+                foreach (var img in images)
+                {
+                    postMV.Images.Add(img.ImagePath);
+                }
+
+                HomePosts.Add(postMV);
+            }
+
+            
+
+            return View(HomePosts);
+        }
 
 
-            return View(userMV);
+
+        public HomeMV MapHomeModelView(
+            List<Post> posts,
+            List<PostImages> postImages,
+            List<PostComments> comments,
+            List<PostReactions> reactions,
+            List<SharePost> shares)
+        {
+            return new HomeMV
+            {
+                Posts = posts,
+                PostImages = postImages,
+                PostComments = comments,
+                PostReactions = reactions,
+                SharePosts = shares
+            };
         }
 
         public IActionResult Privacy()
@@ -72,10 +123,10 @@ namespace LinkifyPLL.Controllers
         //    return View(friends);
         //}
 
-        public IActionResult MyConnections()
+        public async Task<IActionResult> MyConnections()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var poepleList = _IFS.GetFriendsAsync(userId);
+            var poepleList = await _IFS.GetFriendsAsync(userId);
             return View(poepleList); 
         }
 

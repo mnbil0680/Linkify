@@ -68,7 +68,7 @@ namespace LinkifyBLL.Helper
             services.AddScoped<ISaveJobRepository, SaveJobRepository>();
             services.AddScoped<ICommentReactionsService, CommentReactionsService>();
             services.AddScoped<ICommentReactionsRepository, CommentReactionsRepository>();
-
+            services.AddScoped<IEmailService, EmailService>();
         }
     }
 }

@@ -1,4 +1,13 @@
-﻿
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<LinkifyDAL.Entities.User> UserManager
+
+@{
+    var userId = UserManager.GetUserId(User);
+    var user = userId != null ? await UserManager.FindByIdAsync(userId) : null;
+}
+
+
+
 @using LinkifyDAL.Enums
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
@@ -37,6 +46,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
+    @RenderSection("Styles", required: false)
+
     <!-- Stylesheets -->
     <link href="~/css/Home/all.min.css">
     <link href="~/css/Home/style.css" rel="stylesheet">
@@ -51,29 +62,7 @@
         <!-- Left Sidebar -->
         <aside class="left-sidebar" role="complementary" aria-label="Navigation menu">
             <!-- User Quick Stats -->
-            <div class="user-stats-card">
-                <div class="stats-header">
-                    <img src="@Model.ImgPath" alt="@Model.Name" class="user-avatar">
-                    <div class="user-info">
-                        <h3>@Model.Name</h3>
-                        <p>@Model.Email</p>
-                    </div>
-                </div>
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <span class="stat-number">1,234</span>
-                        <span class="stat-label">Connections</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">89</span>
-                        <span class="stat-label">Posts</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">5.2K</span>
-                        <span class="stat-label">Views</span>
-                    </div>
-                </div>
-            </div>
+            @await Component.InvokeAsync("UserStats")
 
             <div class="sidebar-section">
                 <h3 class="sidebar-title">

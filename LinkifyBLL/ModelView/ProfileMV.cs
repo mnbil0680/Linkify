@@ -24,18 +24,8 @@ namespace LinkifyBLL.ModelView
         
         // Contact & Social Links
         public string? LinkedInUrl { get; set; }
-        public string? TwitterUrl { get; set; }
         public string? GitHubUrl { get; set; }
         public string? PortfolioUrl { get; set; }
-        public string? InstagramUrl { get; set; }
-        public string? FacebookUrl { get; set; }
-        public string? YouTubeUrl { get; set; }
-        public string? TikTokUrl { get; set; }
-        public string? MediumUrl { get; set; }
-        public string? DevToUrl { get; set; }
-        public string? StackOverflowUrl { get; set; }
-        public string? BehanceUrl { get; set; }
-        public string? DribbbleUrl { get; set; }
 
         // Professional Details
         public int? YearsOfExperience { get; set; }

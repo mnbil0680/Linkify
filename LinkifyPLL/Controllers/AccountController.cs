@@ -11,12 +11,18 @@ namespace LinkifyPLL.Controllers
     {
         public readonly IUserService IUS;
         private readonly IAuthenticationService _authService;
+        private readonly IFriendsService IFS;
+        private readonly IPostService IPS;
+        private readonly IEmailService IES;
 
         // Constructor to initialize IUserService
-        public AccountController(IUserService ius, IAuthenticationService authService)
+        public AccountController(IUserService ius, IAuthenticationService authService, IFriendsService ifs, IPostService ips, IEmailService ies)
         {
             this.IUS = ius;
             this._authService = authService;
+            this.IFS = ifs;
+            this.IPS = ips;
+            this.IES = ies;
         }
 
         [Authorize]
@@ -28,6 +34,7 @@ namespace LinkifyPLL.Controllers
             // May be 404 Page
             if (string.IsNullOrEmpty(userId))
             {
+               
                 return RedirectToAction("Login");
             }
 
@@ -40,12 +47,28 @@ namespace LinkifyPLL.Controllers
             }
 
             // Map User entity to ProfileMV
-            var profileMV = MapUserToProfileMV(user);
+            var profileMV = await MapUserToProfileMVAsync(user);
+
 
             return View(profileMV);
         }
 
-        private ProfileMV MapUserToProfileMV(User user)
+        public async Task<IActionResult> User(string UserId)
+        {
+            // May be 404 Page
+            if (string.IsNullOrEmpty(UserId))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var user = await IUS.GetUserByIdAsync(UserId);
+
+            var profileMV =  await MapUserToProfileMVAsync(user); // Added await
+            return View("index", profileMV);
+        }
+
+        // Manual Mapping
+        private async Task<ProfileMV> MapUserToProfileMVAsync(User user)
         {
             return new ProfileMV
             {
@@ -68,18 +91,8 @@ namespace LinkifyPLL.Controllers
 
                 // Social Links - all null (not in User entity)
                 LinkedInUrl = null,
-                TwitterUrl = null,
                 GitHubUrl = null,
                 PortfolioUrl = null,
-                InstagramUrl = null,
-                FacebookUrl = null,
-                YouTubeUrl = null,
-                TikTokUrl = null,
-                MediumUrl = null,
-                DevToUrl = null,
-                StackOverflowUrl = null,
-                BehanceUrl = null,
-                DribbbleUrl = null,
 
                 // Professional Details - defaults
                 YearsOfExperience = null,
@@ -89,8 +102,8 @@ namespace LinkifyPLL.Controllers
                 IsPremiumMember = false, // default
 
                 // Stats - set to 0 (you can calculate these later)
-                ConnectionsCount = 0,
-                PostsCount = 0,
+                ConnectionsCount = await IFS.GetFriendCountAsync(user.Id),
+                PostsCount = await IPS.GetUserPostCountAsync(user.Id),
                 ProfileViews = 0,
                 LikesCount = 0,
                 CommentsCount = 0,
@@ -106,14 +119,12 @@ namespace LinkifyPLL.Controllers
                 Courses = new List<CourseMV>(),
                 Projects = new List<ProjectItemMV>(),
                 Posts = new List<PostMV>(),
-                Connections = new List<Friends>()
+
+
+                Connections = (await IFS.GetFriendsAsync(user.Id)).ToList()
             };
         }
 
-        public IActionResult User()
-        {
-            return View();
-        }
 
         [HttpGet]
         public IActionResult Login()
@@ -136,14 +147,13 @@ namespace LinkifyPLL.Controllers
         [HttpGet]
         public async Task<IActionResult> Signup()
         {
+
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> Signup(UserRegisterMV model)
         {
-
-            ////////////////////////
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -157,7 +167,10 @@ namespace LinkifyPLL.Controllers
                 return View(model);
             }
 
-            return RedirectToAction("SuccessfulRegister");
+            string EmailTitle = "Welcome To Linkify";
+            await IES.SendEmail(model.Email, EmailTitle); //SendEmail
+
+            return RedirectToAction("SuccessfulRegister", model);
         }
 
 
@@ -170,6 +183,7 @@ namespace LinkifyPLL.Controllers
 
         public IActionResult SuccessfulRegister(UserRegisterMV model)
         {
+
             return View("SuccessfulRegister", model);
 
         }

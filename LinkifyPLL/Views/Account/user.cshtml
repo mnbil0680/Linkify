@@ -1,1 +1,1673 @@
-﻿
+﻿@{
+    ViewData["Title"] = "Profile";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+@using System.Security.Claims
+@model ProfileMV
+
+@{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var userName = User.Identity?.Name ?? Model?.Name ?? "Unknown User";
+    var userEmail = User.FindFirstValue(ClaimTypes.Email) ?? Model?.Email ?? "email@example.com";
+    var userImage = Model?.ImgPath ?? "/imgs/Account/default.png";
+    var isOwner = Model?.Id == userId;
+}
+
+@section style {
+    <style>
+        :root {
+            /* Light Mode Colors */
+            --primary-dark: #071437;
+            --primary-blue: #1b84ff;
+            --primary-yellow: #f6c000;
+            --accent-blue: #0066cc;
+            --accent-purple: #4a3c8e;
+            --accent-orange: #ff6b35;
+            --accent-green: #00d084;
+            --accent-pink: #ff4081;
+            --light-gray: #f4f4f4;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #666;
+            --white: #ffffff;
+            --text-dark: #333;
+            --text-light: #555;
+            --border-light: #e1e5e9;
+            --background-primary: #ffffff;
+            --background-secondary: #f8f9fa;
+            --shadow: 0 4px 20px rgba(7, 20, 55, 0.08);
+            --shadow-hover: 0 8px 30px rgba(27, 132, 255, 0.15);
+            --shadow-strong: 0 12px 50px rgba(7, 20, 55, 0.12);
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --backdrop-blur: blur(20px);
+            --gradient-primary: linear-gradient(135deg, #1b84ff 0%, #4a3c8e 100%);
+            --gradient-secondary: linear-gradient(135deg, #ff6b35 0%, #ff4081 100%);
+        }
+
+        [data-theme="dark"] {
+            --primary-dark: #ffffff;
+            --primary-blue: #4da3ff;
+            --primary-yellow: #ffd633;
+            --accent-blue: #3399ff;
+            --accent-purple: #7b6bc4;
+            --accent-orange: #ff8c5a;
+            --accent-green: #00f5a0;
+            --accent-pink: #ff6ba3;
+            --light-gray: #1a1a1a;
+            --medium-gray: #2d2d2d;
+            --dark-gray: #a0a0a0;
+            --white: #0f0f0f;
+            --text-dark: #ffffff;
+            --text-light: #b0b0b0;
+            --border-light: #333333;
+            --background-primary: #121212;
+            --background-secondary: #1e1e1e;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 8px 30px rgba(77, 163, 255, 0.2);
+            --shadow-strong: 0 12px 50px rgba(0, 0, 0, 0.4);
+            --glass-bg: rgba(18, 18, 18, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--background-secondary);
+            color: var(--text-dark);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-container {
+            margin-top: 80px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            gap: 30px;
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Enhanced Profile Header */
+        .profile-header {
+            background: var(--gradient-primary);
+            border-radius: 24px;
+            padding: 50px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-strong);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .profile-header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="white" opacity="0.1"/><circle cx="30" cy="25" r="0.5" fill="white" opacity="0.05"/><circle cx="60" cy="15" r="1.5" fill="white" opacity="0.08"/><circle cx="80" cy="35" r="1" fill="white" opacity="0.06"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+                pointer-events: none;
+                opacity: 0.6;
+            }
+
+            .profile-header::after {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -20%;
+                width: 300px;
+                height: 300px;
+                background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+                border-radius: 50%;
+                animation: float 6s ease-in-out infinite;
+            }
+
+        @@keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+
+        .header-content {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 40px;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .profile-avatar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profile-avatar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            object-fit: cover;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+            .profile-avatar:hover {
+                transform: scale(1.05);
+                border-color: rgba(255, 255, 255, 0.5);
+            }
+
+        .edit-profile-btn {
+            background: var(--glass-bg);
+            backdrop-filter: var(--backdrop-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 14px 24px;
+            color: var(--primary-dark);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 160px;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: var(--shadow);
+        }
+
+            .edit-profile-btn:hover {
+                background: var(--primary-blue);
+                color: white;
+                transform: translateY(-3px);
+                box-shadow: var(--shadow-hover);
+                border-color: transparent;
+            }
+
+            .edit-profile-btn:active {
+                transform: translateY(-1px);
+            }
+
+            .edit-profile-btn i {
+                font-size: 0.9rem;
+                transition: transform 0.3s ease;
+            }
+
+            .edit-profile-btn:hover i {
+                transform: rotate(15deg);
+            }
+
+        .profile-info {
+            text-align: left;
+        }
+
+            .profile-info h1 {
+                color: white;
+                font-size: 3rem;
+                font-weight: 800;
+                margin-bottom: 12px;
+                text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+                background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .profile-info .title {
+                color: rgba(255, 255, 255, 0.95);
+                font-size: 1.4rem;
+                font-weight: 500;
+                margin-bottom: 8px;
+            }
+
+            .profile-info .company {
+                color: rgba(255, 255, 255, 0.85);
+                font-size: 1.2rem;
+                margin-bottom: 20px;
+            }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: var(--backdrop-blur);
+            padding: 12px 20px;
+            border-radius: 30px;
+            color: white;
+            font-size: 0.95rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-weight: 500;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 10px var(--accent-green);
+        }
+
+        @@keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.7;
+                transform: scale(1.1);
+            }
+        }
+
+        .profile-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            color: white;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            backdrop-filter: var(--backdrop-blur);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+            .stat-item:hover {
+                background: rgba(255, 255, 255, 0.15);
+                transform: translateY(-2px);
+            }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        /* Enhanced Tabs */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 30px;
+            padding: 0;
+            border-bottom: none;
+        }
+
+        .tab {
+            padding: 16px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: var(--backdrop-blur);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .tab::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                transition: left 0.6s ease;
+            }
+
+            .tab:hover::before {
+                left: 100%;
+            }
+
+            .tab.active {
+                color: white;
+                background: rgba(255, 255, 255, 0.2);
+                border-color: rgba(255, 255, 255, 0.4);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            }
+
+            .tab:hover:not(.active) {
+                color: white;
+                background: rgba(255, 255, 255, 0.15);
+                transform: translateY(-1px);
+            }
+
+        /* Content Sections */
+        .profile-content {
+            position: relative;
+        }
+
+        .tab-content {
+            display: none;
+            animation: slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+            .tab-content.active {
+                display: block;
+            }
+
+        @@keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-section {
+            background: var(--glass-bg);
+            backdrop-filter: var(--backdrop-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+            .content-section:hover {
+                transform: translateY(-3px);
+                box-shadow: var(--shadow-hover);
+            }
+
+        .section-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+            .section-title i {
+                color: var(--primary-blue);
+                font-size: 1.4rem;
+                background: var(--background-secondary);
+                padding: 12px;
+                border-radius: 12px;
+                box-shadow: var(--shadow);
+            }
+
+        /* Grid System */
+        .grid {
+            display: grid;
+            gap: 25px;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: var(--backdrop-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: var(--gradient-primary);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: var(--shadow-hover);
+            }
+
+                .card:hover::before {
+                    opacity: 1;
+                }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Enhanced Skill Tags */
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .skill-tag {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 2px 8px rgba(27, 132, 255, 0.2);
+        }
+
+            .skill-tag:hover {
+                transform: translateY(-2px) scale(1.05);
+                box-shadow: 0 4px 15px rgba(27, 132, 255, 0.3);
+            }
+
+            .skill-tag:active {
+                transform: scale(0.98);
+            }
+
+        /* Progress Bars */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--medium-gray);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 10px;
+            transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .progress-fill::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                animation: shimmer 2s infinite;
+            }
+
+        @@keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* Social Links */
+        .social-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: var(--gradient-primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(27, 132, 255, 0.2);
+        }
+
+            .social-link:hover {
+                transform: translateY(-3px) scale(1.05);
+                box-shadow: 0 6px 25px rgba(27, 132, 255, 0.3);
+                text-decoration: none;
+                color: white;
+            }
+
+        /* Timeline Items */
+        .timeline-item {
+            border-left: 4px solid var(--primary-blue);
+            padding-left: 25px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+            .timeline-item::before {
+                content: '';
+                position: absolute;
+                left: -10px;
+                top: 8px;
+                width: 16px;
+                height: 16px;
+                background: var(--primary-blue);
+                border-radius: 50%;
+                border: 4px solid var(--background-primary);
+                box-shadow: 0 0 0 4px var(--primary-blue);
+            }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .item-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 5px;
+        }
+
+        .item-company {
+            color: var(--primary-blue);
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .item-date {
+            color: var(--dark-gray);
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .current-badge {
+            background: var(--accent-green);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Contact Info */
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-light);
+            padding: 10px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+            .contact-item:hover {
+                background: var(--background-secondary);
+                transform: translateX(5px);
+            }
+
+            .contact-item i {
+                color: var(--primary-blue);
+                width: 24px;
+                font-size: 1.1rem;
+            }
+
+        /* Responsive Design */
+        @@media (max-width: 1200px) {
+            .main-container {
+                padding: 20px;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-3 {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .header-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 25px;
+            }
+
+            .profile-info h1 {
+                font-size: 2.2rem;
+            }
+
+            .profile-stats {
+                flex-direction: row;
+                justify-content: space-around;
+            }
+
+            .tabs {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .tab {
+                text-align: center;
+                font-size: 0.95rem;
+                padding: 14px 20px;
+            }
+
+            .main-container {
+                padding: 15px;
+            }
+
+            .profile-header {
+                padding: 30px 20px;
+            }
+
+            .item-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @@keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Success/Error Messages */
+        .message {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .message.success {
+                background: rgba(0, 208, 132, 0.1);
+                color: var(--accent-green);
+                border: 1px solid rgba(0, 208, 132, 0.3);
+            }
+
+            .message.error {
+                background: rgba(255, 107, 53, 0.1);
+                color: var(--accent-orange);
+                border: 1px solid rgba(255, 107, 53, 0.3);
+            }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--glass-bg);
+            backdrop-filter: var(--backdrop-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-dark);
+            font-size: 1.2rem;
+            box-shadow: var(--shadow);
+        }
+
+            .theme-toggle:hover {
+                transform: scale(1.1) rotate(15deg);
+                box-shadow: var(--shadow-hover);
+            }
+
+        /* Certifications */
+        .certification-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: var(--background-secondary);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--accent-green);
+            transition: all 0.3s ease;
+        }
+
+            .certification-item:hover {
+                transform: translateX(5px);
+                box-shadow: var(--shadow);
+            }
+
+        .cert-info h4 {
+            margin: 0 0 5px 0;
+            color: var(--primary-dark);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .cert-org {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .cert-date {
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Achievements List */
+        .achievements-list {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+
+            .achievements-list li {
+                padding: 8px 0;
+                padding-left: 25px;
+                position: relative;
+                color: var(--text-light);
+            }
+
+                .achievements-list li::before {
+                    content: '✓';
+                    position: absolute;
+                    left: 0;
+                    color: var(--accent-green);
+                    font-weight: bold;
+                }
+
+        /* Enhanced Bio */
+        .bio {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: var(--text-light);
+            margin-bottom: 25px;
+            text-align: justify;
+        }
+    </style>
+}
+
+<div class="main-container">
+    <!-- Enhanced Profile Header -->
+    <div class="profile-header">
+        <div class="header-content">
+            @* User Image *@
+            <div class="profile-avatar-container">
+                <img src="@userImage" alt="@userName Profile" class="profile-avatar" onerror="this.src='/imgs/Account/default.png'">
+                @if (isOwner)
+                {
+                    <a href="/Profile/Edit" class="edit-profile-btn">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </a>
+                }
+            </div>
+
+            @* User Information *@
+            <div class="profile-info">
+                <h1>@(Model?.Name ?? userName)</h1>
+                <div class="title">@(Model?.Title ?? "Professional")</div>
+                <div class="company">@(Model?.Company ?? "Tech Industry")</div>
+                <div class="status-badge">
+                    <div class="status-indicator"></div>
+                    @(Model?.Status ?? "Available for opportunities")
+                </div>
+            </div>
+
+            @* User Stats *@
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <span class="stat-number">@(Model?.ConnectionsCount ?? 0)</span>
+                    <span class="stat-label">Connections</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">@(Model?.PostsCount ?? 0)</span>
+                    <span class="stat-label">Posts</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">@(Model?.LikesCount ?? 0)</span>
+                    <span class="stat-label">Likes</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">@(Model?.SharesCount ?? 0)</span>
+                    <span class="stat-label">Shares</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">@(Model?.CommentsCount ?? 0)</span>
+                    <span class="stat-label">Comments</span>
+                </div>
+
+                <div class="stat-item">
+                    <span class="stat-number">@(Model?.ProfileViews ?? 0)</span>
+                    <span class="stat-label">Profile Views</span>
+                </div>
+            </div>
+        </div>
+
+        @* Tabs *@
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('overview')">
+                <i class="fas fa-user"></i> Overview
+            </button>
+            <button class="tab" onclick="showTab('experience')">
+                <i class="fas fa-briefcase"></i> Experience
+            </button>
+            <button class="tab" onclick="showTab('skills')">
+                <i class="fas fa-code"></i> Skills & Certifications
+            </button>
+            <button class="tab" onclick="showTab('education')">
+                <i class="fas fa-graduation-cap"></i> Education
+            </button>
+            <button class="tab" onclick="showTab('projects')">
+                <i class="fas fa-rocket"></i> Projects
+            </button>
+            <button class="tab" onclick="showTab('posts')">
+                <i class="fas fa-file-alt"></i> Posts
+            </button>
+            <button class="tab" onclick="showTab('connections')">
+                <i class="fas fa-user-friends"></i> Friends
+            </button>
+        </div>
+    </div>
+
+
+
+    <!-- Profile Content -->
+    <div class="profile-content">
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <div class="content-section">
+                <h2 class="section-title">
+                    <i class="fas fa-user"></i>
+                    About
+                </h2>
+                <div class="bio">
+                    @(Model?.Bio ?? "Passionate professional with expertise in technology and innovation. Always eager to learn new technologies and solve complex problems.")
+                </div>
+
+                @* @if (Model?.SocialLinks?.Any() == true) *@
+                @* { *@
+                @*     <div class="social-links"> *@
+                @*         @foreach (var link in Model.SocialLinks) *@
+                @*         { *@
+                @*             <a href="@link.Url" class="social-link" target="_blank" rel="noopener"> *@
+                @*                 <i class="@link.IconClass"></i> @link.Platform *@
+                @*             </a> *@
+                @*         } *@
+                @*     </div> *@
+                @* } *@
+                @* else *@
+                @* { *@
+
+                <div class="social-links">
+                    <a href="@Model.LinkedInUrl ?? # " class="social-link">
+                        <i class="fab fa-linkedin"></i> LinkedIn
+                    </a>
+                    <a href="@Model.GitHubUrl ?? #" class="social-link">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                    <a href="@Model.PortfolioUrl ?? #" class="social-link">
+                        <i class="fas fa-globe"></i> Portfolio
+                    </a>
+                </div>
+
+                @* } *@
+            </div>
+
+            <!-- Contact Information -->
+            <div class="content-section">
+                <h3 class="section-title">
+                    <i class="fas fa-address-book"></i>
+                    Contact Info
+                </h3>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>@Model.Email</span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model?.PhoneNumber))
+                    {
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <span>@Model.PhoneNumber</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model?.Location))
+                    {
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>@Model.Location</span>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Experience Tab -->
+        <div id="experience" class="tab-content">
+            <div class="content-section">
+                <h2 class="section-title">
+                    <i class="fas fa-briefcase"></i>
+                    Experience
+                </h2>
+
+                @if (Model?.WorkExperience?.Any() == true)
+                {
+                    @foreach (var exp in Model.WorkExperience)
+                    {
+                        <div class="timeline-item">
+                            <div class="item-header">
+                                <div>
+                                    <div class="item-title">@exp.JobTitle</div>
+                                    <div class="item-company">@exp.Company</div>
+                                </div>
+                                <div>
+                                    <div class="item-date">
+                                        <i class="fas fa-calendar"></i>
+                                        @exp.StartDate.ToString("MMM yyyy") -
+                                        @(exp.EndDate?.ToString("MMM yyyy") ?? "Present")
+                                    </div>
+                                    @if (exp.IsCurrent)
+                                    {
+                                        <span class="current-badge">Current</span>
+                                    }
+                                </div>
+                            </div>
+                            <p>@exp.Description</p>
+                            @if (exp.Skills?.Any() == true)
+                            {
+                                <div class="skills-container" style="margin-top: 15px;">
+                                    @foreach (var skill in exp.Skills)
+                                    {
+                                        <span class="skill-tag">@skill</span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="timeline-item">
+                        <div class="item-header">
+                            <div>
+                                <div class="item-title">Senior Software Engineer</div>
+                                <div class="item-company">Tech Innovations Inc.</div>
+                            </div>
+                            <div>
+                                <div class="item-date">
+                                    <i class="fas fa-calendar"></i>
+                                    Jan 2022 - Present
+                                </div>
+                                <span class="current-badge">Current</span>
+                            </div>
+                        </div>
+                        <p>Leading development of scalable web applications and mentoring junior developers. Architected microservices handling high-volume traffic with improved performance metrics.</p>
+                        <div class="skills-container" style="margin-top: 15px;">
+                            <span class="skill-tag">React</span>
+                            <span class="skill-tag">Node.js</span>
+                            <span class="skill-tag">AWS</span>
+                            <span class="skill-tag">Docker</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Skills Tab -->
+        <div id="skills" class="tab-content">
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fas fa-code"></i> Technical Skills
+                    </div>
+
+                    @if (Model?.Skills?.Any() == true)
+                    {
+
+                        @foreach (var skill in Model.Skills.Where(s => s.Category.ToString() == "TechnicalSkills").Take(4))
+                        {
+                            <div style="margin-bottom: 20px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <span><strong>@skill.Name</strong></span>
+                                    <span style="color: var(--primary-blue);">• @skill.YearsOfExperience years</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: @(skill.ProficiencyLevel)%;"></div>
+                                </div>
+                            </div>
+                        }
+
+                        <div style="margin-top: 25px;">
+                            <strong>All Technologies:</strong>
+                            <div class="skills-container" style="margin-top: 10px;">
+                                @foreach (var skill in Model.Skills.Where(s => s.Category.ToString() == "TechnicalSkills").Take(4))
+                                {
+                                    <span class="skill-tag">@skill.Name</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div style="margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span><strong>JavaScript/TypeScript</strong></span>
+                                <span style="color: var(--primary-blue);">Expert • 5+ years</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 95%;"></div>
+                            </div>
+                        </div>
+                        <div class="skills-container" style="margin-top: 25px;">
+                            <span class="skill-tag">JavaScript</span>
+                            <span class="skill-tag">C#</span>
+                            <span class="skill-tag">.NET Core</span>
+                            <span class="skill-tag">React</span>
+                            <span class="skill-tag">SQL Server</span>
+                        </div>
+                    }
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fas fa-users"></i> Soft Skills
+                    </div>
+                    <div class="skills-container">
+                        @if (Model?.Skills.Where(s => s.Category.ToString() == "SoftSkills")?.Any() == true)
+                        {
+                            @foreach (var skill in Model.Skills.Where(s => s.Category.ToString() == "SoftSkills"))
+                            {
+                                <span class="skill-tag" style="background: var(--gradient-secondary);">@skill</span>
+                            }
+                        }
+                        else
+                        {
+                            <span class="skill-tag" style="background: var(--gradient-secondary);">Leadership</span>
+                            <span class="skill-tag" style="background: var(--gradient-secondary);">Communication</span>
+                            <span class="skill-tag" style="background: var(--gradient-secondary);">Problem Solving</span>
+                            <span class="skill-tag" style="background: var(--gradient-secondary);">Team Management</span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Certifications -->
+            <div class="content-section">
+                <h2 class="section-title">
+                    <i class="fas fa-certificate"></i> Certifications
+                </h2>
+
+                @if (Model?.Certifications?.Any() == true)
+                {
+                    @foreach (var cert in Model.Certifications)
+                    {
+                        <div class="certification-item">
+                            <div class="cert-info">
+                                <h4>@cert.Name</h4>
+                                <div class="cert-org">@cert.IssuingOrganization</div>
+                            </div>
+                            <div class="cert-date">@cert.DateObtained.ToString("MMM yyyy")</div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="certification-item">
+                        <div class="cert-info">
+                            <h4>Microsoft Certified: Azure Developer Associate</h4>
+                            <div class="cert-org">Microsoft</div>
+                        </div>
+                        <div class="cert-date">Dec 2023</div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Education Tab -->
+        <div id="education" class="tab-content">
+            <div class="content-section">
+                <h2 class="section-title">
+                    <i class="fas fa-graduation-cap"></i> Education
+                </h2>
+
+                @if (Model?.Education?.Any() == true)
+                {
+                    @foreach (var edu in Model.Education)
+                    {
+                        <div class="timeline-item">
+                            <div class="item-header">
+                                <div>
+                                    <div class="item-title">@edu.Degree</div>
+                                    <div class="item-company">@edu.School</div>
+                                    <div class="item-date">
+                                        <i class="fas fa-calendar"></i>
+                                        @edu.StartDate - @edu.EndDate
+                                        @if (!string.IsNullOrEmpty(edu.Grade))
+                                        {
+                                            <span> • GPA: @edu.Grade</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(edu.Description))
+                            {
+                                <p>@edu.Description</p>
+                            }
+
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="timeline-item">
+                        <div class="item-header">
+                            <div>
+                                <div class="item-title">Bachelor of Science in Computer Science</div>
+                                <div class="item-company">University of Technology</div>
+                                <div class="item-date">
+                                    <i class="fas fa-calendar"></i>
+                                    2018 - 2022 • GPA: 3.8/4.0
+                                </div>
+                            </div>
+                        </div>
+                        <p>Strong foundation in software development, data structures, and algorithms. Graduated with honors.</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Projects Tab -->
+        <div id="projects" class="tab-content">
+            <div class="content-section">
+                <h2 class="section-title">
+                    <i class="fas fa-rocket"></i> Featured Projects
+                </h2>
+
+                <div class="grid grid-2">
+                    @if (Model?.Projects?.Any() == true)
+                    {
+                        @foreach (var project in Model.Projects)
+                        {
+                            <div class="card">
+                                <div class="item-header">
+                                    <div>
+                                        <div class="item-title">@project.Title</div>
+                                        <div class="item-date">
+                                            <i class="fas fa-calendar"></i>
+                                            @project.StartDate?.ToString("MMM yyyy") -
+                                            @(project.EndDate?.ToString("MMM yyyy") ?? "Ongoing")
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 10px;">
+                                        @if (!string.IsNullOrEmpty(project.ProjectUrl))
+                                        {
+                                            <a href="@project.ProjectUrl" class="social-link" style="padding: 8px 12px; font-size: 0.8rem;" target="_blank">
+                                                <i class="fas fa-external-link-alt"></i> Live Demo
+                                            </a>
+                                        }
+                                        @if (!string.IsNullOrEmpty(project.GitHubUrl))
+                                        {
+                                            <a href="@project.GitHubUrl" class="social-link" style="padding: 8px 12px; font-size: 0.8rem;" target="_blank">
+                                                <i class="fab fa-github"></i> Code
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                                <p>@project.Description</p>
+
+                                @* @if (project.Features?.Any() == true) *@
+                                @* { *@
+                                @*     <div style="margin-top: 15px;"> *@
+                                @*         <strong>Key Features:</strong> *@
+                                @*         <ul class="achievements-list"> *@
+                                @*             @foreach (var feature in project.Features) *@
+                                @*             { *@
+                                @*                 <li>@feature</li> *@
+                                @*             } *@
+                                @*         </ul> *@
+                                @*     </div> *@
+                                @* } *@
+
+                                @if (project.TechnologiesUsed?.Any() == true)
+                                {
+                                    <div style="margin-top: 15px;">
+                                        <strong>Technologies:</strong>
+                                        <div class="skills-container" style="margin-top: 8px;">
+                                            @foreach (var tech in project.TechnologiesUsed)
+                                            {
+                                                <span class="skill-tag">@tech</span>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="card">
+                            <div class="item-header">
+                                <div>
+                                    <div class="item-title">E-Commerce Platform</div>
+                                    <div class="item-date">
+                                        <i class="fas fa-calendar"></i>
+                                        2023 - Ongoing
+                                    </div>
+                                </div>
+                            </div>
+                            <p>Full-stack e-commerce solution with modern architecture and responsive design.</p>
+                            <div class="skills-container" style="margin-top: 15px;">
+                                <span class="skill-tag">ASP.NET Core</span>
+                                <span class="skill-tag">React</span>
+                                <span class="skill-tag">SQL Server</span>
+                                <span class="skill-tag">Azure</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Posts Tab -->
+        <div id="posts" class="tab-content">
+            <div class="content-section">
+                <h2 class="section-title">
+                    <i class="fas fa-file-alt"></i> Posts & Articles
+                </h2>
+
+                @if (Model?.Posts.Any() == true)
+                {
+                    @foreach (var post in Model.Posts)
+                    {
+                        <div class="card" style="margin-bottom: 25px;">
+                            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                                <img src="@userImage" alt="Profile" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                                <div>
+                                    <div style="font-weight: 600; color: var(--primary-dark);">@userName</div>
+                                    <div style="color: var(--dark-gray); font-size: 0.9rem;">@post.Since • 🌐 Public</div>
+                                </div>
+                            </div>
+                            <p style="line-height: 1.6; margin-bottom: 15px;">@post.TextContent</p>
+
+                            @* @if (post.Tags?.Any() == true) *@
+                            @* { *@
+                            @*     <div class="skills-container" style="margin-bottom: 15px;"> *@
+                            @*         @foreach (var tag in post.Tags) *@
+                            @*         { *@
+                            @*             <span class="skill-tag">@tag</span> *@
+                            @*         } *@
+                            @*     </div> *@
+                            @* } *@
+
+                            @* <div style="display: flex; gap: 20px; padding-top: 15px; border-top: 1px solid var(--border-light); color: var(--dark-gray); font-size: 0.9rem;"> *@
+                            @*     <span><i class="fas fa-thumbs-up"></i> @(post.LikeCount ?? 0) likes</span> *@
+                            @*     <span><i class="fas fa-comment"></i> @(post.CommentsCount ?? 0) comments</span> *@
+                            @*     <span><i class="fas fa-share"></i> @(post.SharesCount ?? 0) shares</span> *@
+                            @* </div> *@
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="card">
+                        <p style="text-align: center; color: var(--text-light); font-style: italic;">No posts yet. Share your thoughts and insights with the community!</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Connections Tab -->
+        <div id="connections" class="tab-content">
+            <div class="content-section">
+                <h2 class="section-title">
+                    <i class="fas fa-user-friends"></i> Connections (@(Model?.ConnectionsCount ?? 0))
+                </h2>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+                    @if (Model?.Connections?.Any() == true)
+                    {
+                        @foreach (var connection in Model.Connections.Take(6))
+                        {
+                            <div class="card" style="text-align: center; padding: 25px;">
+                                <img src="@(connection?.Requester.ImgPath ?? "/imgs/Account/default.png")" alt="@connection.Requester.UserName"
+                                     style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 15px;"
+                                     onerror="this.src='/imgs/Account/default.png'">
+                                <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 5px;">@connection.Requester.UserName</div>
+                                <div style="color: var(--text-light); margin-bottom: 8px;">@connection.Requester.Title</div>
+                                <div style="color: var(--dark-gray); font-size: 0.9rem; margin-bottom: 15px;">
+                                    <i class="fa fa-envelope" aria-hidden="true"></i>@connection.Requester.Email
+                                </div>
+                                <a asp-controller="Account" asp-action="User" asp-route-UserId="@connection.Requester.Id" class="social-link" style="padding: 8px 20px; font-size: 0.9rem;">
+                                    View Profile
+                                </a>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                            <i class="fas fa-user-friends" style="font-size: 3rem; color: var(--medium-gray); margin-bottom: 20px;"></i>
+                            <p style="color: var(--text-light); font-size: 1.1rem;">No connections yet. Start building your professional network!</p>
+                        </div>
+                    }
+                </div>
+
+                @if (Model?.ConnectionsCount > 6)
+                {
+                    <div style="text-align: center; margin-top: 30px;">
+                        <a href="/Connections" class="social-link">
+                            <i class="fas fa-users"></i> View all connections
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Enhanced Tab Functionality
+        function showTab(tabName) {
+            // Add loading state
+            const clickedTab = event.target;
+            const originalContent = clickedTab.innerHTML;
+            clickedTab.innerHTML = '<span class="loading"></span>';
+
+            setTimeout(() => {
+                // Hide all tab contents
+                const tabContents = document.querySelectorAll('.tab-content');
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                });
+
+                // Remove active class from all tabs
+                const tabs = document.querySelectorAll('.tab');
+                tabs.forEach(tab => {
+                    tab.classList.remove('active');
+                });
+
+                // Show selected tab content
+                const targetTab = document.getElementById(tabName);
+                if (targetTab) {
+                    targetTab.classList.add('active');
+                }
+
+                // Add active class to clicked tab
+                clickedTab.classList.add('active');
+                clickedTab.innerHTML = originalContent;
+
+                // Animate progress bars when skills tab is shown
+                if (tabName === 'skills') {
+                    setTimeout(() => {
+                        const progressBars = document.querySelectorAll('.progress-fill');
+                        progressBars.forEach((bar) => {
+                            const width = bar.style.width;
+                            bar.style.width = '0%';
+                            setTimeout(() => {
+                                bar.style.width = width;
+                            }, 200);
+                        });
+                    }, 100);
+                }
+
+                // Save current tab to localStorage
+                localStorage.setItem('currentTab', tabName);
+            }, 300);
+        }
+
+        // Theme Toggle Functionality
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'fas fa-moon';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'fas fa-sun';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Enhanced Page Load Animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved theme
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'fas fa-sun';
+            }
+
+            // Load saved tab
+            const savedTab = localStorage.getItem('currentTab');
+            if (savedTab && document.getElementById(savedTab)) {
+                // Remove active from all
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                // Activate saved tab
+                const tabButton = document.querySelector(`[onclick="showTab('${savedTab}')"]`);
+                if (tabButton) {
+                    tabButton.classList.add('active');
+                    document.getElementById(savedTab).classList.add('active');
+                }
+            }
+
+            // Intersection Observer for animations
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '50px'
+            });
+
+            // Animate elements on scroll
+            const animatedElements = document.querySelectorAll('.card, .timeline-item, .content-section');
+            animatedElements.forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+                el.style.transition = `all 0.6s cubic-bezier(0.4, 0, 0.2, 1) ${index * 0.1}s`;
+                observer.observe(el);
+            });
+
+            // Enhanced hover effects
+            document.querySelectorAll('.social-link, .skill-tag').forEach(element => {
+                element.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-3px) scale(1.05)';
+                });
+
+                element.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Smooth scroll for internal links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Auto-animate progress bars
+            setTimeout(() => {
+                const progressBars = document.querySelectorAll('.progress-fill');
+                progressBars.forEach((bar) => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 500);
+                });
+            }, 1000);
+
+            // Add click ripple effect to cards
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+
+                    ripple.style.cssText = `
+                        position: absolute;
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        background: rgba(27, 132, 255, 0.1);
+                        border-radius: 50%;
+                        transform: scale(0);
+                        animation: ripple 0.6s linear;
+                        pointer-events: none;
+                        z-index: 1;
+                    `;
+
+                    this.style.position = 'relative';
+                    this.style.overflow = 'hidden';
+                    this.appendChild(ripple);
+
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+
+            // Add CSS animation for ripple effect
+            const style = document.createElement('style');
+            style.textContent = `
+        @@keyframes ripple {
+                    to {
+                        transform: scale(2);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+
+        // Keyboard navigation for tabs
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key >= '1' && e.key <= '9') {
+                e.preventDefault();
+                const tabs = document.querySelectorAll('.tab');
+                const index = parseInt(e.key) - 1;
+                if (tabs[index]) {
+                    tabs[index].click();
+                }
+            }
+        });
+
+        // Auto-save functionality (if user is owner)
+        @if (isOwner)
+        {
+            <text>
+                    let autoSaveTimeout;
+                    function autoSave(field, value) {
+                        clearTimeout(autoSaveTimeout);
+                        autoSaveTimeout = setTimeout(() => {
+                            // Auto-save implementation
+                            console.log(`Auto-saving ${field}: ${value}`);
+                            // You can implement AJAX call here to save changes
+                        }, 2000);
+                    }
+            </text>
+        }
+    </script>
+}

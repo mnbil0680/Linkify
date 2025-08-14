@@ -61,6 +61,7 @@
                     <div class="d-flex flex-column gap-2">
                         <!-- Accept Button -->
                         <form asp-controller="ManageNetwork" asp-action="AcceptRequest" method="post" style="display:inline;">
+                            @Html.AntiForgeryToken()
                             <input type="hidden" name="requesterId" value="@request.UserId" />
                             <button type="submit" class="btn btn-success btn-lg w-100" style="min-width: 50px;">
                                 <i class="fas fa-check me-2"></i>Accept
@@ -69,6 +70,7 @@
 
                         <!-- Decline Button -->
                         <form asp-controller="ManageNetwork" asp-action="DeclineRequest" method="post" style="display:inline;">
+                            @Html.AntiForgeryToken()
                             <input type="hidden" name="requesterId" value="@request.UserId" />
                             <button type="submit" class="btn btn-danger btn-lg w-100" style="min-width: 50px;"
                                     onclick="return confirm('Are you sure you want to decline the request from @(request.FullName)?')">
