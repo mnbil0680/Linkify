@@ -17,7 +17,7 @@ namespace LinkifyDAL.Repo.Implementation
             return await _context.SavePosts
                 .Include(sp => sp.Post)
                 .Include(sp => sp.User)
-                .FirstOrDefaultAsync(sp => sp.Id == savedPostId);
+                .FirstOrDefaultAsync(sp => sp.PostId == savedPostId);
         }
         public async Task<SavePost> SavePostAsync(int postId, string userId)
         {

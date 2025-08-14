@@ -21,13 +21,15 @@ namespace LinkifyPLL.Controllers
         private readonly IPostReactionsService _postReactionService;
         private readonly IPostCommentsService _postCommentService;
         private readonly ICommentReactionsService _commentReactionService;
+        private readonly ISavePostService _savePostService;
         private readonly UserManager<User> _userManager;
 
         public PostController(ILogger<HomeController> logger, IPostService postService, IPostImagesService postImageService, 
                               IPostReactionsService postReactionService, IPostCommentsService postCommentService, ICommentReactionsService commentReaction,
-        UserManager<User> userManager)
+        UserManager<User> userManager, ISavePostService savePostService)
         {
             _logger = logger;
+            _savePostService = savePostService;
             _postService = postService;
             _postImageService = postImageService;
             _postReactionService = postReactionService;
@@ -472,6 +474,29 @@ namespace LinkifyPLL.Controllers
             public string ReactionType { get; set; }
         }
 
+
+        [HttpPost]
+        public async Task<IActionResult> SavePost([FromBody] SavePostRequest request)
+        {
+            bool isSaved = await _savePostService.IsPostSavedByUserAsync(request.PostId, request.UserId);
+
+            if (isSaved)
+            {
+                await _savePostService.ArchiveAsync(request.PostId);
+                return Json(new { success = true, isSaved = false });
+            }
+            else
+            {
+
+                await _savePostService.SavePostAsync(request.PostId, request.UserId);
+                return Json(new { success = true, isSaved = true });
+            }
+        }
+        public class SavePostRequest
+        {
+            public string UserId { get; set; }
+            public int PostId { get; set; }
+        }
 
 
     }
