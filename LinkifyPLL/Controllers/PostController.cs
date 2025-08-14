@@ -107,15 +107,82 @@ namespace LinkifyPLL.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> EditPost(PostCreateMV model)
+        public async Task<IActionResult> EditPost(int id)
         {
-            
+            var post = await _postService.GetPostByIdAsync(id);
+            if (post == null)
+                return NotFound();
+
+            var images = await _postImageService.GetImageByPostIdAsync(id);
+            var model = new EditPostMV
+            {
+                PostId = post.Id,
+                NewTextContent = post.TextContent,
+                ExistingImages = images.Select(img => img.ImagePath).ToList(), // Change this line
+                NewImgPaths = null // This will be populated when user uploads new images
+            };
+
+            return View(model);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> EditPost(PostCreateMV model)
-        {
 
+
+
+
+
+        // Should be (correct):
+        [HttpPost]
+        public async Task<IActionResult> EditPost(EditPostMV model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                // Update the post
+                await _postService.UpdatePostAsync(model.PostId, model.NewTextContent);
+
+                // Handle existing images (remove deleted ones)
+                var currentImages = await _postImageService.GetImageByPostIdAsync(model.PostId);
+                foreach (var image in currentImages)
+                {
+                    if (!model.ExistingImages.Contains(image.ImagePath))
+                    {
+                        // Image was removed in UI, delete it
+                        // Add method to delete image in IPostImagesService
+                        // await _postImageService.DeleteImageAsync(image.Id);
+                    }
+                }
+
+                // Handle new images
+                if (model.NewImgPaths != null && model.NewImgPaths.Any())
+                {
+                    foreach (var img in model.NewImgPaths)
+                    {
+                        if (img != null && img.Length > 0)
+                        {
+                            string imgPath = FileManager.UploadFile("Files", img);
+                            var postImage = new PostImages(imgPath, model.PostId);
+                            await _postImageService.AddPostImageAsync(postImage);
+                        }
+                    }
+                }
+
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Failed to update post. Please try again.");
+                return View(model);
+            }
+        }
+
+
+        public async Task DeletePost(int PostId)
+        {
+             await _postService.DeletePostAsync(PostId);
         }
 
 

@@ -1,4 +1,182 @@
-﻿@model PostCreateMV
+﻿@model LinkifyBLL.ModelView.EditPostMV
+@using LinkifyBLL.ModelView
+@using Microsoft.AspNetCore.Http
+
 @{
-	Layout = "~/Views/Shared/_AppLayout.cshtml";
+    ViewData["Title"] = "Edit Post";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header">
+
+                    <h2 class="mb-0">Edit Post</h2>
+                </div>
+
+                <div class="card-body">
+
+                  
+
+                    <form asp-action="EditPost" asp-controller="Post" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="All" class="text-danger"></div>
+
+                        <input type="hidden" asp-for="PostId" />
+
+                        <div class="mb-3">
+                            <label asp-for="NewTextContent" class="form-label">What's on your mind?</label>
+                            <textarea asp-for="NewTextContent"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Share your thoughts..."
+                                      maxlength="1000">@Model.NewTextContent</textarea>
+                            <span asp-validation-for="NewTextContent" class="text-danger"></span>
+                        </div>
+
+                        @if (Model.ExistingImages != null && Model.ExistingImages.Any())
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Current Images:</label>
+                                <div id="existingImagesContainer" class="d-flex flex-wrap gap-2">
+                                    @foreach (var imgPath in Model.ExistingImages)
+                                    {
+                                        <div class="position-relative existing-image-item">
+                                            <img src="@imgPath" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;" />
+                                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                                                    onclick="removeExistingImage(this, '@imgPath')"
+                                                    style="transform: translate(50%, -50%);">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            <input type="hidden" name="ExistingImages" value="@imgPath" />
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <label asp-for="NewImgPaths" class="form-label">Add New Images (Optional)</label>
+                            <input asp-for="NewImgPaths" class="form-control" type="file" multiple accept="image/*" onchange="previewImages(this)" />
+                            <span asp-validation-for="NewImgPaths" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Update Post
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    
+    <script>
+        // Image preview functionality
+        function previewImages(input) {
+            const previewContainer = document.getElementById('previewContainer');
+            const previewSection = document.getElementById('imagePreview');
+
+            // Clear previous previews
+            previewContainer.innerHTML = '';
+
+            if (input.files && input.files.length > 0) {
+                previewSection.style.display = 'block';
+
+                // Limit to 10 images
+                const maxImages = Math.min(input.files.length, 10);
+
+                for (let i = 0; i < maxImages; i++) {
+                    const file = input.files[i];
+
+                    // Check file size (5MB limit)
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert(`${file.name} is too large. Maximum file size is 5MB.`);
+                        continue;
+                    }
+
+                    // Check file type
+                    if (!file.type.startsWith('image/')) {
+                        alert(`${file.name} is not an image file.`);
+                        continue;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const imageDiv = document.createElement('div');
+                        imageDiv.className = 'position-relative';
+                        imageDiv.innerHTML = `
+                            <img src="${e.target.result}"
+                                 class="img-thumbnail"
+                                 style="width: 100px; height: 100px; object-fit: cover;">
+                            <button type="button"
+                                    class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                                    onclick="removePreview(this)"
+                                    style="transform: translate(50%, -50%);">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        previewContainer.appendChild(imageDiv);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            } else {
+                previewSection.style.display = 'none';
+            }
+        }
+
+        function removePreview(button) {
+            button.parentElement.remove();
+
+            // If no more previews, hide the preview section
+            const previewContainer = document.getElementById('previewContainer');
+            if (previewContainer.children.length === 0) {
+                document.getElementById('imagePreview').style.display = 'none';
+            }
+        }
+
+        function removeExistingImage(button, imagePath) {
+            if (confirm('Are you sure you want to remove this image?')) {
+                button.parentElement.remove();
+
+                // Mark for deletion by removing the hidden input
+                const hiddenInput = button.parentElement.querySelector('input[type="hidden"]');
+                if (hiddenInput) {
+                    hiddenInput.remove();
+                }
+            }
+        }
+
+        // Form validation
+          document.querySelector('form').addEventListener('submit', function(e) {
+            const textContent = document.querySelector('[name="NewTextContent"]').value.trim();
+            const existingImages = document.querySelectorAll('input[name="ExistingImages"]').length;
+            const newImages = document.querySelector('[name="NewImgPaths"]').files.length;
+
+            if (!textContent && existingImages === 0 && newImages === 0) {
+                e.preventDefault();
+                alert('Post must have text content or at least one image.');
+                return false;
+            }
+        });
+
+
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+        });
+    </script>
 }

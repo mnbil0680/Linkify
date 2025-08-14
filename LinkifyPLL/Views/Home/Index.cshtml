@@ -1164,10 +1164,19 @@
                                
                                 @if (currentUserId == post.PostUserId) // Owner options
                                 {
-                                    <a class="dropdown-item" asp-controller="Post" asp-action="EditPost" onclick="editPost(@post.postId)">
+                                    <a class="dropdown-item"
+                                    asp-controller="Post"
+                                    asp-action="EditPost"
+                                    asp-route-id="@post.postId"
+                                    onclick="editPost(@post.postId)">
                                         <i class="fas fa-edit me-2"></i>Edit
                                     </a>
-                                    <a class="dropdown-item text-danger" href="#" onclick="deletePost(@post.postId)">
+
+                                    <a class="dropdown-item text-danger"
+                                    asp-controller="Post"
+                                    asp-action="DeletePost"
+                                       asp-route-PostId="@post.postId"
+                                    onclick="deletePost(@post.postId)">
                                         <i class="fas fa-trash me-2"></i>Delete
                                     </a>
                                 }
