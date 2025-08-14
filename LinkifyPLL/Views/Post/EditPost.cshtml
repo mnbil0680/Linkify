@@ -24,7 +24,7 @@
                 <div class="card-body">
 
                   
-
+                    @Html.AntiForgeryToken()
                     <form asp-action="EditPost" asp-controller="Post" method="post" enctype="multipart/form-data">
                         <div asp-validation-summary="All" class="text-danger"></div>
 

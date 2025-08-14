@@ -15,6 +15,7 @@ namespace LinkifyPLL.Controllers
 {
     public class PostController : Controller
     {
+        private readonly ILogger<HomeController> _logger;
         private readonly IPostService _postService;
         private readonly IPostImagesService _postImageService;
         private readonly IPostReactionsService _postReactionService;
@@ -22,10 +23,11 @@ namespace LinkifyPLL.Controllers
         private readonly ICommentReactionsService _commentReactionService;
         private readonly UserManager<User> _userManager;
 
-        public PostController(IPostService postService, IPostImagesService postImageService, 
+        public PostController(ILogger<HomeController> logger, IPostService postService, IPostImagesService postImageService, 
                               IPostReactionsService postReactionService, IPostCommentsService postCommentService, ICommentReactionsService commentReaction,
         UserManager<User> userManager)
         {
+            _logger = logger;
             _postService = postService;
             _postImageService = postImageService;
             _postReactionService = postReactionService;
@@ -127,6 +129,13 @@ namespace LinkifyPLL.Controllers
 
 
 
+        [HttpPost]
+        public async Task<IActionResult> DeletePost(int id)
+        {
+            await _postService.DeletePostAsync(id);
+            // Redirect to Home/Index to reload the page after deletion
+            return RedirectToAction("Index", "Home");
+        }
 
 
 
@@ -180,13 +189,9 @@ namespace LinkifyPLL.Controllers
         }
 
 
-        public async Task DeletePost(int PostId)
-        {
-             await _postService.DeletePostAsync(PostId);
-        }
+       
 
-
-
+        
         [HttpPost("api/posts/{postId}/comments")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCommentApi(int postId, [FromBody] CreateCommentRequest request)
