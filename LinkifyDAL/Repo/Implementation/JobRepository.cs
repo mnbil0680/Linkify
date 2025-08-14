@@ -39,7 +39,7 @@ namespace LinkifyDAL.Repo.Implementation
 
             if (!includeInactive)
             {
-                query = query.Where(j => IsActiveAndNotDeleted(j));
+                query = query.Where(j => !(j.IsDeleted ?? true) && (j.IsActive ?? false));
             }
 
             return await query.ToListAsync();
@@ -99,7 +99,7 @@ namespace LinkifyDAL.Repo.Implementation
 
             if (!includeInactive)
             {
-                query = query.Where(j => IsActiveAndNotDeleted(j));
+                query = query.Where(j => !(j.IsDeleted ?? true) && (j.IsActive ?? false));
             }
 
             return await query.ToListAsync();
@@ -108,7 +108,7 @@ namespace LinkifyDAL.Repo.Implementation
         public async Task<IEnumerable<Job>> GetActiveJobsAsync()
         {
             return await _context.Job
-                .Where(j => IsActiveAndNotDeleted(j) && (j.ExpiresOn == null || j.ExpiresOn > DateTime.Now))
+                .Where(j => !(j.IsDeleted ?? true) && (j.IsActive ?? false) && (j.ExpiresOn == null || j.ExpiresOn >= DateTime.UtcNow))
                 .Include(j => j.User)
                 .ToListAsync();
         }
@@ -116,7 +116,7 @@ namespace LinkifyDAL.Repo.Implementation
         public async Task<IEnumerable<Job>> GetExpiredJobsAsync()
         {
             return await _context.Job
-                .Where(j => IsActiveAndNotDeleted(j) && j.ExpiresOn != null && j.ExpiresOn <= DateTime.Now)
+                .Where(j => !(j.IsDeleted ?? true) && (j.IsActive ?? false) && j.ExpiresOn != null && j.ExpiresOn <= DateTime.UtcNow)
                 .Include(j => j.User)
                 .ToListAsync();
         }
@@ -130,7 +130,7 @@ namespace LinkifyDAL.Repo.Implementation
 
             if (!includeInactive)
             {
-                query = query.Where(j => IsActiveAndNotDeleted(j));
+                query = query.Where(j => !(j.IsDeleted ?? true) && (j.IsActive ?? false));
             }
 
             return await query.ToListAsync();
@@ -145,7 +145,7 @@ namespace LinkifyDAL.Repo.Implementation
 
             if (!includeInactive)
             {
-                query = query.Where(j => IsActiveAndNotDeleted(j));
+                query = query.Where(j => !(j.IsDeleted ?? true) && (j.IsActive ?? false));
             }
 
             return await query.ToListAsync();
@@ -187,7 +187,7 @@ namespace LinkifyDAL.Repo.Implementation
 
             if (!includeInactive)
             {
-                query = query.Where(j => IsActiveAndNotDeleted(j));
+                query = query.Where(j => !(j.IsDeleted ?? true) && (j.IsActive ?? false) && (j.ExpiresOn == null || j.ExpiresOn >= DateTime.UtcNow));
             }
 
             return await query.ToListAsync();
@@ -199,7 +199,7 @@ namespace LinkifyDAL.Repo.Implementation
 
             if (!includeInactive)
             {
-                query = query.Where(j => IsActiveAndNotDeleted(j));
+                query = query.Where(j => !(j.IsDeleted ?? true) && (j.IsActive ?? false));
             }
 
             return await query.CountAsync();
@@ -212,7 +212,7 @@ namespace LinkifyDAL.Repo.Implementation
 
             if (!includeInactive)
             {
-                query = query.Where(j => IsActiveAndNotDeleted(j));
+                query = query.Where(j => !(j.IsDeleted ?? true) && (j.IsActive ?? false));
             }
 
             return await query.CountAsync();

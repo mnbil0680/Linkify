@@ -1,0 +1,439 @@
+﻿@{
+    ViewData["Title"] = "Add New Job Posting";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+    
+}
+@model AddJobMV
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Job Posting</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            padding: 40px 40px 60px;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+
+            .header h1 {
+                font-size: 2.5rem;
+                font-weight: 700;
+                margin-bottom: 8px;
+                letter-spacing: -0.025em;
+            }
+
+            .header p {
+                font-size: 1.1rem;
+                opacity: 0.9;
+                font-weight: 400;
+            }
+
+        .form-container {
+            padding: 40px;
+            background: #fafafa;
+            position: relative;
+            margin-top: -40px;
+            border-radius: 24px 24px 0 0;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+            .form-group.full-width {
+                grid-column: 1 / -1;
+            }
+
+            .form-group label {
+                font-size: 0.875rem;
+                font-weight: 500;
+                color: #374151;
+                margin-bottom: 6px;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                padding: 12px 16px;
+                border: 1.5px solid #e5e7eb;
+                border-radius: 12px;
+                font-size: 1rem;
+                transition: all 0.2s;
+                background: white;
+                color: #374151;
+            }
+
+                .form-group input:focus,
+                .form-group select:focus,
+                .form-group textarea:focus {
+                    outline: none;
+                    border-color: #6366f1;
+                    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+                }
+
+            .form-group textarea {
+                min-height: 120px;
+                resize: vertical;
+            }
+
+        .job-type-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .type-button {
+            padding: 8px 16px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 20px;
+            background: white;
+            color: #6b7280;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+            .type-button.active {
+                background: #6366f1;
+                color: white;
+                border-color: #6366f1;
+            }
+
+            .type-button:hover:not(.active) {
+                border-color: #6366f1;
+                color: #6366f1;
+            }
+
+        .presence-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .presence-button {
+            padding: 8px 16px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 20px;
+            background: white;
+            color: #6b7280;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+            .presence-button.active {
+                background: #6366f1;
+                color: white;
+                border-color: #6366f1;
+            }
+
+            .presence-button:hover:not(.active) {
+                border-color: #6366f1;
+                color: #6366f1;
+            }
+
+        .skills-section,
+        .skills-input,
+        .add-skill-btn,
+        .skills-tags,
+        .skill-tag {
+            display: none;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 20px;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 12px;
+            border: 1.5px solid #e5e7eb;
+        }
+
+            .checkbox-group input[type="checkbox"] {
+                width: 18px;
+                height: 18px;
+                accent-color: #6366f1;
+            }
+
+            .checkbox-group label {
+                margin: 0;
+                font-weight: 500;
+                color: #374151;
+            }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 32px;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+            }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 1.5px solid #e5e7eb;
+        }
+
+            .btn-secondary:hover {
+                background: #e5e7eb;
+                color: #374151;
+            }
+
+        .salary-inputs {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .salary-separator {
+            color: #6b7280;
+            font-weight: 500;
+            padding-bottom: 12px;
+        }
+
+        @@media (max-width: 768px) {
+            .form-grid
+
+        {
+            grid-template-columns: 1fr;
+        }
+
+        .salary-inputs {
+            grid-template-columns: 1fr;
+        }
+
+        .salary-separator {
+            display: none;
+        }
+
+        .button-group {
+            flex-direction: column;
+        }
+
+        .job-type-buttons,
+        .presence-buttons {
+            justify-content: center;
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <partial name="_NavPartial" />
+        <div class="header">
+            <h1>Add New Job</h1>
+            <p>Create your next great opportunity</p>
+        </div>
+
+        <div class="form-container">
+            <form id="jobForm" asp-action="AddJob" asp-controller="Job" method="post">
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-info-circle" style="color: #6366f1;"></i>
+                        Basic Information
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                        <label asp-for="Title"></label>
+                            <input asp-for="Title" type="text" placeholder="e.g., Senior Frontend Engineer" required>
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                        <label asp-for="Company" "></label>
+                        <input asp-for="Company" type="text" placeholder="e.g., Engineering Team" required>
+                        <span asp-validation-for="Company" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                        <label asp-for="Location"></label>
+                        <input asp-for="Location" type="text" placeholder="e.g., San Francisco, CA">
+                        <span asp-validation-for="Location" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                        <label asp-for="ExpiresOn">Application Deadline</label>
+                        <input asp-for="ExpiresOn" type="date">
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label asp-for="Description">Job Description</label>
+                    <textarea asp-for="Description" placeholder="Build cutting-edge user interfaces using React, TypeScript, and modern web technologies. Work with cross-functional teams and create exceptional user experiences." required></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Job Details -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-cogs" style="color: #6366f1;"></i>
+                        Job Details
+                    </div>
+
+                    <div class="form-group">
+                        <label>Job Type</label>
+                        <div class="job-type-buttons">
+                            <label  class="type-button">
+                                <input type="radio" asp-for="Type" value="FullTime" checked />
+                                FullTime
+                            </label>
+                            <label class="type-button">
+                                <input type="radio" asp-for="Type" value="PartTime" />
+                                PartTime
+                            </label>
+                            <label class="type-button">
+                                <input type="radio" asp-for="Type" value="Contract" />
+                                Contract
+                            </label>
+                            <label class="type-button">
+                                <input type="radio" asp-for="Type" value="Internship" />
+                                Internship
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Work Arrangement</label>
+                        <div class="presence-buttons">
+                            <label class="presence-button">
+                                <input type="radio" asp-for="Presence" value="Onsite" checked />
+                                Onsite
+                            </label>
+                            <label class="presence-button">
+                                <input type="radio" asp-for="Presence" value="Remote" />
+                                Remote
+                            </label>
+                            <label class="presence-button">
+                                <input type="radio" asp-for="Presence" value="Hybrid" />
+                                Hybrid
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Salary Range</label>
+                            <input type="text" asp-for="SalaryRange" placeholder="$120K-$160K" style="text-align: center;">
+                    </div>
+                </div>
+
+                <!-- Job Settings -->
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Create Job
+                    </button>
+                </div>
+            </form>
+        </div>
+    
+
+    <script>
+         <partial name="_ValidationScriptsPartial" />
+        // Form submission
+        // document.getElementById('jobForm').addEventListener('submit', function(e) {
+            
+        //     setTimeout(() => {
+        //         alert('Job created successfully! 🎉');
+        //         console.log('Job Data:', jobData);
+        //         submitBtn.innerHTML = originalContent;
+        //         submitBtn.disabled = false;
+        //     }, 1500);
+        // });
+
+        // Set minimum date to today
+        document.getElementById('ExpiresOn').min = new Date().toISOString().split('T')[0];
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+
+    </script>
+</body>
+</html>

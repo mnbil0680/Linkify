@@ -7,6 +7,8 @@
 }
 
 
+
+@using LinkifyDAL.Enums
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
@@ -66,6 +68,39 @@
         @await Html.PartialAsync("_LeftSidebarPartial", user)
 
 
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-briefcase"></i>
+                    Career
+                </h3>
+                
+                    <a asp-action="JobList" asp-controller="Job" class="sidebar-item interactive-card" tabindex="0">
+                        <i class="fas fa-search sidebar-icon"></i>
+                        <span>Add Jobs</span>
+                        <span class="item-badge hot">Hot</span>
+                    </a>
+                
+                    <a asp-action="FindJobs" asp-controller="Job" class="sidebar-item interactive-card" tabindex="0">
+                        <i class="fas fa-search sidebar-icon"></i>
+                        <span>Find Jobs</span>
+                        <span class="item-badge hot">Hot</span>
+                    </a>
+                
+                <a asp-action="SavedJob" asp-controller="Job" class="sidebar-item interactive-card" tabindex="0">
+                    <i class="fas fa-bookmark sidebar-icon"></i>
+                    <span>Saved Jobs</span>
+                    <span class="item-count">12</span>
+                </a>
+                <a class="sidebar-item interactive-card" tabindex="0">
+                    <i class="fas fa-chart-line sidebar-icon"></i>
+                    <span>Career Insights</span>
+                </a>
+                <a class="sidebar-item interactive-card" tabindex="0">
+                    <i class="fas fa-file-alt sidebar-icon"></i>
+                    <span>Resume Builder</span>
+                    <span class="item-badge new">New</span>
+                </a>
+            </div>
 
         <!-- Main Feed -->
         <main class="main-feed" id="main-content" role="main" aria-label="Main content">

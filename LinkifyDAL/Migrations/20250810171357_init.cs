@@ -61,7 +61,7 @@ namespace LinkifyDAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Contact",
+                name: "Contacts",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -76,7 +76,7 @@ namespace LinkifyDAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Contact", x => x.Id);
+                    table.PrimaryKey("PK_Contacts", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -258,7 +258,7 @@ namespace LinkifyDAL.Migrations
                 {
                     table.PrimaryKey("PK_Job", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Jobs_AspNetUsers_UserId",
+                        name: "FK_Job_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -290,7 +290,7 @@ namespace LinkifyDAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "JobApplication",
+                name: "JobApplications",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -306,7 +306,7 @@ namespace LinkifyDAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_JobApplication", x => x.Id);
+                    table.PrimaryKey("PK_JobApplications", x => x.Id);
                     table.ForeignKey(
                         name: "FK_JobApplications_AspNetUsers_ApplicantId",
                         column: x => x.ApplicantId,
@@ -314,7 +314,7 @@ namespace LinkifyDAL.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
-                        name: "FK_JobApplications_Jobs_JobId",
+                        name: "FK_JobApplications_Job_JobId",
                         column: x => x.JobId,
                         principalTable: "Job",
                         principalColumn: "Id",
@@ -322,7 +322,7 @@ namespace LinkifyDAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SaveJob",
+                name: "SaveJobs",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -335,7 +335,7 @@ namespace LinkifyDAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SaveJob", x => x.Id);
+                    table.PrimaryKey("PK_SaveJobs", x => x.Id);
                     table.ForeignKey(
                         name: "FK_SaveJobs_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -343,7 +343,7 @@ namespace LinkifyDAL.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
-                        name: "FK_SaveJobs_Jobs_JobId",
+                        name: "FK_SaveJobs_Job_JobId",
                         column: x => x.JobId,
                         principalTable: "Job",
                         principalColumn: "Id",
@@ -420,7 +420,7 @@ namespace LinkifyDAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SavePost",
+                name: "SavePosts",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -433,7 +433,7 @@ namespace LinkifyDAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SavePost", x => x.Id);
+                    table.PrimaryKey("PK_SavePosts", x => x.Id);
                     table.ForeignKey(
                         name: "FK_SavePosts_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -449,7 +449,7 @@ namespace LinkifyDAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SharePost",
+                name: "SharePosts",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -463,7 +463,7 @@ namespace LinkifyDAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SharePost", x => x.Id);
+                    table.PrimaryKey("PK_SharePosts", x => x.Id);
                     table.ForeignKey(
                         name: "FK_SharePosts_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -569,19 +569,19 @@ namespace LinkifyDAL.Migrations
                 column: "RequesterId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Job_UserId",
+                table: "Job",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_JobApplications_ApplicantId",
-                table: "JobApplication",
+                table: "JobApplications",
                 column: "ApplicantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_JobApplications_JobId",
-                table: "JobApplication",
+                table: "JobApplications",
                 column: "JobId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Jobs_UserId",
-                table: "Job",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Post_UserId",
@@ -615,32 +615,32 @@ namespace LinkifyDAL.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_SaveJobs_JobId",
-                table: "SaveJob",
+                table: "SaveJobs",
                 column: "JobId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SaveJobs_UserId",
-                table: "SaveJob",
+                table: "SaveJobs",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SavePosts_PostId",
-                table: "SavePost",
+                table: "SavePosts",
                 column: "PostId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SavePosts_UserId",
-                table: "SavePost",
+                table: "SavePosts",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SharePosts_PostId",
-                table: "SharePost",
+                table: "SharePosts",
                 column: "PostId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SharePosts_UserId",
-                table: "SharePost",
+                table: "SharePosts",
                 column: "UserId");
         }
 
@@ -666,13 +666,13 @@ namespace LinkifyDAL.Migrations
                 name: "CommentReactions");
 
             migrationBuilder.DropTable(
-                name: "Contact");
+                name: "Contacts");
 
             migrationBuilder.DropTable(
                 name: "Friends");
 
             migrationBuilder.DropTable(
-                name: "JobApplication");
+                name: "JobApplications");
 
             migrationBuilder.DropTable(
                 name: "PostImages");
@@ -681,13 +681,13 @@ namespace LinkifyDAL.Migrations
                 name: "PostReactions");
 
             migrationBuilder.DropTable(
-                name: "SaveJob");
+                name: "SaveJobs");
 
             migrationBuilder.DropTable(
-                name: "SavePost");
+                name: "SavePosts");
 
             migrationBuilder.DropTable(
-                name: "SharePost");
+                name: "SharePosts");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
