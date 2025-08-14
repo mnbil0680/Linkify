@@ -19,27 +19,27 @@ namespace LinkifyDAL.Repo.Implementation
 
         public async Task<Job> CreateJobAsync(Job job)
         {
-            _context.Jobs.Add(job);
+            _context.Job.Add(job);
             await _context.SaveChangesAsync();
             return job;
         }
 
         public async Task<Job?> GetJobByIdAsync(int jobId)
         {
-            return await _context.Jobs
+            return await _context.Job
                 .Include(j => j.User)
                 .FirstOrDefaultAsync(j => j.Id == jobId);
         }
 
         public async Task<IEnumerable<Job>> GetAllJobsAsync(bool includeInactive = false)
         {
-            var query = _context.Jobs
+            var query = _context.Job
                 .Include(j => j.User)
                 .AsQueryable();
 
             if (!includeInactive)
             {
-                query = query.Where(j => IsActiveAndNotDeleted(j));
+                query = query.Where(j => !(j.IsDeleted ?? true) && (j.IsActive ?? false));
             }
 
             return await query.ToListAsync();
@@ -55,7 +55,7 @@ namespace LinkifyDAL.Repo.Implementation
             JobPresence? presence = null,
             DateTime? expiresOn = null)
         {
-            var job = _context.Jobs.FirstOrDefault(j => j.Id == jobId);
+            var job = _context.Job.FirstOrDefault(j => j.Id == jobId);
             job.Edit(title, description, company, location, salaryRange, type, presence, expiresOn);
             await _context.SaveChangesAsync();
             return job;
@@ -92,14 +92,14 @@ namespace LinkifyDAL.Repo.Implementation
 
         public async Task<IEnumerable<Job>> GetJobsByUserAsync(string userId, bool includeInactive = false)
         {
-            var query = _context.Jobs
+            var query = _context.Job
                 .Where(j => j.UserId == userId)
                 .Include(j => j.User)
                 .AsQueryable();
 
             if (!includeInactive)
             {
-                query = query.Where(j => IsActiveAndNotDeleted(j));
+                query = query.Where(j => !(j.IsDeleted ?? true) && (j.IsActive ?? false));
             }
 
             return await query.ToListAsync();
@@ -107,30 +107,30 @@ namespace LinkifyDAL.Repo.Implementation
 
         public async Task<IEnumerable<Job>> GetActiveJobsAsync()
         {
-            return await _context.Jobs
-                .Where(j => IsActiveAndNotDeleted(j) && (j.ExpiresOn == null || j.ExpiresOn > DateTime.Now))
+            return await _context.Job
+                .Where(j => !(j.IsDeleted ?? true) && (j.IsActive ?? false) && (j.ExpiresOn == null || j.ExpiresOn >= DateTime.UtcNow))
                 .Include(j => j.User)
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<Job>> GetExpiredJobsAsync()
         {
-            return await _context.Jobs
-                .Where(j => IsActiveAndNotDeleted(j) && j.ExpiresOn != null && j.ExpiresOn <= DateTime.Now)
+            return await _context.Job
+                .Where(j => !(j.IsDeleted ?? true) && (j.IsActive ?? false) && j.ExpiresOn != null && j.ExpiresOn <= DateTime.UtcNow)
                 .Include(j => j.User)
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<Job>> GetJobsByTypeAsync(JobTypes jobType, bool includeInactive = false)
         {
-            var query = _context.Jobs
+            var query = _context.Job
                 .Where(j => j.Type == jobType)
                 .Include(j => j.User)
                 .AsQueryable();
 
             if (!includeInactive)
             {
-                query = query.Where(j => IsActiveAndNotDeleted(j));
+                query = query.Where(j => !(j.IsDeleted ?? true) && (j.IsActive ?? false));
             }
 
             return await query.ToListAsync();
@@ -138,14 +138,14 @@ namespace LinkifyDAL.Repo.Implementation
 
         public async Task<IEnumerable<Job>> GetJobsByPresenceAsync(JobPresence presence, bool includeInactive = false)
         {
-            var query = _context.Jobs
+            var query = _context.Job
                 .Where(j => j.Presence == presence)
                 .Include(j => j.User)
                 .AsQueryable();
 
             if (!includeInactive)
             {
-                query = query.Where(j => IsActiveAndNotDeleted(j));
+                query = query.Where(j => !(j.IsDeleted ?? true) && (j.IsActive ?? false));
             }
 
             return await query.ToListAsync();
@@ -158,7 +158,7 @@ namespace LinkifyDAL.Repo.Implementation
             JobPresence? presence = null,
             bool includeInactive = false)
         {
-            var query = _context.Jobs
+            var query = _context.Job
                 .Include(j => j.User)
                 .AsQueryable();
 
@@ -187,7 +187,7 @@ namespace LinkifyDAL.Repo.Implementation
 
             if (!includeInactive)
             {
-                query = query.Where(j => IsActiveAndNotDeleted(j));
+                query = query.Where(j => !(j.IsDeleted ?? true) && (j.IsActive ?? false) && (j.ExpiresOn == null || j.ExpiresOn >= DateTime.UtcNow));
             }
 
             return await query.ToListAsync();
@@ -195,11 +195,11 @@ namespace LinkifyDAL.Repo.Implementation
 
         public async Task<int> GetJobCountAsync(bool includeInactive = false)
         {
-            var query = _context.Jobs.AsQueryable();
+            var query = _context.Job.AsQueryable();
 
             if (!includeInactive)
             {
-                query = query.Where(j => IsActiveAndNotDeleted(j));
+                query = query.Where(j => !(j.IsDeleted ?? true) && (j.IsActive ?? false));
             }
 
             return await query.CountAsync();
@@ -207,12 +207,12 @@ namespace LinkifyDAL.Repo.Implementation
 
         public async Task<int> GetUserJobCountAsync(string userId, bool includeInactive = false)
         {
-            var query = _context.Jobs
+            var query = _context.Job
                 .Where(j => j.UserId == userId);
 
             if (!includeInactive)
             {
-                query = query.Where(j => IsActiveAndNotDeleted(j));
+                query = query.Where(j => !(j.IsDeleted ?? true) && (j.IsActive ?? false));
             }
 
             return await query.CountAsync();
@@ -220,7 +220,7 @@ namespace LinkifyDAL.Repo.Implementation
 
         public async Task<bool> JobExistsAsync(int jobId)
         {
-            return await _context.Jobs.AnyAsync(j => j.Id == jobId);
+            return await _context.Job.AnyAsync(j => j.Id == jobId);
         }
 
         public async Task<bool> IsJobActiveAsync(int jobId)

@@ -1,0 +1,1036 @@
+﻿@{
+    ViewData["Title"] = "Display Applications";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+@using Microsoft.AspNetCore.Html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applicant Details</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-purple: #7c3aed;
+            --dark-purple: #5b21b6;
+            --light-purple: #a855f7;
+            --purple-50: #faf5ff;
+            --purple-100: #f3e8ff;
+            --purple-200: #e9d5ff;
+            --purple-300: #d8b4fe;
+            --purple-500: #8b5cf6;
+            --purple-600: #7c3aed;
+            --purple-700: #6d28d9;
+            --purple-900: #4c1d95;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--purple-50) 0%, var(--purple-100) 100%);
+            color: var(--gray-800);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(135deg, var(--primary-purple), var(--light-purple));
+                border-radius: 24px;
+                opacity: 0.1;
+            }
+
+        .header-content {
+            position: relative;
+            padding: 40px 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-purple), var(--light-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: var(--gray-600);
+            margin-bottom: 20px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.15);
+            border: 2px solid var(--purple-200);
+        }
+
+            .status-badge.pending {
+                border-color: var(--warning);
+            }
+
+            .status-badge.approved {
+                border-color: var(--success);
+            }
+
+            .status-badge.rejected {
+                border-color: var(--danger);
+            }
+
+            .status-badge i {
+                color: var(--primary-purple);
+            }
+
+            .status-badge.pending i {
+                color: var(--warning);
+            }
+
+            .status-badge.approved i {
+                color: var(--success);
+            }
+
+            .status-badge.rejected i {
+                color: var(--danger);
+            }
+
+            .status-badge span {
+                font-weight: 600;
+                color: var(--gray-700);
+            }
+
+        /* Main content layout */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        /* Profile card */
+        .profile-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(124, 58, 237, 0.1);
+            border: 1px solid var(--purple-100);
+            overflow: hidden;
+            position: relative;
+            height: fit-content;
+        }
+
+            .profile-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 6px;
+                background: linear-gradient(90deg, var(--primary-purple), var(--light-purple), var(--purple-500));
+            }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--purple-100), var(--purple-50));
+            padding: 40px 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--primary-purple), var(--light-purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.3);
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: 8px;
+        }
+
+        .profile-email {
+            color: var(--gray-600);
+            margin-bottom: 16px;
+        }
+
+        .contact-info {
+            padding: 30px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+            .contact-item:last-child {
+                border-bottom: none;
+            }
+
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--purple-100);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-purple);
+        }
+
+        .contact-details h4 {
+            font-size: 0.9rem;
+            color: var(--gray-500);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .contact-details p {
+            color: var(--gray-800);
+            font-weight: 500;
+        }
+
+        .contact-details a {
+            color: var(--primary-purple);
+            text-decoration: none;
+        }
+
+            .contact-details a:hover {
+                text-decoration: underline;
+            }
+
+        /* Main details card */
+        .details-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(124, 58, 237, 0.1);
+            border: 1px solid var(--purple-100);
+            overflow: hidden;
+            position: relative;
+        }
+
+            .details-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 6px;
+                background: linear-gradient(90deg, var(--primary-purple), var(--light-purple), var(--purple-500));
+            }
+
+        .details-content {
+            padding: 40px;
+        }
+
+        /* Section styling */
+        .section {
+            margin-bottom: 40px;
+        }
+
+            .section:last-child {
+                margin-bottom: 0;
+            }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--purple-100);
+        }
+
+        .section-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-purple), var(--light-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-800);
+        }
+
+        /* Info items */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .info-item {
+            background: var(--gray-50);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-purple);
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: var(--gray-500);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            color: var(--gray-800);
+            font-weight: 500;
+        }
+
+        /* File attachments */
+        .file-attachments {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--purple-50);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--purple-200);
+            transition: all 0.3s ease;
+        }
+
+            .file-item:hover {
+                background: var(--purple-100);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(124, 58, 237, 0.15);
+            }
+
+        .file-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-purple), var(--light-purple));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .file-info h4 {
+            color: var(--gray-800);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .file-info p {
+            color: var(--gray-500);
+            font-size: 0.9rem;
+        }
+
+        .file-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+
+        .file-action {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-download {
+            background: var(--success);
+            color: white;
+        }
+
+            .btn-download:hover {
+                background: #059669;
+                transform: translateY(-1px);
+            }
+
+        .btn-view {
+            background: var(--primary-purple);
+            color: white;
+        }
+
+            .btn-view:hover {
+                background: var(--dark-purple);
+                transform: translateY(-1px);
+            }
+
+        /* Motivation section */
+        .motivation-text {
+            background: var(--gray-50);
+            padding: 24px;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-purple);
+            font-style: italic;
+            line-height: 1.7;
+            color: var(--gray-700);
+        }
+
+            .motivation-text::before {
+                content: '"';
+                font-size: 3rem;
+                color: var(--primary-purple);
+                font-family: serif;
+                line-height: 1;
+                float: left;
+                margin-right: 8px;
+                margin-top: -10px;
+            }
+
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+                transition: left 0.6s ease;
+            }
+
+            .btn:hover::before {
+                left: 100%;
+            }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-purple), var(--light-purple));
+            color: white;
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.3);
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 35px rgba(124, 58, 237, 0.4);
+            }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+
+            .btn-success:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
+            }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+        }
+
+            .btn-danger:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 35px rgba(239, 68, 68, 0.4);
+            }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary-purple);
+            border: 2px solid var(--purple-200);
+        }
+
+            .btn-secondary:hover {
+                background: var(--purple-50);
+                border-color: var(--primary-purple);
+            }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+            .timeline::before {
+                content: '';
+                position: absolute;
+                left: 15px;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: var(--purple-200);
+            }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.1);
+        }
+
+            .timeline-item::before {
+                content: '';
+                position: absolute;
+                left: -37px;
+                top: 25px;
+                width: 12px;
+                height: 12px;
+                background: var(--primary-purple);
+                border-radius: 50%;
+                border: 3px solid white;
+                box-shadow: 0 0 0 3px var(--purple-200);
+            }
+
+        .timeline-date {
+            font-size: 0.9rem;
+            color: var(--gray-500);
+            margin-bottom: 8px;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 4px;
+        }
+
+        .timeline-description {
+            color: var(--gray-600);
+            font-size: 0.95rem;
+        }
+
+        /* Responsive design */
+        @@media (max-width: 1024px) {
+            .content-grid
+
+        {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        }
+
+        @@media (max-width: 768px) {
+            .container
+
+        {
+            padding: 0 10px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+        }
+
+        .details-content, .contact-info {
+            padding: 30px 20px;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn {
+            justify-content: center;
+        }
+
+        }
+
+        @@media (max-width: 480px) {
+            .header-content
+
+        {
+            padding: 30px 15px;
+        }
+
+        .profile-header {
+            padding: 30px 20px 15px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            font-size: 2rem;
+        }
+
+        .section-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        }
+
+        /* Animations */
+        @@keyframes fadeInUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        @@keyframes float {
+            0%, 100%
+
+        {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    @model ApplicationDetailsMV
+    <partial name="_NavPartial" />
+    <div class="container">
+        <!-- Header -->
+        <div class="header floating">
+            <div class="header-content">
+                <h1>Applicant Profile</h1>
+                <p>Detailed view of application submission</p>
+                <div class="status-badge @(Model.Status?.ToLower() == "approved" ? "approved" : Model.Status?.ToLower())">
+                    <i class="fas fa-check-circle"></i>
+                    <span>@Model.Status </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="content-grid">
+            <!-- Profile Sidebar -->
+            <div class="profile-card animate-in">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        @GetInitials($"{Model.FirstName} {Model.LastName}")
+                    </div>
+                    <h2 class="profile-name">@Model.FirstName @Model.LastName</h2>
+                    <p class="profile-email">@Model.Email</p>
+                </div>
+
+                <div class="contact-info">
+                    @if (!string.IsNullOrWhiteSpace(Model.Phone))
+                    {
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h4>Phone</h4>
+                                <p>@Model.Phone</p>
+                            </div>
+                        </div>
+                    }
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>Applied</h4>
+                            <p>@Model.AppliedOn.ToString("MMMM dd, yyyy")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Details -->
+            <div class="details-card animate-in">
+                <div class="details-content">
+                    <!-- Basic Information -->
+                    <div class="section">
+                        <div class="section-header">
+                            <div class="section-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <h2 class="section-title">Basic Information</h2>
+                        </div>
+
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Full Name</div>
+                                <div class="info-value">@Model.FirstName @Model.LastName</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Email Address</div>
+                                <div class="info-value">@Model.Email</div>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(Model.Phone))
+                            {
+                                <div class="info-item">
+                                    <div class="info-label">Phone Number</div>
+                                    <div class="info-value">@Model.Phone</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Documents -->
+                    @if (!string.IsNullOrWhiteSpace(Model.CoverLetterPath))
+                    {
+                        <div class="section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <h2 class="section-title">Submitted Documents</h2>
+                            </div>
+
+                            <div class="file-attachments">
+                                <div class="file-item">
+                                    <div class="file-icon">
+                                        <i class="fas fa-file"></i>
+                                    </div>
+                                    <div class="file-info">
+                                        <h4>@System.IO.Path.GetFileName(Model.CoverLetterPath)</h4>
+                                        <p>Uploaded on @Model.AppliedOn.ToString("MMMM dd, yyyy")</p>
+                                    </div>
+                                    <div class="file-actions">
+                                        <a class="file-action btn-view" href="@Model.CoverLetterPath" target="_blank">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a class="file-action btn-download" href="@Model.CoverLetterPath" download>
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    
+    
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn btn-success" onclick="approveApplication()">
+                <i class="fas fa-check"></i>
+                Approve Application
+            </button>
+            <button class="btn btn-danger" onclick="rejectApplication()">
+                <i class="fas fa-times"></i>
+                Reject Application
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // File operations
+        function viewFile(type) {
+            // Simulate file viewing
+            alert(`Opening ${type} file for preview...`);
+            console.log(`Viewing ${type} file`);
+        }
+
+                function updateStatus(status) {
+            const applicationId = @Model.Id; // application id from Razor model
+
+            fetch('/Job/UpdateApplicationStatus', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: applicationId, status: status })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(data.message); // or use a nicer notification
+                    location.reload();  // reload to reflect new status
+                } else {
+                    alert('Something went wrong.');
+                }
+            })
+            .catch(() => alert('Network error.'));
+        }
+
+
+        // Application actions
+        function approveApplication() {
+            if (confirm('Are you sure you want to approve this application?')) {
+                showNotification('Application approved successfully!', 'success');
+                updateStatus('approved');
+            }
+        }
+
+        function rejectApplication() {
+            if (confirm('Are you sure you want to reject this application?')) {
+                showNotification('Application rejected.', 'danger');
+                updateStatus('rejected');
+            }
+        }
+
+     
+
+        function updateStatus(status) {
+            const statusBadge = document.querySelector('.status-badge');
+            const icon = statusBadge.querySelector('i');``
+            const text = statusBadge.querySelector('span');
+
+            statusBadge.classList.remove('pending', 'approved', 'rejected');
+            statusBadge.classList.add(status);
+
+            switch(status) {
+                case 'approved':
+                    icon.className = 'fas fa-check-circle';
+                    text.textContent = 'Application Approved';
+                    break;
+                case 'rejected':
+                    icon.className = 'fas fa-times-circle';
+                    text.textContent = 'Application Rejected';
+                    break;
+                case 'pending':
+                    icon.className = 'fas fa-clock';
+                    text.textContent = 'Application Pending';
+                    break;
+            }
+        }
+
+       
+        // Enhanced animations
+        function setupAnimations() {
+            // Animate sections on scroll
+            const sections = document.querySelectorAll('.section');
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach((section, index) => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(30px)';
+                section.style.transition = `all 0.6s ease ${index * 0.1}s`;
+                observer.observe(section);
+            });
+
+            // Animate file items
+            const fileItems = document.querySelectorAll('.file-item');
+            fileItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(-30px)';
+                item.style.transition = `all 0.5s ease ${0.8 + index * 0.2}s`;
+
+                setTimeout(() => {
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateX(0)';
+                }, 100);
+            });
+
+            // Animate timeline items
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            timelineItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(30px)';
+                item.style.transition = `all 0.5s ease ${1.2 + index * 0.15}s`;
+
+                setTimeout(() => {
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateX(0)';
+                }, 100);
+            });
+        }
+
+
+            // Enhanced timeline interactions
+            document.querySelectorAll('.timeline-item').forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateX(5px)';
+                    this.style.boxShadow = '0 8px 30px rgba(124, 58, 237, 0.2)';
+                });
+
+                item.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateX(0)';
+                    this.style.boxShadow = '0 4px 15px rgba(124, 58, 237, 0.1)';
+                });
+            });
+        }
+
+
+        // Add ripple animation to CSS
+        const rippleStyle = document.createElement('style');
+        rippleStyle.textContent = `
+            @@keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(rippleStyle);
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            setupAnimations();
+            setupInteractions();
+            setupCopyFeature();
+
+            // Add print and export buttons to action section
+            const actionButtons = document.querySelector('.action-buttons');
+
+            const printBtn = document.createElement('button');
+            printBtn.className = 'btn btn-secondary';
+            printBtn.innerHTML = '<i class="fas fa-print"></i> Print Profile';
+            printBtn.onclick = printProfile;
+
+            const exportBtn = document.createElement('button');
+            exportBtn.className = 'btn btn-secondary';
+            exportBtn.innerHTML = '<i class="fas fa-download"></i> Export Data';
+            exportBtn.onclick = exportProfile;
+
+            actionButtons.appendChild(printBtn);
+            actionButtons.appendChild(exportBtn);
+
+            // Add tooltips to file action buttons
+            document.querySelectorAll('.file-action').forEach(btn => {
+                const isDownload = btn.classList.contains('btn-download');
+                btn.title = isDownload ? 'Download file' : 'View file';
+            });
+
+            
+        });
+    </script>
+</body>
+</html>
+
+@functions {
+    public string GetInitials(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return "?";
+        var words = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length == 1) return words[0].Substring(0, 1).ToUpper();
+        return $"{words[0][0]}{words[words.Length - 1][0]}".ToUpper();
+    }
+
+    public string GetStatusClass(string status)
+    {
+        return status?.ToLower().Replace(" ", "-") ?? "pending";
+    }
+
+    public IHtmlContent GetStatusBadge(string status)
+    {
+        var normalizedStatus = status?.ToLower().Replace(" ", "-") ?? "pending";
+        var displayStatus = status ?? "Pending";
+
+        return new HtmlString($"<span class=\"status-badge {normalizedStatus}\">{displayStatus}</span>");
+    }
+
+}
