@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LinkifyDAL.Migrations
 {
     [DbContext(typeof(LinkifyDbContext))]
-    [Migration("20250809153252_init")]
-    partial class init
+    [Migration("20250810171720_init1")]
+    partial class init1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -196,7 +196,7 @@ namespace LinkifyDAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Jobs");
+                    b.ToTable("Job");
                 });
 
             modelBuilder.Entity("LinkifyDAL.Entities.JobApplication", b =>
