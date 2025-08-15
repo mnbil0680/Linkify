@@ -2095,10 +2095,11 @@
                         </div>
 
         <time datetime="${comment.createdAt}">${comment.timeAgo || "now"}</time>
-                                </div>
 
+                                </div>
                     </div>
                 </div>
+
             `;
         }
 
@@ -2677,7 +2678,12 @@
         function editComment(commentId) {
             const commentBubble = document.querySelector(`[data-comment-id="${commentId}"] .comment-bubble`);
             const commentText = commentBubble.querySelector('.comment-text');
-            const originalText = commentText.textContent;
+            // Remove this line if (found)
+            //  commentText.innerHTML = newContent + ' <small class="text-muted">(edited)</small>';
+           
+            // Get the original text and remove the "(edited)" label if present
+             let originalText = commentText.innerHTML;
+            originalText = originalText.replace(/<small class="text-muted">\(edited\)<\/small>/g, '').trim();
 
             // Replace with editable textarea
             commentText.innerHTML = `
