@@ -1465,6 +1465,7 @@
                                                             </ul>
                                                         </div>
                                                     </div>
+                                                
                                                 }
 
                                                 <!-- Time Display with Enhanced Formatting -->
@@ -1624,7 +1625,7 @@
                         <!-- Comment Input -->
                         <div class="comment-input-container">
                             <div class="comment-input-wrapper">
-                                <img src="@(currentUserId != null ? "/images/default-avatar.png" : "/images/default-avatar.png")" alt="Your avatar" class="comment-input-avatar" loading="lazy" />
+                                <img src="@(currentUserId != null ? "/imgs/Account/default.png" : "/imgs/Account/default.png")" alt="Your avatar" class="comment-input-avatar" loading="lazy" />
                                 <textarea class="comment-input" placeholder="Write a comment..." rows="1"
                                           data-post-id="@post.postId"
                                           onkeypress="handleCommentSubmit(event, @post.postId)"
@@ -2037,7 +2038,7 @@
             });
         }
 
-                function createCommentHTML(comment) {
+                     function createCommentHTML(comment) {
             return `
                 <div class="comment-item" data-comment-id="${comment.id}">
                     <img src="${comment.authorAvatar}" alt="${comment.authorName}" class="comment-avatar" loading="lazy" />
@@ -2047,18 +2048,51 @@
                             <div class="comment-text">${comment.content}</div>
                         </div>
                         <div class="comment-actions">
-                            <div class="comment-reactions">
-                                <span class="comment-action comment-like" onclick="toggleCommentReaction(${comment.id}, 'like')">Like</span>
+                            <div class="comment-reaction-button-wrapper">
+                                <button class="comment-reaction-btn" type="button" data-comment-id="${comment.id}" data-current-reaction="like">
+                                    <span class="comment-reaction-emoji">👍</span>
+                                    <span class="comment-reaction-text">Like</span>
+                                </button>
                                 <div class="comment-reactions-popup">
-                                    <div class="comment-reaction-item like" onclick="selectCommentReaction(${comment.id}, 'like')">👍</div>
-                                    <div class="comment-reaction-item love" onclick="selectCommentReaction(${comment.id}, 'love')">❤️</div>
-                                    <div class="comment-reaction-item haha" onclick="selectCommentReaction(${comment.id}, 'haha')">😂</div>
-                                    <div class="comment-reaction-item angry" onclick="selectCommentReaction(${comment.id}, 'angry')">😡</div>
+                                    <div class="comment-reaction-item like" data-label="Like" data-reaction="like" onclick="selectCommentReaction(${comment.id}, 'like')">👍</div>
+                                    <div class="comment-reaction-item love" data-label="Love" data-reaction="love" onclick="selectCommentReaction(${comment.id}, 'love')">❤️</div>
+                                    <div class="comment-reaction-item haha" data-label="Haha" data-reaction="haha" onclick="selectCommentReaction(${comment.id}, 'haha')">😂</div>
+                                    <div class="comment-reaction-item sad" data-label="Sad" data-reaction="sad" onclick="selectCommentReaction(${comment.id}, 'sad')">😢</div>
+                                    <div class="comment-reaction-item angry" data-label="Angry" data-reaction="angry" onclick="selectCommentReaction(${comment.id}, 'angry')">😡</div>
                                 </div>
                             </div>
-                            <span class="comment-action" onclick="replyToComment(${comment.id})">Reply</span>
-                            <span class="comment-time">${comment.timeAgo}</span>
+                                    <button class="comment-action reply-btn"
+                onclick="toggleReplyInput(${comment.id})"
+                data-comment-id="${comment.id}">
+            <i class="fas fa-reply me-1"></i>
+            <span>Reply</span>
+        </button>
+        <div class="comment-owner-actions">
+                        <div class="dropdown">
+                            <button class="comment-action dropdown-toggle"
+                                    type="button"
+                                    id="commentMenu${comment.id}"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="commentMenu${comment.id}">
+                                <li>
+                                    <button class="dropdown-item" onclick="editComment(${comment.id})">
+                                        <i class="fas fa-edit me-2"></i>Edit
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item text-danger" onclick="deleteComment(${comment.id})">
+                                        <i class="fas fa-trash me-2"></i>Delete
+                                    </button>
+                                </li>
+                            </ul>
                         </div>
+
+        <time datetime="${comment.createdAt}">${comment.timeAgo || "now"}</time>
+                                </div>
+
                     </div>
                 </div>
             `;
@@ -2081,8 +2115,44 @@
         }
 
         function initializeCommentActions(commentElement) {
-            // Add any specific initialization for comment actions here
+            if (!commentElement) return;
+
+            // Reaction popup hover (show/hide)
+            const reactionButtonWrapper = commentElement.querySelector('.comment-reaction-button-wrapper');
+            if (reactionButtonWrapper) {
+                // Show popup on mouseenter, hide on mouseleave
+                reactionButtonWrapper.addEventListener('mouseenter', function () {
+                    const popup = this.querySelector('.comment-reactions-popup');
+                    if (popup) {
+                        popup.style.opacity = '1';
+                        popup.style.visibility = 'visible';
+                        popup.style.transform = 'translateX(-50%) translateY(0) scale(1)';
+                    }
+                });
+                reactionButtonWrapper.addEventListener('mouseleave', function () {
+                    const popup = this.querySelector('.comment-reactions-popup');
+                    if (popup) {
+                        popup.style.opacity = '';
+                        popup.style.visibility = '';
+                        popup.style.transform = '';
+                    }
+                });
+            }
+
+            // Reaction selection
+            const reactionItems = commentElement.querySelectorAll('.comment-reaction-item');
+            reactionItems.forEach(item => {
+                item.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const commentId = commentElement.getAttribute('data-comment-id');
+                    const reaction = this.getAttribute('data-reaction');
+                    if (commentId && reaction) {
+                        selectCommentReaction(commentId, reaction);
+                    }
+                });
+            });
         }
+
 
         function updateCommentCount(postId, increment) {
             const commentCountElement = document.querySelector(`[data-post-id="${postId}"]`).closest('.post-card').querySelector('.comment-count');
