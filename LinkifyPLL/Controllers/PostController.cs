@@ -728,27 +728,27 @@ namespace LinkifyPLL.Controllers
                 else
                     return BadRequest(new { success = false, message = "Invalid reaction type" });
 
-                List<CommentReactions> list_reaction = (List<CommentReactions>)await _commentReactionService.GetReactionsByCommentAsync(commentId);
-                
-                // Reaction and ReactorId and CommentId
-                foreach (var r in list_reaction)
+                // Get all current reactions for this comment
+                List<CommentReactions> existingReactions = (List<CommentReactions>)await _commentReactionService.GetReactionsByCommentAsync(commentId);
+
+                // Check if this exact reaction (same user, same type, same comment) already exists
+                bool reactionExists = existingReactions.Any(r =>
+                    r.ReactorId == model.UserId &&
+                    r.CommentId == model.CommentId &&
+                    r.Reaction == reactionType &&
+                    !r.IsDeleted);
+
+                // Only toggle if this exact reaction doesn't already exist
+                if (!reactionExists)
                 {
-                    if( !(
-                    r.Reaction == reactionType
-                    && r.ReactorId == model.UserId
-                    && r.CommentId == model.CommentId
-                    )
-                    )
-                    {
-                        await _commentReactionService.ToggleReactionAsync(
-                   model.CommentId,
-                   model.UserId,
-                  reactionType
-               );
-                    }
+                    await _commentReactionService.ToggleReactionAsync(
+                        model.CommentId,
+                        model.UserId,
+                        reactionType
+                    );
                 }
-   
-                
+
+
 
                 var reactions = await _commentReactionService.GetReactionsByCommentAsync(commentId);
                 var activeReactions = reactions.Where(r => !r.IsDeleted).ToList();
