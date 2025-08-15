@@ -1,10 +1,5 @@
 ﻿using LinkifyDAL.Entities;
 using LinkifyDAL.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LinkifyBLL.Services.Abstraction
 {
@@ -13,7 +8,6 @@ namespace LinkifyBLL.Services.Abstraction
         Task<JobApplication> CreateApplicationAsync(int jobId, string applicantId, string? coverLetter = null);
         Task<JobApplication?> GetApplicationByIdAsync(int applicationId);
         Task<IEnumerable<JobApplication>> GetApplicationsForJobAsync(int jobId, bool includeDeleted = false);
-        Task<IEnumerable<JobApplication>> GetApplicationsByUserAsync(string userId, bool includeDeleted = false);
         Task<IEnumerable<JobApplication>> GetApplicationsByStatusAsync(ApplicationStatus status, bool includeDeleted = false);
         Task UpdateApplicationStatusAsync(int applicationId, ApplicationStatus newStatus);
         Task UpdateCoverLetterAsync(int applicationId, string newCoverLetter);
