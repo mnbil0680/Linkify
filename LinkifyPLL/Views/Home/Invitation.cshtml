@@ -1,7 +1,8 @@
-﻿@model List<ManageUser>
+﻿<partial name="_NavPartial" />
+@model List<ManageUser>
 @{
     ViewData["Title"] = "Pending Friend Requests";
-    Layout = "_Layout";
+    Layout = "_AppLayout";
 }
 @if (TempData["ErrorMessage"] != null)
 {
@@ -90,7 +91,7 @@
 }
 else
 {
-    <div class="text-center py-5">
+    <div class="text-center py-5" style="margin: 3rem auto">
         <i class="fas fa-clock fa-3x text-muted mb-3"></i>
         <h5 class="text-muted">No Pending Requests</h5>
         <p class="text-muted">You don't have any pending friend requests at the moment.</p>

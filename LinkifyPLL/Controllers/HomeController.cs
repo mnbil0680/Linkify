@@ -33,11 +33,13 @@ namespace LinkifyPLL.Controllers
 
         // Save
         public readonly ISavePostService ISavePostS;
+        private readonly IJobService _jobService;
 
 
-        public HomeController(ILogger<HomeController> logger,IUserService ius, IFriendsService ifs, IPostService ips, IPostCommentsService ipcs, IPostImagesService ipis, IPostReactionsService iprs, ISharePostService ishareps, ICommentReactionsService icrs, ISavePostService isps )
+        public HomeController(ILogger<HomeController> logger,IUserService ius, IFriendsService ifs, IPostService ips, IPostCommentsService ipcs, IPostImagesService ipis, IPostReactionsService iprs, ISharePostService ishareps, ICommentReactionsService icrs, ISavePostService isps , IJobService jobService)
         {
             _logger = logger;
+            _jobService = jobService;
             this.IUS = ius;
             this._IFS = ifs;
             this.IPS = ips;
@@ -65,6 +67,41 @@ namespace LinkifyPLL.Controllers
             {
                 ViewBag.CurrentUserAvatar = "/imgs/Account/default.png";
             }
+            // --- Prepare RightSide Data ---
+            var suggestions = await _IFS.GetPeopleYouMayKnowAsync(userId);
+            var connectionList = suggestions
+                .Take(3)
+                .Select(u => new RightSideConnection
+                {
+                    Id = u.Id,
+                    ImgPath = u.ImgPath ?? "/imgs/Account/default.png",
+                    Title = u.Title,
+                    Name = u.UserName
+                })
+                .ToList();
+
+            var jobs = await _jobService.GetAllJobsAsync();
+            var jobList = jobs
+                .Take(3)
+                .Select(job => new RightSideJob
+                {
+                    Id = job.Id,
+                    Title = job.Title,
+                    Company = job.Company,
+                    Location = job.Location,
+                    Salary = job.SalaryRange,
+                    Presence = job.Presence ?? JobPresence.Onsite
+                })
+                .ToList();
+
+            var rightSideModel = new RightSide
+            {
+                Connections = connectionList,
+                Jobs = jobList
+            };
+
+            // Store in ViewData
+            ViewData["RightSideData"] = rightSideModel;
 
             List<PostMV> HomePosts = new List<PostMV>();
             var posts = (await IPS.GetRecentPostsAsync()).ToList();
@@ -250,11 +287,30 @@ namespace LinkifyPLL.Controllers
             return View(users);
         }
 
-        public IActionResult PeopleYouMayKnow()
+        public async Task <IActionResult> PeopleYouMayKnow()
         {
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var peopleYouMayKnow = _IFS.GetPeopleYouMayKnowAsync(currentUserId).Result.ToList();
-            return View(peopleYouMayKnow);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var peopleYouMayKnow = await _IFS.GetPeopleYouMayKnowAsync(userId);
+            var candidates = peopleYouMayKnow.Select(u => u.Id).ToList();
+            if (!candidates.Any())
+                return View(new List<PoepleMV>());
+            var model = new List<PoepleMV>();
+            foreach (var f in peopleYouMayKnow)
+            {
+                var otherUserId = f.Id;
+                var mutualCount = await _IFS.GetMutualFriendCountAsync(userId, otherUserId);
+                model.Add(new PoepleMV
+                {
+                    Id = f.Id,
+                    Name = f.UserName,
+                    ImgPath = f.ImgPath ?? "/imgs/Account/default.png",
+                    Title = f.Title,
+                    Status = FriendStatus.None, 
+                    MutualFriendsCount = mutualCount
+
+                });
+            }
+            return View(model);
         }
 
         //public IActionResult MyConnections()
@@ -267,8 +323,28 @@ namespace LinkifyPLL.Controllers
         public async Task<IActionResult> MyConnections()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var poepleList = await _IFS.GetFriendsAsync(userId);
-            return View(poepleList); 
+            var peopleList = await _IFS.GetFriendsAsync(userId);
+
+            var acceptedRequests = peopleList
+                .Where(f => f.Status == FriendStatus.Accepted)
+                .ToList();
+            var model = new List<PoepleMV>();
+            foreach (var f in acceptedRequests) {
+                var otherUserId = f.RequesterId == userId ? f.AddresseeId : f.RequesterId;
+                var mutualCount = await _IFS.GetMutualFriendCountAsync(userId, otherUserId);
+                model.Add(new PoepleMV
+                {
+                    Id = f.RequesterId == userId ? f.AddresseeId : f.RequesterId,
+                    Name = f.RequesterId == userId ? f.Addressee?.UserName : f.Requester?.UserName,
+                    ImgPath = f.RequesterId == userId ? f.Addressee?.ImgPath : f.Requester?.ImgPath,
+                    Title = f.RequesterId == userId ? f.Addressee?.Title : f.Requester?.Title,
+                    Status = f.Status,
+                    MutualFriendsCount = mutualCount
+
+                });
+            }
+            return View(model);
+
         }
 
         public async Task <IActionResult> Invitation()
@@ -287,16 +363,8 @@ namespace LinkifyPLL.Controllers
             }).ToList();
             return View(model);
         }
-        
-        
 
         
-
-        
-
-
-
-
 
 
     }
