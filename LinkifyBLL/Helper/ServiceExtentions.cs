@@ -29,15 +29,17 @@ namespace LinkifyBLL.Helper
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireUppercase = true;
                 options.Password.RequiredLength = 8;
-                
+                options.User.RequireUniqueEmail = true;
             })
             .AddEntityFrameworkStores<LinkifyDbContext>()
             .AddDefaultTokenProviders();
+
             services.Configure<IdentityOptions>(options =>
             {
                 options.User.AllowedUserNameCharacters =
                     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ ";
             });
+            services.AddScoped<IUserStore<User>, CustomUserStore>();
         }
 
         public static void LinkifyDependencyInjection(this IServiceCollection services) { 

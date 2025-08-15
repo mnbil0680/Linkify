@@ -201,8 +201,5 @@ namespace LinkifyPLL.Controllers
             await _authService.LogoutAsync();
             return RedirectToAction("Login");
         }
-
-        
     }
-
 }

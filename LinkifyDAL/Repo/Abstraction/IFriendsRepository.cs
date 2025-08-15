@@ -23,6 +23,5 @@ namespace LinkifyDAL.Repo.Abstraction
         Task<FriendStatus> GetFriendshipStatusAsync(string userId1, string userId2);
         Task<IEnumerable<User>> GetPeopleYouMayKnowAsync(string currentUserId);
         Task<int> GetMutualFriendCountAsync(string currentUserId, string otherUserId);
-
     }
 }

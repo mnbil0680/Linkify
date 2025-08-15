@@ -608,9 +608,7 @@ namespace LinkifyDAL.Migrations
                         .HasDatabaseName("EmailIndex");
 
                     b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+                        .HasDatabaseName("IX_AspNetUsers_NormalizedUserName");
 
                     b.ToTable("AspNetUsers", (string)null);
 
