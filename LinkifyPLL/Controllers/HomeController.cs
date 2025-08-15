@@ -33,11 +33,13 @@ namespace LinkifyPLL.Controllers
 
         // Save
         public readonly ISavePostService ISavePostS;
+        private readonly IJobService _jobService;
 
 
-        public HomeController(ILogger<HomeController> logger,IUserService ius, IFriendsService ifs, IPostService ips, IPostCommentsService ipcs, IPostImagesService ipis, IPostReactionsService iprs, ISharePostService ishareps, ICommentReactionsService icrs, ISavePostService isps )
+        public HomeController(ILogger<HomeController> logger,IUserService ius, IFriendsService ifs, IPostService ips, IPostCommentsService ipcs, IPostImagesService ipis, IPostReactionsService iprs, ISharePostService ishareps, ICommentReactionsService icrs, ISavePostService isps , IJobService jobService)
         {
             _logger = logger;
+            _jobService = jobService;
             this.IUS = ius;
             this._IFS = ifs;
             this.IPS = ips;
@@ -65,6 +67,41 @@ namespace LinkifyPLL.Controllers
             {
                 ViewBag.CurrentUserAvatar = "/imgs/Account/default.png";
             }
+            // --- Prepare RightSide Data ---
+            var suggestions = await _IFS.GetPeopleYouMayKnowAsync(userId);
+            var connectionList = suggestions
+                .Take(3)
+                .Select(u => new RightSideConnection
+                {
+                    Id = u.Id,
+                    ImgPath = u.ImgPath ?? "/imgs/Account/default.png",
+                    Title = u.Title,
+                    Name = u.UserName
+                })
+                .ToList();
+
+            var jobs = await _jobService.GetAllJobsAsync();
+            var jobList = jobs
+                .Take(3)
+                .Select(job => new RightSideJob
+                {
+                    Id = job.Id,
+                    Title = job.Title,
+                    Company = job.Company,
+                    Location = job.Location,
+                    Salary = job.SalaryRange,
+                    Presence = job.Presence ?? JobPresence.Onsite
+                })
+                .ToList();
+
+            var rightSideModel = new RightSide
+            {
+                Connections = connectionList,
+                Jobs = jobList
+            };
+
+            // Store in ViewData
+            ViewData["RightSideData"] = rightSideModel;
 
             List<PostMV> HomePosts = new List<PostMV>();
             var posts = (await IPS.GetRecentPostsAsync()).ToList();
@@ -326,5 +363,9 @@ namespace LinkifyPLL.Controllers
             }).ToList();
             return View(model);
         }
+
+        
+
+
     }
 }

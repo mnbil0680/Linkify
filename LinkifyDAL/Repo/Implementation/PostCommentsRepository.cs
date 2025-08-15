@@ -71,7 +71,7 @@ namespace LinkifyDAL.Repo.Implementation
             if (postId <= 0)
                 throw new ArgumentException("Invalid post ID", nameof(postId));
             var query = _context.PostComments
-                .Where(c => c.PostId == postId && c.ParentCommentId == null);
+                .Where(c => c.PostId == postId);
             if (!includeDeleted)
             {
                 query = query.Where(c => !c.IsDeleted);
