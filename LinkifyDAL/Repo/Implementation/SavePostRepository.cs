@@ -63,8 +63,10 @@ namespace LinkifyDAL.Repo.Implementation
         public async Task<IEnumerable<SavePost>> GetSavedPostsByUserIdAsync(string userId, bool includeArchived = false)
         {
             var query = _context.SavePosts
-                .Include(sp => sp.Post)
-                .Where(sp => sp.UserId == userId);
+                        .Include(sp => sp.Post)
+                        .ThenInclude(p => p.User)
+                        .Include(sp => sp.User)
+                         .Where(sp => sp.UserId == userId);
 
             if (!includeArchived)
             {
@@ -77,6 +79,8 @@ namespace LinkifyDAL.Repo.Implementation
         {
             return await _context.SavePosts
                 .Include(sp => sp.Post)
+                .ThenInclude(p => p.User) // If you need the post's user info
+                .Include(sp => sp.User)      // The user who saved the post
                 .Where(sp => sp.UserId == userId && sp.IsArchived)
                 .ToListAsync();
         }
@@ -88,7 +92,7 @@ namespace LinkifyDAL.Repo.Implementation
         public async Task<bool> IsPostArchivedByUserAsync(int postId, string userId)
         {
             return await _context.SavePosts
-                .AnyAsync(sp => sp.PostId == postId && sp.UserId == userId && sp.IsArchived);
+                .AnyAsync(sp => ((sp.PostId == postId) && (sp.UserId == userId) && (sp.IsArchived) ));
         }
         public async Task<int> GetSavedPostCountAsync(int postId)
         {

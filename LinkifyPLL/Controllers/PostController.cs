@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using SempaBLL.Helper;
+using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
 
@@ -22,13 +23,15 @@ namespace LinkifyPLL.Controllers
         private readonly IPostCommentsService _postCommentService;
         private readonly ICommentReactionsService _commentReactionService;
         private readonly ISavePostService _savePostService;
+        private readonly ISharePostService _sharePostService;
         private readonly UserManager<User> _userManager;
 
-        public PostController(ILogger<HomeController> logger, IPostService postService, IPostImagesService postImageService, 
+        public PostController(ILogger<HomeController> logger, IPostService postService, IPostImagesService postImageService,
                               IPostReactionsService postReactionService, IPostCommentsService postCommentService, ICommentReactionsService commentReaction,
-        UserManager<User> userManager, ISavePostService savePostService)
+        UserManager<User> userManager, ISavePostService savePostService, ISharePostService SharePostService)
         {
             _logger = logger;
+            _sharePostService = SharePostService;
             _savePostService = savePostService;
             _postService = postService;
             _postImageService = postImageService;
@@ -42,14 +45,14 @@ namespace LinkifyPLL.Controllers
             return View();
         }
         [HttpGet]
-        public async Task <IActionResult> CreatePost()
+        public async Task<IActionResult> CreatePost()
         {
 
-            return View("~/Views/Post/CreatePost.cshtml");     
+            return View("~/Views/Post/CreatePost.cshtml");
         }
 
 
-        
+
         [HttpPost]
         public async Task<IActionResult> CreatePost(PostCreateMV model)
         {
@@ -71,13 +74,13 @@ namespace LinkifyPLL.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            
-               var post =   await _postService.CreatePostAsync(user.Id, model.TextContent);
-            
+
+            var post = await _postService.CreatePostAsync(user.Id, model.TextContent);
+
 
 
             // Get current user
-            
+
 
 
             if (model.Images != null && model.Images.Any())
@@ -86,7 +89,7 @@ namespace LinkifyPLL.Controllers
                 {
                     if (img != null && img.Length > 0)
                     {
-                        string imgPath =  FileManager.UploadFile("Files", img);
+                        string imgPath = FileManager.UploadFile("Files", img);
                         PostImages imgy = new PostImages(imgPath, post.Id);
                         await _postImageService.AddPostImageAsync(imgy);
 
@@ -98,7 +101,7 @@ namespace LinkifyPLL.Controllers
             await _postService.CreatePostAsync(user.Id, model.TextContent);
 
             // Redirect to a success page or another action
-            return RedirectToAction("Index" , "Home");
+            return RedirectToAction("Index", "Home");
 
 
 
@@ -191,9 +194,9 @@ namespace LinkifyPLL.Controllers
         }
 
 
-       
 
-        
+
+
         [HttpPost("api/posts/{postId}/comments")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCommentApi(int postId, [FromBody] CreateCommentRequest request)
@@ -223,9 +226,9 @@ namespace LinkifyPLL.Controllers
                 {
                     id = comment.Id,
                     authorName = user.UserName,
-                    authorAvatar = user.ImgPath ?? "/images/default-avatar.png",
+                    authorAvatar = user.ImgPath ?? "/imgs/Account/default.png",
                     content = comment.Content,
-                    timeAgo = "now",
+                    timeAgo = DateTime.Now - comment.CreatedOn,
                     reactions = new List<object>()
                 };
 
@@ -333,7 +336,7 @@ namespace LinkifyPLL.Controllers
         }
 
 
-        
+
 
         [HttpPost("api/posts/{postId}/reaction")]
         [ValidateAntiForgeryToken]
@@ -498,7 +501,121 @@ namespace LinkifyPLL.Controllers
             public int PostId { get; set; }
         }
 
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> SavedPost(string userId)
+        {
+
+            List<SavePost> Save_Posts = (List<SavePost>)await _savePostService.GetSavedPostsByUserIdAsync(userId);
+            List<SavePost> Archive_Posts = (List<SavePost>)await _savePostService.GetArchivedSavedPostsAsync(userId);
+            List<SavePost> Posts = Save_Posts.Concat(Archive_Posts).ToList();
+            List <SavedPostMV> SavedPosts = new List<SavedPostMV>();
+            foreach (var post in Posts)
+            {
+                if (post == null || post.User == null || post.Post == null)
+                    continue; // or handle/log the error as needed
+
+                var SingleSavedPost = new SavedPostMV
+                {
+                    postId = post.Id,
+                    PostUserName = post.User.UserName,
+                    PostUserId = post.UserId,
+                    PostUserTitle = post.User.Title,
+                    PostUserImg = post.User.ImgPath ?? "~/imgs/Account/default.png",
+                    IsSavedByCurrentUser = await _savePostService.IsPostSavedByUserAsync(post.Id, post.UserId),
+                    IsEdited = (post.Post.UpdatedOn != null ? true : false),
+                    CreatedAt = post.Post.CreatedOn,
+                    IsPremiumUser = false,
+                    IsVerified = true,
+                    IsArchived = await _savePostService.IsPostArchivedByUserAsync(post.PostId, post.UserId),
+                    TextContent = post.Post.TextContent,
+                    IsDelted = post.Post.IsDeleted,
+                    Since = DateTime.Now - post.Post.CreatedOn,
+                    CommentsCount = await _postCommentService.GetCommentCountForPostAsync(post.Id),
+                    NumberOfShares = await _sharePostService.GetPostShareCountAsync(post.Id),
+
+
+
+                    LikeCount = await _postReactionService.GetReactionCountAsync(post.Id, ReactionTypes.Like),
+                    LoveCount = await _postReactionService.GetReactionCountAsync(post.Id, ReactionTypes.Love),
+                    LaughCount = await _postReactionService.GetReactionCountAsync(post.Id, ReactionTypes.Haha),
+                    SadCount = await _postReactionService.GetReactionCountAsync(post.Id, ReactionTypes.Sad),
+                    AngryCount = await _postReactionService.GetReactionCountAsync(post.Id, ReactionTypes.Angry),
+                    ReactionCount = await _postReactionService.GetReactionCountAsync(post.Id),
+                    imageCount = await _postImageService.GetImageCountForPostAsync(post.Id)
+
+                };
+
+                // imgs
+                var gettingImgs = await _postImageService.GetImageByPostIdAsync(post.Id);
+
+                foreach (var img in gettingImgs)
+                {
+                    SingleSavedPost.Images.Add(img.ImagePath);
+                }
+
+
+
+                // Comments
+                var gettingComments = await _postCommentService.GetCommentsForPostAsync(post.Id);
+                List<CommentCreateMV> Comments = new List<CommentCreateMV>();
+                foreach (var comment in gettingComments)
+                {
+                    var commentCreate = new CommentCreateMV(
+                         isEdited: comment.UpdatedOn != null,
+                         createdAt: comment.CreatedOn,
+                         authorName: comment.User?.UserName ?? "",
+                         authorAvatar: comment.User?.ImgPath ?? "~/imgs/Account/default.png",
+                         commentId: comment.Id,
+                         postId: comment.PostId,
+                         textContent: comment.Content,
+                         imagePath: comment.ImgPath,
+                         parentCommentId: comment.ParentCommentId,
+                         commenterId: comment.CommenterId
+                    );
+                    if (commentCreate != null)
+                    {
+                        Comments.Add(commentCreate);
+                    }
+                }
+
+
+                var gettingPostReactions = await _postReactionService.GetReactionsByPostAsync(post.Id);
+
+                List<PostReactionMV>  Reactions = new List<PostReactionMV>();
+                foreach (var reaction in gettingPostReactions)
+                {
+                    var postReactionMV = new PostReactionMV
+                    {
+                        Id = reaction.Id,
+                        PostId = reaction.PostId,
+                        ReactorId = reaction.ReactorId,
+                        ReactorUserName = reaction.Reactor?.UserName, // null-safe
+                        Reaction = reaction.Reaction.ToString(),
+                        IsDeleted = reaction.IsDeleted,
+                        CreatedOn = reaction.CreatedOn
+                    };
+
+                    if (postReactionMV !=null)
+                    {
+                        Reactions.Add(postReactionMV);
+                    }
+                }
+
+
+
+
+                SavedPosts.Add(SingleSavedPost);
+
+
+
+
+            }
+            return View(SavedPosts);
+            //return View("~/Views/Post/SavedPost2.cshtml", SavedPosts);
+        }
+
 
     }
 
-}
+}   
