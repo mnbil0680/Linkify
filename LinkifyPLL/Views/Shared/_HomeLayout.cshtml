@@ -68,8 +68,8 @@
         @await Html.PartialAsync("_LeftSidebarPartial", user)
         <!-- Main Feed -->
         <main class="main-feed" id="main-content" role="main" aria-label="Main content">
-            <a type="button" class="btn btn-primary" asp-action="CreatePost" asp-controller="Post" formmethod="get">
-                <i class="fas fa-plus me-2"></i>Create Post
+            <a type="button" class="connect-btn" asp-action="CreatePost" asp-controller="Post" formmethod="get" style="width: 80%; position: sticky;top: 7px;left: 4.4vw;">
+                Create Post
             </a>
 
             @await Html.PartialAsync("_CreatePostModal")
