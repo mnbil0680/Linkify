@@ -1,4 +1,6 @@
 ﻿@* Views/Shared/_RightSidePartial.cshtml *@
+@model RightSide
+
 <aside class="right-sidebar">
     <!-- People You May Know Widget -->
     <div class="widget">
@@ -9,32 +11,34 @@
             </a>
         </h3>
 
-        <div class="suggestion-item">
-            <div class="suggestion-avatar">AL</div>
-            <div style="flex: 1">
-                <h4>Alice Lee</h4>
-                <p>Data Scientist</p>
-            </div>
-            <button class="connect-btn">Connect</button>
-        </div>
-
-        <div class="suggestion-item">
-            <div class="suggestion-avatar">RB</div>
-            <div style="flex: 1">
-                <h4>Robert Brown</h4>
-                <p>Marketing Manager</p>
-            </div>
-            <button class="connect-btn">Connect</button>
-        </div>
-
-        <div class="suggestion-item">
-            <div class="suggestion-avatar">EW</div>
-            <div style="flex: 1">
-                <h4>Emma Wilson</h4>
-                <p>Frontend Developer</p>
-            </div>
-            <button class="connect-btn">Connect</button>
-        </div>
+        @if (Model.Connections != null && Model.Connections.Any())
+        {
+            foreach (var c in Model.Connections)
+            {
+                <div class="suggestion-item">
+                    <div class="suggestion-avatar">
+                        @if (!string.IsNullOrEmpty(c.ImgPath))
+                        {
+                            <img src="@c.ImgPath" alt="@c.Name" style="width: 40px; height: 40px; border-radius: 50%;" />
+                        }
+                        else
+                        {
+                            <!-- Show initials if no image -->
+                            @c.Name.Substring(0, 1).ToUpper()
+                        }
+                    </div>
+                    <div style="flex: 1">
+                        <h4>@c.Name</h4>
+                        <p>@c.Title</p>
+                    </div>
+                    <button class="connect-btn" data-user-id="@c.Id">Connect</button>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No suggestions available</p>
+        }
 
         <a href="/Home/PeopleYouMayKnow" class="widget-action">
             <i class="fas fa-users"></i>
@@ -49,42 +53,28 @@
             Job Recommendations
         </h3>
 
-        <div class="job-item">
-            <h4 class="job-title">Senior Developer</h4>
-            <p class="job-company">TechCorp Inc.</p>
-            <div class="job-details">
-                <i class="fas fa-map-marker-alt"></i>
-                <span>Remote • $80k-$120k</span>
-            </div>
-        </div>
+        @if (Model.Jobs != null && Model.Jobs.Any())
+        {
+            foreach (var job in Model.Jobs)
+            {
+                <div class="job-item">
+                    <h4 class="job-title">@job.Title</h4>
+                    <p class="job-company">@job.Company</p>
+                    <div class="job-details">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>@job.Location • @job.Salary</span>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No jobs available</p>
+        }
 
-        <div class="job-item">
-            <h4 class="job-title">UX Designer</h4>
-            <p class="job-company">DesignStudio</p>
-            <div class="job-details">
-                <i class="fas fa-map-marker-alt"></i>
-                <span>New York • $70k-$95k</span>
-            </div>
-        </div>
-
-        <a href="/Jobs" class="widget-action">
+        <a href="/Job/FindJobs" class="widget-action">
             <i class="fas fa-search"></i>
             Browse All Jobs
         </a>
     </div>
-
-    <!-- Trending Topics Widget (Optional) -->
-   @*  <div class="widget">
-        <h3 class="widget-title">
-            <i class="fas fa-trending-up"></i>
-            Trending Topics
-        </h3>
-
-        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-            <span class="skill-tag" style="font-size: 11px; padding: 6px 12px;">React</span>
-            <span class="skill-tag" style="font-size: 11px; padding: 6px 12px;">AI/ML</span>
-            <span class="skill-tag" style="font-size: 11px; padding: 6px 12px;">DevOps</span>
-            <span class="skill-tag" style="font-size: 11px; padding: 6px 12px;">Web3</span>
-        </div>
-    </div> *@
 </aside>
