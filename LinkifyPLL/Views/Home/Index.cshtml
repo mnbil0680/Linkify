@@ -1389,10 +1389,11 @@
                                                 <div class="comment-author">@comment.AuthorName</div>
                                                 <div class="comment-text">
                                                     @comment.TextContent
-                                                    @if (comment.IsEdited)
-                                                    {
-                                                        <small class="text-muted ms-1">(edited)</small>
-                                                    }
+
+                                                    @* @if (comment.IsEdited) *@
+                                                    @* { *@
+                                                    @*     <small class="text-muted ms-1">(edited)</small> *@
+                                                    @* } *@
                                                 </div>
 
                                             </div>
@@ -2045,8 +2046,11 @@
                      function createCommentHTML(comment) {
             return `
                 <div class="comment-item" data-comment-id="${comment.id}">
-                    <img src="${comment.authorAvatar}" alt="${comment.authorName}" class="comment-avatar" loading="lazy" />
-                    <div class="comment-content">
+        <img src="${comment.authorAvatar}"
+                         alt="${comment.authorName}"
+                         class="comment-avatar"
+                         loading="lazy"
+                         onerror="this.src='/imgs/Account/default.png'" />                    <div class="comment-content">
                         <div class="comment-bubble">
                             <div class="comment-author">${comment.authorName}</div>
                             <div class="comment-text">${comment.content}</div>
@@ -2699,10 +2703,13 @@
 
         function saveCommentEdit(commentId) {
             const commentBubble = document.querySelector(`[data-comment-id="${commentId}"] .comment-bubble`);
+            const editCommentInput = commentBubble.querySelector('.edit-comment-input');
             const newContent = commentBubble.querySelector('.edit-comment-input').value.trim();
 
             if (!newContent) {
                 showToast('Comment cannot be empty', 'error');
+                editCommentInput.style.border = '2px solid var(--danger-red)';
+                editCommentInput.focus();
                 return;
             }
 

@@ -728,12 +728,27 @@ namespace LinkifyPLL.Controllers
                 else
                     return BadRequest(new { success = false, message = "Invalid reaction type" });
 
-
-                await _commentReactionService.ToggleReactionAsync(
-                    model.CommentId,
-                    model.UserId,
-                   reactionType
-                );
+                List<CommentReactions> list_reaction = (List<CommentReactions>)await _commentReactionService.GetReactionsByCommentAsync(commentId);
+                
+                // Reaction and ReactorId and CommentId
+                foreach (var r in list_reaction)
+                {
+                    if( !(
+                    r.Reaction == reactionType
+                    && r.ReactorId == model.UserId
+                    && r.CommentId == model.CommentId
+                    )
+                    )
+                    {
+                        await _commentReactionService.ToggleReactionAsync(
+                   model.CommentId,
+                   model.UserId,
+                  reactionType
+               );
+                    }
+                }
+   
+                
 
                 var reactions = await _commentReactionService.GetReactionsByCommentAsync(commentId);
                 var activeReactions = reactions.Where(r => !r.IsDeleted).ToList();
