@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using SempaBLL.Helper;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -477,6 +478,78 @@ namespace LinkifyPLL.Controllers
             public string ReactionType { get; set; }
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RestorePost([FromBody] RestorePostRequest request)
+        {
+            try
+            {
+                if (request == null || request.PostId <= 0)
+                {
+                    return Json(new { success = false, message = "Invalid request" });
+                }
+
+                // Get the current user ID
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Json(new { success = false, message = "User not authenticated" });
+                }
+
+                // Call the service to restore the post
+                await _savePostService.RestoreAsync(request.PostId);
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        public class RestorePostRequest
+        {
+            public int PostId { get; set; }
+        }
+
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ArchivePost([FromBody] ArchivePostRequest request)
+        {
+            try
+            {
+                if (request == null || request.PostId <= 0)
+                {
+                    return Json(new { success = false, message = "Invalid request" });
+                }
+
+                // Get the current user ID
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Json(new { success = false, message = "User not authenticated" });
+                }
+
+                // Call the service to archive the post
+                await _savePostService.ArchiveAsync(request.PostId);
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        public class ArchivePostRequest
+        {
+            public int PostId { get; set; }
+        }
+
+
 
         [HttpPost]
         public async Task<IActionResult> SavePost([FromBody] SavePostRequest request)
@@ -495,6 +568,7 @@ namespace LinkifyPLL.Controllers
                 return Json(new { success = true, isSaved = true });
             }
         }
+
         public class SavePostRequest
         {
             public string UserId { get; set; }
@@ -521,7 +595,7 @@ namespace LinkifyPLL.Controllers
                     PostUserName = post.User.UserName,
                     PostUserId = post.UserId,
                     PostUserTitle = post.User.Title,
-                    PostUserImg = post.User.ImgPath ?? "~/imgs/Account/default.png",
+                    PostUserImg = post.User.ImgPath ?? "/imgs/Account/default.png",
                     IsSavedByCurrentUser = await _savePostService.IsPostSavedByUserAsync(post.Id, post.UserId),
                     IsEdited = (post.Post.UpdatedOn != null ? true : false),
                     CreatedAt = post.Post.CreatedOn,
@@ -547,60 +621,74 @@ namespace LinkifyPLL.Controllers
                 };
 
                 // imgs
-                var gettingImgs = await _postImageService.GetImageByPostIdAsync(post.Id);
+                SingleSavedPost.Images = new List<string>();
 
+                // Get images for this post
+                var gettingImgs = await _postImageService.GetImageByPostIdAsync(post.PostId);
                 foreach (var img in gettingImgs)
                 {
                     SingleSavedPost.Images.Add(img.ImagePath);
                 }
 
 
-
                 // Comments
-                var gettingComments = await _postCommentService.GetCommentsForPostAsync(post.Id);
-                List<CommentCreateMV> Comments = new List<CommentCreateMV>();
+                // Initialize the Comments property in SingleSavedPost
+                SingleSavedPost.Comments = new List<CommentCreateMV>();
+
+                // Get and map comments
+                var gettingComments = await _postCommentService.GetCommentsForPostAsync(post.PostId);
                 foreach (var comment in gettingComments)
                 {
-                    var commentCreate = new CommentCreateMV(
-                         isEdited: comment.UpdatedOn != null,
-                         createdAt: comment.CreatedOn,
-                         authorName: comment.User?.UserName ?? "",
-                         authorAvatar: comment.User?.ImgPath ?? "~/imgs/Account/default.png",
-                         commentId: comment.Id,
-                         postId: comment.PostId,
-                         textContent: comment.Content,
-                         imagePath: comment.ImgPath,
-                         parentCommentId: comment.ParentCommentId,
-                         commenterId: comment.CommenterId
-                    );
-                    if (commentCreate != null)
+                    if (comment != null)
                     {
-                        Comments.Add(commentCreate);
+                        var commentCreate = new CommentCreateMV(
+                             isEdited: comment.UpdatedOn != null,
+                             createdAt: comment.CreatedOn,
+                             authorName: comment.User?.UserName ?? "",
+                             authorAvatar: comment.User?.ImgPath ?? "~/imgs/Account/default.png",
+                             commentId: comment.Id,
+                             postId: comment.PostId,
+                             textContent: comment.Content,
+                             imagePath: comment.ImgPath,
+                             parentCommentId: comment.ParentCommentId,
+                             commenterId: comment.CommenterId
+                        );
+
+                        // Add directly to the SingleSavedPost.Comments collection
+                        SingleSavedPost.Comments.Add(commentCreate);
                     }
                 }
 
+                // Update comment count based on the actual comments added
+                SingleSavedPost.CommentsCount = SingleSavedPost.Comments.Count;
 
-                var gettingPostReactions = await _postReactionService.GetReactionsByPostAsync(post.Id);
 
-                List<PostReactionMV>  Reactions = new List<PostReactionMV>();
+
+                // Initialize the Reactions property in SingleSavedPost
+                SingleSavedPost.Reactions = new List<PostReactionMV>();
+
+                // Get and map reactions
+                var gettingPostReactions = await _postReactionService.GetReactionsByPostAsync(post.PostId);
                 foreach (var reaction in gettingPostReactions)
                 {
-                    var postReactionMV = new PostReactionMV
+                    if (reaction != null)
                     {
-                        Id = reaction.Id,
-                        PostId = reaction.PostId,
-                        ReactorId = reaction.ReactorId,
-                        ReactorUserName = reaction.Reactor?.UserName, // null-safe
-                        Reaction = reaction.Reaction.ToString(),
-                        IsDeleted = reaction.IsDeleted,
-                        CreatedOn = reaction.CreatedOn
-                    };
+                        var postReactionMV = new PostReactionMV
+                        {
+                            Id = reaction.Id,
+                            PostId = reaction.PostId,
+                            ReactorId = reaction.ReactorId,
+                            ReactorUserName = reaction.Reactor?.UserName, // null-safe
+                            Reaction = reaction.Reaction.ToString(),
+                            IsDeleted = reaction.IsDeleted,
+                            CreatedOn = reaction.CreatedOn
+                        };
 
-                    if (postReactionMV !=null)
-                    {
-                        Reactions.Add(postReactionMV);
+                        // Add directly to the SingleSavedPost.Reactions collection
+                        SingleSavedPost.Reactions.Add(postReactionMV);
                     }
                 }
+
 
 
 
