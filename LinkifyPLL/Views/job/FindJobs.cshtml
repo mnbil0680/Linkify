@@ -15,319 +15,319 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-            min-height: 100vh;
-            padding: 20px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+        min-height: 100vh;
+        padding: 20px;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            margin-top: 1rem
+        max-width: 1200px;
+        margin: 0 auto;
+        margin-top: 1rem
         }
 
         .header {
-            text-align: center;
-            margin-bottom: 40px;
-            color: white;
+        text-align: center;
+        margin-bottom: 40px;
+        color: white;
         }
 
-            .header h1 {
-                font-size: 3rem;
-                font-weight: 700;
-                margin-bottom: 8px;
-                letter-spacing: -0.025em;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            }
+        .header h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        letter-spacing: -0.025em;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
 
-            .header p {
-                font-size: 1.2rem;
-                opacity: 0.9;
-                font-weight: 400;
-            }
+        .header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        font-weight: 400;
+        }
 
         .search-section {
-            background: white;
-            border-radius: 24px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
+        background: white;
+        border-radius: 24px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
         }
 
         .search-form {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr auto;
-            gap: 15px;
-            align-items: end;
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr auto;
+        gap: 15px;
+        align-items: end;
         }
 
         .search-group {
-            display: flex;
-            flex-direction: column;
+        display: flex;
+        flex-direction: column;
         }
 
-            .search-group label {
-                font-size: 0.875rem;
-                font-weight: 600;
-                color: #374151;
-                margin-bottom: 8px;
-                display: flex;
-                align-items: center;
-                gap: 6px;
-            }
+        .search-group label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        }
 
-            .search-group input,
-            .search-group select {
-                padding: 14px 18px;
-                border: 2px solid #e5e7eb;
-                border-radius: 12px;
-                font-size: 1rem;
-                transition: all 0.2s;
-                background: white;
-                color: #374151;
-            }
+        .search-group input,
+        .search-group select {
+        padding: 14px 18px;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.2s;
+        background: white;
+        color: #374151;
+        }
 
-                .search-group input:focus,
-                .search-group select:focus {
-                    outline: none;
-                    border-color: #6366f1;
-                    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-                }
+        .search-group input:focus,
+        .search-group select:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
 
         .search-btn {
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            color: white;
-            border: none;
-            padding: 14px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            height: fit-content;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: white;
+        border: none;
+        padding: 14px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: fit-content;
         }
 
-            .search-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
-            }
+        .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
 
         .filters-bar {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 20px 25px;
-            margin-bottom: 25px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 20px 25px;
+        margin-bottom: 25px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
 
         .filters-row {
-            display: flex;
-            align-items: center;
-            gap: 25px;
-            flex-wrap: wrap;
+        display: flex;
+        align-items: center;
+        gap: 25px;
+        flex-wrap: wrap;
         }
 
         .filter-section {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
         }
 
         .filter-label {
-            font-weight: 600;
-            color: #374151;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
         }
 
         .filter-buttons {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
         }
 
         .filter-button {
-            padding: 8px 16px;
-            border: 1.5px solid #e5e7eb;
-            border-radius: 20px;
-            background: white;
-            color: #6b7280;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 500;
-            text-decoration: none;
+        padding: 8px 16px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 20px;
+        background: white;
+        color: #6b7280;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 500;
+        text-decoration: none;
         }
 
-            .filter-button.active {
-                background: #6366f1;
-                color: white;
-                border-color: #6366f1;
-            }
+        .filter-button.active {
+        background: #6366f1;
+        color: white;
+        border-color: #6366f1;
+        }
 
-            .filter-button:hover:not(.active) {
-                border-color: #6366f1;
-                color: #6366f1;
-            }
+        .filter-button:hover:not(.active) {
+        border-color: #6366f1;
+        color: #6366f1;
+        }
 
         .results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        color: white;
         }
 
         .results-count {
-            font-size: 1.1rem;
-            opacity: 0.9;
+        font-size: 1.1rem;
+        opacity: 0.9;
         }
 
         .sort-dropdown {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        backdrop-filter: blur(10px);
         }
 
-            .sort-dropdown option {
-                background: #6366f1;
-                color: white;
-            }
+        .sort-dropdown option {
+        background: #6366f1;
+        color: white;
+        }
 
         .jobs-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 25px;
-            animation: fadeIn 0.6s ease-out;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 25px;
+        animation: fadeIn 0.6s ease-out;
         }
 
         @@keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
         }
 
         .job-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-            position: relative;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        position: relative;
         }
 
-            .job-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
-                background: white;
-            }
+        .job-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+        background: white;
+        }
 
         .job-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
-            margin-bottom: 16px;
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 16px;
         }
 
         .job-icon {
-            width: 56px;
-            height: 56px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 1.2rem;
-            flex-shrink: 0;
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.2rem;
+        flex-shrink: 0;
         }
 
         .job-title-section {
-            flex: 1;
+        flex: 1;
         }
 
         .job-title {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: #111827;
-            margin-bottom: 4px;
-            line-height: 1.3;
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 4px;
+        line-height: 1.3;
         }
 
         .job-company {
-            color: #6b7280;
-            font-size: 1rem;
-            font-weight: 500;
+        color: #6b7280;
+        font-size: 1rem;
+        font-weight: 500;
         }
 
         .job-actions {
-            display: flex;
-            gap: 8px;
+        display: flex;
+        gap: 8px;
         }
 
         .action-btn {
-            background: none;
-            border: 2px solid #e5e7eb;
-            color: #6b7280;
-            padding: 8px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 1.1rem;
+        background: none;
+        border: 2px solid #e5e7eb;
+        color: #6b7280;
+        padding: 8px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 1.1rem;
         }
 
-            .action-btn:hover {
-                border-color: #6366f1;
-                color: #6366f1;
-            }
+        .action-btn:hover {
+        border-color: #6366f1;
+        color: #6366f1;
+        }
 
-            .action-btn.saved {
-                background: #6366f1;
-                border-color: #6366f1;
-                color: white;
-            }
+        .action-btn.saved {
+        background: #6366f1;
+        border-color: #6366f1;
+        color: white;
+        }
 
         .job-meta {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
         }
 
         .job-meta-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.875rem;
-            color: #6b7280;
-            background: #f9fafb;
-            padding: 6px 12px;
-            border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.875rem;
+        color: #6b7280;
+        background: #f9fafb;
+        padding: 6px 12px;
+        border-radius: 12px;
         }
 
-            .job-meta-item i {
-                font-size: 0.8rem;
-            }
+        .job-meta-item i {
+        font-size: 0.8rem;
+        }
 
         .location-icon { color: #ef4444; }
         .type-icon { color: #059669; }
@@ -335,190 +335,190 @@
         .time-icon { color: #7c3aed; }
 
         .job-description {
-            color: #4a5568;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+        color: #4a5568;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
         }
 
         .job-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 20px;
         }
 
         .job-tag {
-            background: rgba(99, 102, 241, 0.1);
-            color: #6366f1;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
         }
 
         .job-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 16px;
-            border-top: 1px solid #f3f4f6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 16px;
+        border-top: 1px solid #f3f4f6;
         }
 
         .job-salary {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #111827;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #111827;
         }
 
         .job-buttons {
-            display: flex;
-            gap: 10px;
+        display: flex;
+        gap: 10px;
         }
 
         .apply-btn {
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
         }
 
-            .apply-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-            }
+        .apply-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
 
         .save-btn {
-            background: rgba(99, 102, 241, 0.1);
-            color: #6366f1;
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        padding: 12px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
         }
 
-            .save-btn:hover {
-                background: rgba(99, 102, 241, 0.2);
-                transform: translateY(-2px);
-            }
+        .save-btn:hover {
+        background: rgba(99, 102, 241, 0.2);
+        transform: translateY(-2px);
+        }
 
-            .save-btn.saved {
-                background: #10b981;
-                color: white;
-                border-color: #10b981;
-            }
+        .save-btn.saved {
+        background: #10b981;
+        color: white;
+        border-color: #10b981;
+        }
 
         .no-results {
-            text-align: center;
-            color: white;
-            padding: 60px 20px;
+        text-align: center;
+        color: white;
+        padding: 60px 20px;
         }
 
-            .no-results i {
-                font-size: 4rem;
-                margin-bottom: 16px;
-                opacity: 0.6;
-            }
+        .no-results i {
+        font-size: 4rem;
+        margin-bottom: 16px;
+        opacity: 0.6;
+        }
 
-            .no-results h3 {
-                font-size: 1.5rem;
-                margin-bottom: 8px;
-            }
+        .no-results h3 {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+        }
 
-            .no-results p {
-                opacity: 0.8;
-                margin-bottom: 24px;
-            }
+        .no-results p {
+        opacity: 0.8;
+        margin-bottom: 24px;
+        }
 
         .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-top: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 40px;
         }
 
         .page-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 10px 16px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 10px 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
         }
 
-            .page-btn:hover {
-                background: rgba(255, 255, 255, 0.2);
-            }
+        .page-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        }
 
-            .page-btn.active {
-                background: white;
-                color: #6366f1;
-            }
+        .page-btn.active {
+        background: white;
+        color: #6366f1;
+        }
 
         .posted-time {
-            font-size: 0.8rem;
-            color: #9ca3af;
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 4px 8px;
-            border-radius: 12px;
+        font-size: 0.8rem;
+        color: #9ca3af;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 4px 8px;
+        border-radius: 12px;
         }
 
         @@media (max-width: 768px) {
-            .search-form {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
+        .search-form {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        }
 
-            .jobs-grid {
-                grid-template-columns: 1fr;
-            }
+        .jobs-grid {
+        grid-template-columns: 1fr;
+        }
 
-            .filters-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
+        .filters-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        }
 
-            .header h1 {
-                font-size: 2rem;
-            }
+        .header h1 {
+        font-size: 2rem;
+        }
 
-            .job-meta {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
+        .job-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        }
 
-            .job-buttons {
-                flex: 1;
-            }
+        .job-buttons {
+        flex: 1;
+        }
 
-            .apply-btn,
-            .save-btn {
-                flex: 1;
-                text-align: center;
-            }
+        .apply-btn,
+        .save-btn {
+        flex: 1;
+        text-align: center;
+        }
         }
     </style>
 </head>
 <body>
     <partial name="_NavPartial" />
-    
+
     <div class="container">
         <div class="header">
             <h1>Find Your Dream Job</h1>
@@ -554,15 +554,15 @@
                     <span class="filter-label">Type:</span>
                     <div class="filter-buttons">
                         <a href="@Url.Action("FindJobs", new { type = "", location = Model?.Location, keyword = Model?.Keyword })" 
-                           class="filter-button @(!Model?.Type.HasValue ?? true ? " active" : "" )">All</a>
+                        class="filter-button @(!Model?.Type.HasValue ?? true ? " active" : "" )">All</a>
                         <a href="@Url.Action("FindJobs", new { type = "FullTime", location = Model?.Location, keyword = Model?.Keyword })" 
-                           class="filter-button @(Model?.Type == JobTypes.FullTime ? "active" : "")">Full-time</a>
+                        class="filter-button @(Model?.Type == JobTypes.FullTime ? "active" : "")">Full-time</a>
                         <a href="@Url.Action("FindJobs", new { type = "PartTime", location = Model?.Location, keyword = Model?.Keyword })" 
-                           class="filter-button @(Model?.Type == JobTypes.PartTime ? "active" : "")">Part-time</a>
+                        class="filter-button @(Model?.Type == JobTypes.PartTime ? "active" : "")">Part-time</a>
                         <a href="@Url.Action("FindJobs", new { type = JobTypes.Contract, location = Model?.Location, keyword = Model?.Keyword })" 
-                           class="filter-button @(Model?.Type == JobTypes.Contract ? "active" : "")">Contract</a>
+                        class="filter-button @(Model?.Type == JobTypes.Contract ? "active" : "")">Contract</a>
                         <a href="@Url.Action("FindJobs", new { type = "Internship", location = Model?.Location, keyword = Model?.Keyword })" 
-                           class="filter-button @(Model?.Type == JobTypes.Internship ? "active" : "")">Internship</a>
+                        class="filter-button @(Model?.Type == JobTypes.Internship ? "active" : "")">Internship</a>
                     </div>
                 </div>
 
@@ -570,13 +570,13 @@
                     <span class="filter-label">Work:</span>
                     <div class="filter-buttons">
                         <a href="@Url.Action("FindJobs", new { presence = "", type = Model?.Type, location = Model?.Location, keyword = Model?.Keyword })" 
-                           class="filter-button @(!Model?.Type.HasValue ?? true ? "active" : "")">All</a>
+                        class="filter-button @(!Model?.Type.HasValue ?? true ? "active" : "")">All</a>
                         <a href="@Url.Action("FindJobs", new { presence = "Remote", type = Model?.Type, location = Model?.Location, keyword = Model?.Keyword })" 
-                           class="filter-button @(Model?.Presence == JobPresence.Remote ? "active" : "")">Remote</a>
+                        class="filter-button @(Model?.Presence == JobPresence.Remote ? "active" : "")">Remote</a>
                         <a href="@Url.Action("FindJobs", new { presence = "Onsite", type = Model?.Type, location = Model?.Location, keyword = Model?.Keyword })" 
-                           class="filter-button @(Model?.Presence == JobPresence.Onsite ? "active" : "")">Onsite</a>
+                        class="filter-button @(Model?.Presence == JobPresence.Onsite ? "active" : "")">Onsite</a>
                         <a href="@Url.Action("FindJobs", new { presence = "Hybrid", type = Model?.Type, location = Model?.Location, keyword = Model?.Keyword })" 
-                           class="filter-button @(Model?.Presence == JobPresence.Hybrid ? "active" : "")">Hybrid</a>
+                        class="filter-button @(Model?.Presence == JobPresence.Hybrid ? "active" : "")">Hybrid</a>
                     </div>
                 </div>
             </div>
@@ -610,7 +610,7 @@
                 {
                     <div class="job-card" data-job-id="@job.Id">
                         <div class="posted-time">@GetTimeAgo(job.CreatedOn)</div>
-                        
+
                         <div class="job-header">
                             <div class="job-icon">@GetInitials(job.Title)</div>
                             <div class="job-title-section">
@@ -648,6 +648,7 @@
                         <div class="job-footer">
                             <div class="job-salary">@job.SalaryRange</div>
                             <div class="job-buttons">
+                                
                                 @if (!job.Applied)
                                 {
                                     <!-- Apply -->

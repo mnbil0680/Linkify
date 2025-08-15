@@ -1149,25 +1149,29 @@
                     </div>
 
                     <div class="post-actions-menu">
-                        <button class="bookmark-btn @(post.IsSavedByCurrentUser ? "saved" : "")"
-                        data-post-id="@post.postId"
-                        data-saved="@post.IsSavedByCurrentUser.ToString().ToLower()"
-                        onclick="toggleBookmark(this, @post.postId)"
-                        title="@(post.IsSavedByCurrentUser ? "Remove from saved posts" : "Save post")"
-                        aria-label="@(post.IsSavedByCurrentUser ? "Remove from saved posts" : "Save post")">
-                            <i class="@(post.IsSavedByCurrentUser ? "fas fa-bookmark" : "far fa-bookmark")" aria-hidden="true"></i>
+
+                        <button 
+                            class="bookmark-btn @(post.IsSavedByCurrentUser ? "saved" : "")"
+                            data-post-id="@post.postId"
+                            data-saved="@post.IsSavedByCurrentUser.ToString().ToLower()"
+                            onclick="toggleBookmark(this, @post.postId)"
+                            title="@(post.IsSavedByCurrentUser ? "Remove from saved posts" : "Save post")"
+                            aria-label="@(post.IsSavedByCurrentUser ? "Remove from saved posts" : "Save post")">
+                            <i class="@(post.IsSavedByCurrentUser ? "fa-solid fa-bookmark" : "fa-regular fa-bookmark")" aria-hidden="true" id="save-icon-@post.postId"></i>
                         </button>
-
-                        <div class="dropdown">
-                            <button class="post-menu-btn" aria-label="Post options" data-bs-toggle="dropdown">
-                                <i class="fas fa-ellipsis-h" aria-hidden="true"></i>
-                            </button>
-
-                            <div class="dropdown-menu dropdown-menu-end">
-
+                        
+                       
+                            
 
                                 @if (currentUserId == post.PostUserId) // Owner options
                                 {
+                            <div class="dropdown">
+                                <button class="post-menu-btn" aria-label="Post options" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-h" aria-hidden="true"></i>
+                                </button>
+
+                                <div class="dropdown-menu dropdown-menu-end">
+
                                     <a class="dropdown-item"
                                        asp-controller="Post"
                                        asp-action="EditPost"
@@ -1179,14 +1183,17 @@
                                     <a class="dropdown-item text-danger" href="javascript:void(0);" onclick="confirmDeletePost(@post.postId)">
                                         <i class="fas fa-trash me-2"></i>Delete
                                     </a>
+                                    </div>
+
+                                    </div>
                                 }
-                                else // Normal user options
+                                else // Other user options
                                 {
                                     
                                 }
-                            </div>
+                            
 
-                        </div>
+                        
                     </div>
                 </header>
 
@@ -2172,44 +2179,46 @@
         // Enhanced Bookmark Functionality
         function toggleBookmark(button, postId) {
             const icon = button.querySelector('i');
-            const isSaved = button.dataset.saved === 'true';
-
+            
+            const userId = document.getElementById('currentUserId').value;
             button.classList.add('saving');
             button.disabled = true;
 
-            fetch(`/api/posts/${postId}/bookmark`, {
+            fetch(`/Post/SavePost`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'RequestVerificationToken': getAntiForgeryToken()
                 },
                 body: JSON.stringify({
-                    isSaved: !isSaved,
-                    postId: postId
+                    postId: postId,
+                    userId: userId,
+
                 })
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    const newSavedState = !isSaved;
-                    button.dataset.saved = newSavedState.toString();
-                    button.classList.toggle('saved', newSavedState);
+                    if (data.success && typeof data.isSaved === "boolean") {
+            const newSavedState = data.isSaved;
+            // button.dataset.saved = newSavedState.toString();
+            button.classList.toggle('saved', newSavedState);
 
-                    icon.className = newSavedState ? 'fas fa-bookmark' : 'far fa-bookmark';
-                    button.title = newSavedState ? 'Remove from saved posts' : 'Save post';
-                    button.setAttribute('aria-label', newSavedState ? 'Remove from saved posts' : 'Save post');
+            icon.className = newSavedState ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark';
+            button.title = newSavedState ? 'Remove from saved posts' : 'Save post';
+            button.setAttribute('aria-label', newSavedState ? 'Remove from saved posts' : 'Save post');
 
-                    button.classList.add('bookmark-animate');
-                    setTimeout(() => button.classList.remove('bookmark-animate'), 400);
+            button.classList.add('bookmark-animate');
+            setTimeout(() => button.classList.remove('bookmark-animate'), 400);
 
-                    showToast(newSavedState ? 'Post saved!' : 'Post removed from saved', 'success');
-                } else {
-                    showToast(data.message || 'Failed to update bookmark', 'error');
-                }
+            showToast(newSavedState ? 'Post saved!' : 'Post removed from saved', 'success');
+        } else {
+            showToast(newSavedState ? 'Post saved!' : 'Post removed from saved', 'success');
+        }
+
             })
             .catch(error => {
                 console.error('Bookmark error:', error);
-                showToast('Failed to update bookmark', 'error');
+            showToast(newSavedState ? 'Post saved!' : 'Post removed from saved', 'success');
             })
             .finally(() => {
                 button.classList.remove('saving');
@@ -2748,7 +2757,8 @@
             }
         }
     </script>
-
+     
+    
 
 }
 

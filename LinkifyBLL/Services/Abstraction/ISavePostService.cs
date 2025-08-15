@@ -19,5 +19,6 @@ namespace LinkifyBLL.Services.Abstraction
 
         //how many posts the user has saved
         Task<int> GetUserSavedPostCountAsync(string userId, bool includeArchived = false);
+    
     }
 }

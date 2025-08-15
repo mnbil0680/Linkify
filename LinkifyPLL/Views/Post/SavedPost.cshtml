@@ -1,0 +1,1165 @@
+﻿@model List<SavedPostMV>
+@{
+    ViewData["Title"] = "Saved Posts";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+@section Styles {
+    <style>
+        :root {
+            /* Light Mode Colors */
+            --primary-dark: #071437;
+            --primary-blue: #1b84ff;
+            --primary-yellow: #f6c000;
+            --accent-blue: #0066cc;
+            --accent-purple: #4a3c8e;
+            --accent-orange: #ff6b35;
+            --accent-green: #00d084;
+            --accent-pink: #ff4081;
+            --light-gray: #f4f4f4;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #666;
+            --white: #ffffff;
+            --text-dark: #333;
+            --text-light: #555;
+            --border-light: #e1e5e9;
+            --background-primary: #ffffff;
+            --background-secondary: #f8f9fa;
+            --shadow: 0 2px 10px rgba(7, 20, 55, 0.1);
+            --shadow-hover: 0 4px 20px rgba(27, 132, 255, 0.15);
+            --shadow-strong: 0 8px 40px rgba(7, 20, 55, 0.12);
+            /* Glass Effects */
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --backdrop-blur: blur(20px);
+        }
+
+        [data-theme="dark"] {
+            --primary-dark: #ffffff;
+            --primary-blue: #4da3ff;
+            --primary-yellow: #ffd633;
+            --accent-blue: #3399ff;
+            --accent-purple: #7b6bc4;
+            --accent-orange: #ff8c5a;
+            --accent-green: #00f5a0;
+            --accent-pink: #ff6ba3;
+            --light-gray: #1a1a1a;
+            --medium-gray: #2d2d2d;
+            --dark-gray: #a0a0a0;
+            --white: #0f0f0f;
+            --text-dark: #ffffff;
+            --text-light: #b0b0b0;
+            --border-light: #333333;
+            --background-primary: #121212;
+            --background-secondary: #1e1e1e;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 4px 20px rgba(77, 163, 255, 0.2);
+            --shadow-strong: 0 8px 40px rgba(0, 0, 0, 0.4);
+            /* Dark Glass Effects */
+            --glass-bg: rgba(18, 18, 18, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        .saved-posts-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: var(--background-primary);
+            min-height: 100vh;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .tabs-container {
+            margin-bottom: 30px;
+            background: var(--glass-bg);
+            backdrop-filter: var(--backdrop-blur);
+            border-radius: 16px;
+            padding: 6px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--glass-border);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            color: var(--text-light);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+        }
+
+            .tab-button.active {
+                background: #1c2c3c;
+                color: white;
+                box-shadow: var(--shadow-hover);
+            }
+
+            .tab-button:hover:not(.active) {
+                background: var(--light-gray);
+                color: var(--primary-blue);
+            }
+
+        .tab-content {
+            display: none;
+        }
+
+            .tab-content.active {
+                display: block;
+                animation: fadeIn 0.3s ease-in-out;
+            }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .post-card {
+            background: var(--background-primary);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-light);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .post-card:hover {
+                box-shadow: var(--shadow-hover);
+                transform: translateY(-2px);
+            }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            margin-right: 12px;
+            object-fit: cover;
+            border: 2px solid var(--primary-blue);
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .user-title {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-top: 2px;
+        }
+
+        .user-badges {
+            display: flex;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+            .badge.premium {
+                background: linear-gradient(135deg, var(--primary-yellow), #ffd633);
+                color: var(--primary-dark);
+            }
+
+            .badge.verified {
+                background: var(--accent-green);
+                color: white;
+            }
+
+            .badge.edited {
+                background: var(--accent-orange);
+                color: white;
+            }
+
+        .post-time {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            text-align: right;
+        }
+
+        .post-content {
+            margin: 16px 0;
+            line-height: 1.6;
+            color: var(--text-dark);
+        }
+
+        .post-images {
+            margin: 16px 0;
+            display: grid;
+            gap: 8px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+            .post-images.single {
+                grid-template-columns: 1fr;
+            }
+
+            .post-images.double {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .post-images.multiple {
+                grid-template-columns: 1fr 1fr;
+            }
+
+        .post-image {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+            .post-image:hover {
+                transform: scale(1.02);
+            }
+
+        .image-overlay {
+            position: relative;
+        }
+
+        .image-count {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .reactions-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .reaction-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 10px;
+            border-radius: 16px;
+            background: var(--light-gray);
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .reaction-emoji {
+            font-size: 1.1rem;
+        }
+
+        .post-stats {
+            display: flex;
+            gap: 16px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .post-controls {
+            display: flex;
+            gap: 8px;
+            position: absolute;
+            top: 16px;
+            right: 16px;
+        }
+
+        .control-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            backdrop-filter: var(--backdrop-blur);
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .control-btn:hover {
+                background: var(--primary-blue);
+                color: white;
+                transform: scale(1.1);
+            }
+
+            .control-btn.archive {
+                background: var(--accent-orange);
+                color: white;
+            }
+
+            .control-btn.restore {
+                background: var(--accent-green);
+                color: white;
+            }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            color: var(--medium-gray);
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .empty-message {
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-light);
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @@keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 768px) {
+            .saved-posts-container {
+                padding: 15px;
+            }
+
+            .post-card {
+                padding: 20px;
+                margin-bottom: 16px;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .post-images.double,
+            .post-images.multiple {
+                grid-template-columns: 1fr;
+            }
+
+            .post-actions {
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+            }
+
+            .reactions-section {
+                justify-content: center;
+            }
+
+            .post-stats {
+                justify-content: center;
+            }
+        }
+    </style>
+
+
+}
+
+<br />
+<br />
+<div class="saved-posts-container">
+    <div class="page-header">
+        <h1 class="page-title">📚 Saved Posts</h1>
+        <p class="page-subtitle">Your collection of saved memories and content</p>
+    </div>
+
+    <div class="tabs-container">
+        <div class="tabs">
+            <button class="tab-button active" data-tab="saved">
+                📌 Saved Posts
+                <span class="badge" style="margin-left: 8px; background: var(--primary-blue); color: white;">
+                    @Model.Count(p => !p.IsArchived)
+                </span>
+            </button>
+            <button class="tab-button" data-tab="archived">
+                📦 Archived
+                <span class="badge" style="margin-left: 8px; background: var(--medium-gray); color: white;">
+                    @Model.Count(p => p.IsArchived)
+                </span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Saved Posts Tab -->
+    <div id="saved-tab" class="tab-content active">
+        @{
+            var savedPosts = Model.Where(p => !p.IsArchived).ToList();
+        }
+
+        @if (savedPosts.Any())
+        {
+            @foreach (var post in savedPosts)
+            {
+                <div class="post-card">
+                    <div class="post-controls">
+                        <button class="control-btn archive" onclick="archivePost(@post.postId)" title="Archive Post">
+                            📦
+                        </button>
+                    </div>
+
+                    <div class="post-header">
+                        <img src="@(string.IsNullOrEmpty(post.PostUserImg) ? "/imgs/Account/default.png" : post.PostUserImg)"
+                             alt="@post.PostUserName" class="user-avatar" />
+
+                        <div class="user-info">
+                            <div class="user-name">
+                                @post.PostUserName
+                               
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(post.PostUserTitle))
+                            {
+                                <div class="user-title">@post.PostUserTitle</div>
+                            }
+
+                            <div class="user-badges">
+                                @if (post.IsEdited)
+                                {
+                                    <span class="badge edited">Edited</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="post-time">
+                            <!-- Bootstrap-styled time display -->
+                            <div class="badge bg-light text-dark mb-1">
+                                @{
+                                    string timeAgo;
+                                    if (post.Since.Days > 0)
+                                    {
+                                        timeAgo = $"{post.Since.Days} day{(post.Since.Days != 1 ? "s" : "")} ago";
+                                    }
+                                    else if (post.Since.Hours > 0)
+                                    {
+                                        timeAgo = $"{post.Since.Hours} hour{(post.Since.Hours != 1 ? "s" : "")} ago";
+                                    }
+                                    else if (post.Since.Minutes > 0)
+                                    {
+                                        timeAgo = $"{post.Since.Minutes} minute{(post.Since.Minutes != 1 ? "s" : "")} ago";
+                                    }
+                                    else
+                                    {
+                                        timeAgo = "Just now";
+                                    }
+                                }
+                                <i class="fa-solid fa-clock"></i> &nbsp;&nbsp; @timeAgo
+                            </div>
+                            <small class="d-block text-muted">
+                                <!-- Ensure date format is in English using invariant culture -->
+                                @post.CreatedAt.ToString("MMM dd, yyyy", System.Globalization.CultureInfo.InvariantCulture)
+                            </small>
+                        </div>
+
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(post.TextContent))
+                    {
+                        <div class="post-content">
+                            @Html.Raw(post.TextContent.Replace("\n", "<br />"))
+                        </div>
+                    }
+
+                    @if (post.Images != null && post.Images.Any())
+                    {
+                        <div class="post-images @(post.Images.Count == 1 ? "single" : post.Images.Count == 2 ? "double" : "multiple")">
+                            @for (int i = 0; i < Math.Min(post.Images.Count, 4); i++)
+                            {
+                                if (i == 3 && post.Images.Count > 4)
+                                {
+                                    <div class="image-overlay">
+                                        <img src="@post.Images[i]" alt="Post image" class="post-image" />
+                                        <div class="image-count">+@(post.Images.Count - 3)</div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <img src="@post.Images[i]" alt="Post image" class="post-image" />
+                                }
+                            }
+                        </div>
+                    }
+
+                    <div class="post-actions">
+                        <div class="reactions-section">
+                            @if (post.ReactionsNumbers != null && post.ReactionsNumbers.Sum() > 0)
+                            {
+                                @if (post.ReactionsNumbers[0] > 0)
+                                {
+                                    <div class="reaction-group">
+                                        <span class="reaction-emoji">👍</span>
+                                        <span>@post.ReactionsNumbers[0]</span>
+                                    </div>
+                                }
+                                @if (post.ReactionsNumbers[1] > 0)
+                                {
+                                    <div class="reaction-group">
+                                        <span class="reaction-emoji">❤️</span>
+                                        <span>@post.ReactionsNumbers[1]</span>
+                                    </div>
+                                }
+                                @if (post.ReactionsNumbers[2] > 0)
+                                {
+                                    <div class="reaction-group">
+                                        <span class="reaction-emoji">😂</span>
+                                        <span>@post.ReactionsNumbers[2]</span>
+                                    </div>
+                                }
+                                @if (post.ReactionsNumbers[3] > 0)
+                                {
+                                    <div class="reaction-group">
+                                        <span class="reaction-emoji">😢</span>
+                                        <span>@post.ReactionsNumbers[3]</span>
+                                    </div>
+                                }
+                                @if (post.ReactionsNumbers[4] > 0)
+                                {
+                                    <div class="reaction-group">
+                                        <span class="reaction-emoji">😠</span>
+                                        <span>@post.ReactionsNumbers[4]</span>
+                                    </div>
+                                }
+                            }
+                        </div>
+
+                        <div class="post-stats">
+                            <div class="stat-item">
+                                <span>💬</span>
+                                <span>@post.CommentsCount Comments</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>📤</span>
+                                <span>@post.NumberOfShares Shares</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-icon">📚</div>
+                <div class="empty-title">No Saved Posts</div>
+                <div class="empty-message">
+                    You haven't saved any posts yet.<br />
+                    Start exploring and save interesting content to see them here!
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Archived Posts Tab -->
+    <div id="archived-tab" class="tab-content">
+        @{
+            var archivedPosts = Model.Where(p => p.IsArchived).ToList();
+        }
+
+        @if (archivedPosts.Any())
+        {
+            @foreach (var post in archivedPosts)
+            {
+                <div class="post-card" style="opacity: 0.8;">
+                    <div class="post-controls">
+                        <button class="control-btn restore" onclick="restorePost(@post.postId)" title="Restore Post">
+                            ↩️
+                        </button>
+                    </div>
+
+                    <div class="post-header">
+                        <img src="@(string.IsNullOrEmpty(post.PostUserImg) ? "/imgs/Account/default.png" : post.PostUserImg)"
+                             alt="@post.PostUserName" class="user-avatar" />
+
+                        <div class="user-info">
+                            <div class="user-name">
+                                @post.PostUserName
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(post.PostUserTitle))
+                            {
+                                <div class="user-title">@post.PostUserTitle</div>
+                            }
+
+                            <div class="user-badges">
+                                
+                                @if (post.IsEdited)
+                                {
+                                    <span class="badge edited">Edited</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="post-time">
+                            <!-- Bootstrap-styled time display -->
+                            <div class="badge bg-light text-dark mb-1">
+                                @{
+                                    string timeAgo;
+                                    if (post.Since.Days > 0)
+                                    {
+                                        timeAgo = $"{post.Since.Days} day{(post.Since.Days != 1 ? "s" : "")} ago";
+                                    }
+                                    else if (post.Since.Hours > 0)
+                                    {
+                                        timeAgo = $"{post.Since.Hours} hour{(post.Since.Hours != 1 ? "s" : "")} ago";
+                                    }
+                                    else if (post.Since.Minutes > 0)
+                                    {
+                                        timeAgo = $"{post.Since.Minutes} minute{(post.Since.Minutes != 1 ? "s" : "")} ago";
+                                    }
+                                    else
+                                    {
+                                        timeAgo = "Just now";
+                                    }
+                                }
+                                <i class="fa-solid fa-clock"></i> &nbsp;&nbsp; @timeAgo
+                            </div>
+                            <small class="d-block text-muted">
+                                <!-- Ensure date format is in English using invariant culture -->
+                                @post.CreatedAt.ToString("MMM dd, yyyy", System.Globalization.CultureInfo.InvariantCulture)
+                            </small>
+                        </div>
+
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(post.TextContent))
+                    {
+                        <div class="post-content">
+                            @Html.Raw(post.TextContent.Replace("\n", "<br />"))
+                        </div>
+                    }
+
+                    @if (post.Images != null && post.Images.Any())
+                    {
+                        <div class="post-images @(post.Images.Count == 1 ? "single" : post.Images.Count == 2 ? "double" : "multiple")">
+                            @for (int i = 0; i < Math.Min(post.Images.Count, 4); i++)
+                            {
+                                if (i == 3 && post.Images.Count > 4)
+                                {
+                                    <div class="image-overlay">
+                                        <img src="@post.Images[i]" alt="Post image" class="post-image" />
+                                        <div class="image-count">+@(post.Images.Count - 3)</div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <img src="@post.Images[i]" alt="Post image" class="post-image" />
+                                }
+                            }
+                        </div>
+                    }
+
+                    <div class="post-actions">
+                        <div class="reactions-section">
+                            @if (post.ReactionsNumbers != null && post.ReactionsNumbers.Sum() > 0)
+                            {
+                                @if (post.ReactionsNumbers[0] > 0)
+                                {
+                                    <div class="reaction-group">
+                                        <span class="reaction-emoji">👍</span>
+                                        <span>@post.ReactionsNumbers[0]</span>
+                                    </div>
+                                }
+                                @if (post.ReactionsNumbers[1] > 0)
+                                {
+                                    <div class="reaction-group">
+                                        <span class="reaction-emoji">❤️</span>
+                                        <span>@post.ReactionsNumbers[1]</span>
+                                    </div>
+                                }
+                                @if (post.ReactionsNumbers[2] > 0)
+                                {
+                                    <div class="reaction-group">
+                                        <span class="reaction-emoji">😂</span>
+                                        <span>@post.ReactionsNumbers[2]</span>
+                                    </div>
+                                }
+                                @if (post.ReactionsNumbers[3] > 0)
+                                {
+                                    <div class="reaction-group">
+                                        <span class="reaction-emoji">😢</span>
+                                        <span>@post.ReactionsNumbers[3]</span>
+                                    </div>
+                                }
+                                @if (post.ReactionsNumbers[4] > 0)
+                                {
+                                    <div class="reaction-group">
+                                        <span class="reaction-emoji">😠</span>
+                                        <span>@post.ReactionsNumbers[4]</span>
+                                    </div>
+                                }
+                            }
+                        </div>
+
+                        <div class="post-stats">
+                            <div class="stat-item">
+                                <span>💬</span>
+                                <span>@post.CommentsCount Comments</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>📤</span>
+                                <span>@post.NumberOfShares Shares</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-icon">📦</div>
+                <div class="empty-title">No Archived Posts</div>
+                <div class="empty-message">
+                    Your archived posts will appear here.<br />
+                    Archive posts you want to keep but don't need immediate access to.
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+    // Tab switching functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                // Add active class to clicked button and corresponding content
+                this.classList.add('active');
+                document.getElementById(tabId + '-tab').classList.add('active');
+            });
+        });
+    });
+
+    // Archive post function
+            // Archive post function
+        async function archivePost(postId) {
+            try {
+                // Add loading state to the clicked button
+                const clickedButton = event.target.closest('.control-btn');
+                const archiveLoader = addLoadingState(clickedButton);
+
+                const postCard = clickedButton.closest('.post-card');
+
+                        const response = await fetch('/Post/ArchivePost', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({ postId: postId })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // Update the counts in tabs
+                        const savedCountBadge = document.querySelector('.tab-button[data-tab="saved"] .badge');
+                        const archivedCountBadge = document.querySelector('.tab-button[data-tab="archived"] .badge');
+
+                        const savedCount = parseInt(savedCountBadge.textContent) - 1;
+                        const archivedCount = parseInt(archivedCountBadge.textContent) + 1;
+
+                        savedCountBadge.textContent = savedCount;
+                        archivedCountBadge.textContent = archivedCount;
+
+                        // Animate the post card removal
+                        postCard.style.transition = 'all 0.5s ease';
+                        postCard.style.opacity = '0';
+                        postCard.style.transform = 'translateX(100%)';
+
+                        setTimeout(() => {
+                            // Remove the post card from saved tab
+                            postCard.remove();
+
+                            // Check if saved section is now empty
+                            const savedTab = document.getElementById('saved-tab');
+                            const remainingPosts = savedTab.querySelectorAll('.post-card');
+
+                            if (remainingPosts.length === 0) {
+                                savedTab.innerHTML = `
+                                    <div class="empty-state">
+                                        <div class="empty-icon">📚</div>
+                                        <div class="empty-title">No Saved Posts</div>
+                                        <div class="empty-message">
+                                            You haven't saved any posts yet.<br />
+                                            Start exploring and save interesting content to see them here!
+                                        </div>
+                                    </div>
+                                `;
+                            }
+
+                            // Show success notification
+                            showNotification('Post archived successfully!', 'success');
+                        }, 500);
+                    } else {
+                        archiveLoader(); // Remove loading state
+                        showNotification(result.message || 'Failed to archive post.', 'error');
+                    }
+                } else {
+                    archiveLoader(); // Remove loading state
+                    showNotification('Failed to archive post. Server returned an error.', 'error');
+                }
+            } catch (error) {
+                console.error('Error archiving post:', error);
+                showNotification('An unexpected error occurred.', 'error');
+            }
+        }
+
+
+
+    // Restore post function
+        async function restorePost(postId) {
+            try {
+                // Add loading state to the clicked button
+                const clickedButton = event.target.closest('.control-btn');
+                const restoreLoader = addLoadingState(clickedButton);
+
+                const postCard = clickedButton.closest('.post-card');
+
+                const response = await fetch('/Post/RestorePost', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({ postId: postId })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // Update the counts in tabs
+                        const savedCountBadge = document.querySelector('.tab-button[data-tab="saved"] .badge');
+                        const archivedCountBadge = document.querySelector('.tab-button[data-tab="archived"] .badge');
+
+                        const savedCount = parseInt(savedCountBadge.textContent) + 1;
+                        const archivedCount = parseInt(archivedCountBadge.textContent) - 1;
+
+                        savedCountBadge.textContent = savedCount;
+                        archivedCountBadge.textContent = archivedCount;
+
+                        // Animate the post card removal
+                        postCard.style.transition = 'all 0.5s ease';
+                        postCard.style.opacity = '0';
+                        postCard.style.transform = 'translateX(100%)';
+
+                        // Move the post to saved tab after animation completes
+                        setTimeout(() => {
+                            // Remove the post card from archived tab
+                            postCard.remove();
+
+                            // Check if archived section is now empty
+                            const archivedTab = document.getElementById('archived-tab');
+                            const remainingPosts = archivedTab.querySelectorAll('.post-card');
+
+                            if (remainingPosts.length === 0) {
+                                archivedTab.innerHTML = `
+                                    <div class="empty-state">
+                                        <div class="empty-icon">📦</div>
+                                        <div class="empty-title">No Archived Posts</div>
+                                        <div class="empty-message">
+                                            Your archived posts will appear here.<br />
+                                            Archive posts you want to keep but don't need immediate access to.
+                                        </div>
+                                    </div>
+                                `;
+                            }
+
+                            // Show success notification
+                            showNotification('Post restored successfully!', 'success');
+                        }, 500);
+                    } else {
+                        restoreLoader(); // Remove loading state
+                        showNotification(result.message || 'Failed to restore post.', 'error');
+                    }
+                } else {
+                    restoreLoader(); // Remove loading state
+                    showNotification('Failed to restore post. Server returned an error.', 'error');
+                }
+            } catch (error) {
+                console.error('Error restoring post:', error);
+                showNotification('An unexpected error occurred.', 'error');
+            }
+        }
+
+
+    // Unsave post function
+    async function unsavePost(postId) {
+        if (!confirm('Are you sure you want to permanently remove this post from your saved collection?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/SavedPosts/Unsave/${postId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            });
+
+            if (response.ok) {
+                location.reload(); // Refresh the page to update the UI
+            } else {
+                alert('Failed to remove post. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error removing post:', error);
+            alert('An error occurred. Please try again.');
+        }
+    }
+
+    // Image modal functionality
+    document.querySelectorAll('.post-image').forEach(img => {
+        img.addEventListener('click', function() {
+            // Create modal overlay
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                cursor: pointer;
+            `;
+
+            // Create image element
+            const modalImg = document.createElement('img');
+            modalImg.src = this.src;
+            modalImg.style.cssText = `
+                max-width: 90%;
+                max-height: 90%;
+                object-fit: contain;
+                border-radius: 8px;
+            `;
+
+            modal.appendChild(modalImg);
+            document.body.appendChild(modal);
+
+            // Close modal on click
+            modal.addEventListener('click', function() {
+                document.body.removeChild(modal);
+            });
+        });
+    });
+
+    // Smooth scrolling for better UX
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+
+    // Add loading states to buttons
+    function addLoadingState(button) {
+        const originalText = button.innerHTML;
+        button.innerHTML = '<div class="loader" style="width: 16px; height: 16px; border-width: 2px;"></div>';
+        button.disabled = true;
+
+        return () => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        };
+    }
+
+    // Enhanced error handling
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1001;
+            animation: slideIn 0.3s ease;
+            max-width: 300px;
+        `;
+
+        switch(type) {
+            case 'success':
+                notification.style.background = 'var(--accent-green)';
+                break;
+            case 'error':
+                notification.style.background = 'var(--accent-orange)';
+                break;
+            default:
+                notification.style.background = 'var(--primary-blue)';
+        }
+
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
+
+    // Add CSS for notification animations
+    const style = document.createElement('style');
+    style.textContent = `
+    @@keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+    @@keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+
+
+   
+    @* <script src="~/js/saved-posts.js"></script> *@
+
+}
