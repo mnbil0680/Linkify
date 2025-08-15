@@ -1364,8 +1364,8 @@
                             <i class="far fa-comment" aria-hidden="true"></i>
                             <span>Comment</span>
                         </button>
-                        
-                        <button class="action-btn" onclick="sendPost(@post.postId)" aria-label="Send post">
+
+                        <button class="action-btn" onclick="sharePost(@post.postId)" aria-label="Send post">
                             <i class="far fa-paper-plane" aria-hidden="true"></i>
                             <span>Share</span>
                         </button>
@@ -2099,81 +2099,129 @@
         }
 
         // Comment Reactions
-        function toggleCommentReaction(commentId, reaction) {
-            const commentAction = document.querySelector(`[onclick*="toggleCommentReaction(${commentId}, '${reaction}')"]`);
-            const isActive = commentAction.classList.contains('active');
-            const newReaction = isActive ? null : reaction;
+                // Comment Reactions
+        function selectCommentReaction(commentId, reaction) {
+            // Validate input
+            if (!commentId || !reaction) {
+                console.error('Invalid parameters for selectCommentReaction:', { commentId, reaction });
+                showToast('Invalid comment reaction parameters', 'error');
+                return;
+            }
+
+            const currentUserId = document.getElementById('currentUserId')?.value;
+            if (!currentUserId) {
+                console.error('No user ID found for comment reaction');
+                showToast('Please log in to react to comments', 'error');
+                return;
+            }
 
             // Update UI immediately for better UX
+            const commentActions = document.querySelector(`[data-comment-id="${commentId}"] .comment-actions`);
+            const commentReactionBtn = commentActions.querySelector('.comment-reaction-btn');
+
+            // Get current state
+            const currentReaction = commentReactionBtn.dataset.currentReaction || '';
+            const isActive = currentReaction === reaction;
+
+            // Visual update
             if (isActive) {
-                commentAction.classList.remove('active');
-                commentAction.textContent = 'Like';
+                // Remove reaction (clicking the same reaction again)
+                commentReactionBtn.classList.remove('active');
+                commentReactionBtn.style = '';
+                commentReactionBtn.querySelector('.comment-reaction-emoji').textContent = '👍';
+                commentReactionBtn.querySelector('.comment-reaction-text').textContent = 'Like';
                 delete commentReactions[commentId];
             } else {
-                // Remove other active reactions first
-                const commentElement = commentAction.closest('.comment-item');
-                commentElement.querySelectorAll('.comment-action.active').forEach(action => {
-                    if (action !== commentAction) {
-                        action.classList.remove('active');
-                        action.textContent = 'Like';
-                    }
-                });
-
-                commentAction.classList.add('active');
-                commentAction.textContent = reactions[reaction].text;
+                // Add or change reaction
+                const reactionData = reactions[reaction] || reactions.like;
+                commentReactionBtn.classList.add('active');
+                commentReactionBtn.style = `color: ${reactionData.color};`;
+                commentReactionBtn.querySelector('.comment-reaction-emoji').textContent = reactionData.emoji;
+                commentReactionBtn.querySelector('.comment-reaction-text').textContent = reactionData.text;
                 commentReactions[commentId] = reaction;
+
+                // Add animation
+                const emojiElement = commentReactionBtn.querySelector('.comment-reaction-emoji');
+                emojiElement.classList.add('reaction-animate');
+                setTimeout(() => emojiElement.classList.remove('reaction-animate'), 300);
             }
 
             // Send to server
-            submitCommentReaction(commentId, newReaction);
+            submitCommentReaction(commentId, isActive ? null : reaction);
+
+            if (!isActive) {
+                showToast(`You reacted to comment with ${reactions[reaction].text}`, 'success');
+            }
         }
 
-        function selectCommentReaction(commentId, reaction) {
-            const commentActions = document.querySelector(`[data-comment-id="${commentId}"] .comment-actions`);
-            const commentAction = commentActions.querySelector('.comment-like');
+        function submitCommentReaction(commentId, reactionType) {
+            console.log('Submitting comment reaction:', { commentId, reactionType });
 
-            // Update UI
-            commentActions.querySelectorAll('.comment-action.active').forEach(action => {
-                action.classList.remove('active');
-                action.textContent = 'Like';
-            });
+            // Validate commentId
+            if (!commentId || commentId <= 0) {
+                console.error('Invalid commentId in submitCommentReaction:', commentId);
+                showToast('Invalid comment ID', 'error');
+                return;
+            }
 
-            commentAction.classList.add('active');
-            commentAction.textContent = reactions[reaction].text;
-            commentReactions[commentId] = reaction;
+            const currentUserId = document.getElementById('currentUserId')?.value;
+            if (!currentUserId) {
+                console.error('No current user ID found in submitCommentReaction');
+                showToast('Please log in to react to comments', 'error');
+                return;
+            }
 
-            // Send to server
-            submitCommentReaction(commentId, reaction);
-
-            showToast(`You reacted to comment with ${reactions[reaction].text}`, 'success');
-        }
-
-        function submitCommentReaction(commentId, reaction) {
-            const url = `/comments/${commentId}/reactions`;
-            
-            fetch(url, {
+            // Use the new API endpoint from PostController
+            ajaxCall({
+                url: `/api/comments/${commentId}/reaction`,
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': getAntiForgeryToken()
-                },
-                body: JSON.stringify({
+                data: {
                     commentId: commentId,
-                    reaction: reaction
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) {
-                    showToast(data.message || 'Failed to save reaction', 'error');
-                    // Revert UI changes on failure
-                    // ... (implement revert logic)
+                    userId: currentUserId,
+                    reactionType: reactionType || ''
+                },
+                onSuccess: function(data) {
+                    console.log('Comment reaction response:', data);
+                    if (data && data.success) {
+                        updateCommentReactionCounts(commentId, data);
+                    } else {
+                        const errorMessage = data?.message || 'Failed to save comment reaction';
+                        showToast(errorMessage, 'error');
+                        console.error('Server returned success=false:', data);
+                    }
+                },
+                onError: function(error) {
+                    console.error('Comment reaction error:', error);
+                    showToast('Failed to save comment reaction', 'error');
                 }
-            })
-            .catch(error => {
-                console.error('Comment reaction error:', error);
-                showToast('Failed to save reaction', 'error');
             });
+        }
+
+        function updateCommentReactionCounts(commentId, data) {
+            // Update reaction counts in UI if available
+            if (data.reactionCount !== undefined) {
+                const reactionCountElement = document.querySelector(`[data-comment-id="${commentId}"] .comment-reaction-count`);
+                if (reactionCountElement) {
+                    if (data.reactionCount === 0) {
+                        reactionCountElement.style.display = 'none';
+                    } else {
+                        reactionCountElement.style.display = 'inline-flex';
+                        reactionCountElement.textContent = data.reactionCount;
+                    }
+                }
+            }
+
+            // Update user's current reaction if needed
+            if (data.userReaction) {
+                commentReactions[commentId] = data.userReaction.toLowerCase();
+            } else {
+                delete commentReactions[commentId];
+            }
+        }
+
+        // Helper function to get anti-forgery token (if not already defined)
+        function getAntiForgeryToken() {
+            return document.querySelector('input[name="__RequestVerificationToken"]').value;
         }
 
         // Enhanced Bookmark Functionality

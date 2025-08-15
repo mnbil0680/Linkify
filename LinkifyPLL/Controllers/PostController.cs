@@ -704,6 +704,75 @@ namespace LinkifyPLL.Controllers
         }
 
 
+
+
+        [HttpPost("api/comments/{commentId}/reaction")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleCommentReaction(int commentId, [FromBody] ToggleCommentReactionDto model)
+        {
+            try
+            {
+                // Override model's CommentId with route value to avoid mismatches
+                model.CommentId = commentId;
+
+                string input = model.ReactionType; // could be "😂", "haha", etc.
+                ReactionTypes reactionType;
+
+                if (input == "😂" || input.Equals("Haha", StringComparison.OrdinalIgnoreCase))
+                    reactionType = ReactionTypes.Haha;
+                else if (input == "👍" || input.Equals("Like", StringComparison.OrdinalIgnoreCase))
+                    reactionType = ReactionTypes.Like;
+                else if (input == "❤️" || input.Equals("Love", StringComparison.OrdinalIgnoreCase))
+                    reactionType = ReactionTypes.Love;
+                else if (input == "😢" || input.Equals("Sad", StringComparison.OrdinalIgnoreCase))
+                    reactionType = ReactionTypes.Sad;
+                else if (input == "😡" || input.Equals("Angry", StringComparison.OrdinalIgnoreCase))
+                    reactionType = ReactionTypes.Angry;
+                else
+                    return BadRequest(new { success = false, message = "Invalid reaction type" });
+
+
+                await _commentReactionService.ToggleReactionAsync(
+                    model.CommentId,
+                    model.UserId,
+                   reactionType
+                );
+
+                var reactions = await _commentReactionService.GetReactionsByCommentAsync(commentId);
+                var activeReactions = reactions.Where(r => !r.IsDeleted).ToList();
+
+                return Ok(new
+                {
+                    success = true,
+                    userReaction = activeReactions.FirstOrDefault(r => r.ReactorId == model.UserId)?.Reaction.ToString(),
+                    reactionCount = activeReactions.Count,
+                    topReactions = activeReactions
+                        .GroupBy(r => r.Reaction)
+                        .OrderByDescending(g => g.Count())
+                        .Take(3)
+                        .Select(g => g.Key.ToString())
+                        .ToList()
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "An error occurred while processing your comment reaction"
+                });
+            }
+        }
+
+        // Add this class for the request model
+        public class ToggleCommentReactionDto
+        {
+            public int CommentId { get; set; }
+            public string UserId { get; set; }
+            public string ReactionType { get; set; }
+        }
+
+
     }
 
 }   
