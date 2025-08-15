@@ -721,12 +721,27 @@ namespace LinkifyPLL.Controllers
                 else
                     return BadRequest(new { success = false, message = "Invalid reaction type" });
 
+                // Get all current reactions for this comment
+                List<CommentReactions> existingReactions = (List<CommentReactions>)await _commentReactionService.GetReactionsByCommentAsync(commentId);
 
-                await _commentReactionService.ToggleReactionAsync(
-                    model.CommentId,
-                    model.UserId,
-                   reactionType
-                );
+                // Check if this exact reaction (same user, same type, same comment) already exists
+                bool reactionExists = existingReactions.Any(r =>
+                    r.ReactorId == model.UserId &&
+                    r.CommentId == model.CommentId &&
+                    r.Reaction == reactionType &&
+                    !r.IsDeleted);
+
+                // Only toggle if this exact reaction doesn't already exist
+                if (!reactionExists)
+                {
+                    await _commentReactionService.ToggleReactionAsync(
+                        model.CommentId,
+                        model.UserId,
+                        reactionType
+                    );
+                }
+
+
 
                 var reactions = await _commentReactionService.GetReactionsByCommentAsync(commentId);
                 var activeReactions = reactions.Where(r => !r.IsDeleted).ToList();
