@@ -5,161 +5,200 @@
     Layout = "~/Views/Shared/_AppLayout.cshtml";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header">
-                    <h2 class="mb-0">Create a New Post</h2>
-                </div>
+<form asp-action="CreatePost" enctype="multipart/form-data" id="postForm" style="margin-top: 70px;">
+    <!-- Text Content -->
+    <textarea asp-for="TextContent" class="form-control" placeholder="What's on your mind?" rows="4" style="margin-bottom:10px;"></textarea>
 
-
-                <div class="card-body">
-
-                    @* Success Message *@
-                    @if (TempData["SuccessMessage"] != null)
-                    {
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            @TempData["SuccessMessage"]
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    }
-
-                    @* Form *@
-                    <form asp-action="CreatePost" asp-controller="Post" method="post" enctype="multipart/form-data">
-                        @* Validation Summary *@
-                        <div asp-validation-summary="All" class="text-danger"></div>
-                        
-
-                        @* Content Field *@
-                        <div class="mb-3">
-                            <label asp-for="TextContent" class="form-label">What's on your mind?</label>
-                            <textarea asp-for="TextContent"
-                                      class="form-control"
-                                      rows="4"
-                                      placeholder="Share your thoughts..."
-                                      maxlength="1000"></textarea>
-                            <span asp-validation-for="TextContent" class="text-danger"></span>
-                            <div class="form-text">Maximum 1000 characters</div>
-                        </div>
-
-                        @* Images Field *@
-                        <div class="mb-3">
-                            <label asp-for="Images" class="form-label">Add Images (Optional)</label>
-                            <input asp-for="Images"
-                                   class="form-control"
-                                   type="file"
-                                   multiple
-                                   accept="image/*"
-                                   onchange="previewImages(this)" />
-                            <span asp-validation-for="Images" class="text-danger"></span>
-                            <div class="form-text">You can select multiple images. Max 5MB per image.</div>
-                        </div>
-
-                        @* Image Preview *@
-                        <div id="imagePreview" class="mb-3" style="display: none;">
-                            <label class="form-label">Preview:</label>
-                            <div id="previewContainer" class="d-flex flex-wrap gap-2"></div>
-                        </div>
-
-                        
-
-                        @* Submit Buttons *@
-                        <div class="d-flex justify-content-between">
-                            <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-paper-plane me-2"></i>Share Post
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+    <!-- File Upload Icons - Now using Bootstrap buttons -->
+    <div class="d-flex gap-2 mb-3">
+        <label class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-image me-1"></i> Photo
+            <input type="file" asp-for="Images" multiple accept="image/*" class="d-none">
+        </label>
+        <label class="btn btn-outline-danger btn-sm">
+            <i class="fas fa-video me-1"></i> Video
+            <input type="file" asp-for="Videos" multiple accept="video/*" class="d-none">
+        </label>
+        <label class="btn btn-outline-warning btn-sm">
+            <i class="fas fa-file-pdf me-1"></i> PDF
+            <input type="file" asp-for="PDFs" multiple accept=".pdf" class="d-none">
+        </label>
     </div>
-</div>
+
+    <!-- Hidden File Inputs -->
+    <input type="file" asp-for="Images" multiple accept="image/*" class="d-none" id="ImagesInput">
+    <input type="file" asp-for="Videos" multiple accept="video/*" class="d-none" id="VideosInput">
+    <input type="file" asp-for="PDFs" multiple accept=".pdf" class="d-none" id="PDFsInput">
+
+    <!-- File Previews -->
+    <div id="filePreviews" class="file-previews mt-3"></div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn btn-primary mt-3">Post</button>
+</form>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-
     <script>
-        // Image preview functionality
-        function previewImages(input) {
-            const previewContainer = document.getElementById('previewContainer');
-            const previewSection = document.getElementById('imagePreview');
+        $(document).ready(function () {
+            // Object to track ALL selected files by type
+            const selectedFiles = {
+                Images: [],
+                Videos: [],
+                PDFs: []
+            };
 
-            // Clear previous previews
-            previewContainer.innerHTML = '';
+            // Trigger file input when icons are clicked
+            $(".upload-icon").click(function () {
+                const type = $(this).data("type");
+                $(`#${type}Input`).click();
+            });
 
-            if (input.files && input.files.length > 0) {
-                previewSection.style.display = 'block';
+            // Handle file selection
+            $("input[type='file']").change(function (e) {
+                const type = $(this).attr("id").replace("Input", "");
+                const files = Array.from(e.target.files);
 
-                // Limit to 10 images
-                const maxImages = Math.min(input.files.length, 10);
-
-                for (let i = 0; i < maxImages; i++) {
-                    const file = input.files[i];
-
-                    // Check file size (5MB limit)
-                    if (file.size > 5 * 1024 * 1024) {
-                        alert(`${file.name} is too large. Maximum file size is 5MB.`);
-                        continue;
+                // Validate and add new files
+                files.forEach(file => {
+                    if (validateFile(file, type)) {
+                        selectedFiles[type].push(file);
+                        addFilePreview(file, type);
                     }
+                });
 
-                    // Check file type
-                    if (!file.type.startsWith('image/')) {
-                        alert(`${file.name} is not an image file.`);
-                        continue;
-                    }
+                updateFileInput(type);
+            });
 
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const imageDiv = document.createElement('div');
-                        imageDiv.className = 'position-relative';
-                        imageDiv.innerHTML = `
-                            <img src="${e.target.result}"
-                                 class="img-thumbnail"
-                                 style="width: 100px; height: 100px; object-fit: cover;">
-                            <button type="button"
-                                    class="btn btn-sm btn-danger position-absolute top-0 end-0"
-                                    onclick="removePreview(this)"
-                                    style="transform: translate(50%, -50%);">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        `;
-                        previewContainer.appendChild(imageDiv);
-                    };
-                    reader.readAsDataURL(file);
+            // Validate file type/size
+            function validateFile(file, type) {
+                const validTypes = {
+                    Images: ['image/jpeg', 'image/png', 'image/gif'],
+                    Videos: ['video/mp4', 'video/quicktime'],
+                    PDFs: ['application/pdf']
+                };
+
+                if (!validTypes[type].includes(file.type)) {
+                    alert(`Invalid ${type.slice(0, -1)} type: ${file.name}`);
+                    return false;
                 }
-            } else {
-                previewSection.style.display = 'none';
-            }
-        }
 
-        function removePreview(button) {
-            button.parentElement.remove();
+                // 80MB max for videos, 10MB for others
+                const maxSize = type === 'Videos' ? 80 * 1024 * 1024 : 10 * 1024 * 1024;
+                if (file.size > maxSize) {
+                    alert(`${file.name} exceeds maximum file size (${type === 'Videos' ? '80MB' : '10MB'})`);
+                    return false;
+                }
 
-            // If no more previews, hide the preview section
-            const previewContainer = document.getElementById('previewContainer');
-            if (previewContainer.children.length === 0) {
-                document.getElementById('imagePreview').style.display = 'none';
-            }
-        }
-
-        // Form validation
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const textContent = document.querySelector('#TextContent').value.trim();
-
-            if (!textContent) {
-                e.preventDefault();
-                alert('Please enter some content for your post.');
-                return false;
+                return true;
             }
 
-            // Show loading state
-            const submitBtn = this.querySelector('button[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Posting...';
+            // Add file preview
+            function addFilePreview(file, type) {
+                const preview = $(`
+                    <div class="file-preview" data-type="${type}" data-name="${file.name}">
+                        <span class="badge bg-secondary me-2">${type.slice(0, -1)}</span>
+                        <span class="file-name">${file.name}</span>
+                        <span class="file-size">(${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                        <span class="remove-file ms-auto">&times;</span>
+                    </div>
+                `);
+
+                preview.find(".remove-file").click(function () {
+                    removeFile(file, type);
+                    preview.remove();
+                });
+
+                $("#filePreviews").append(preview);
+            }
+
+            // Remove file from tracking
+            function removeFile(fileToRemove, type) {
+                selectedFiles[type] = selectedFiles[type].filter(
+                    f => f.name !== fileToRemove.name || f.size !== fileToRemove.size
+                );
+                updateFileInput(type);
+            }
+
+            // Update the hidden input with current files
+            function updateFileInput(type) {
+                const input = $(`#${type}Input`)[0];
+                const dataTransfer = new DataTransfer();
+
+                selectedFiles[type].forEach(file => {
+                    dataTransfer.items.add(file);
+                });
+
+                input.files = dataTransfer.files;
+            }
         });
     </script>
 }
 
+<style>
+    /* Upload Icons */
+    .upload-icons {
+        display: flex;
+        gap: 15px;
+    }
+
+    .upload-icon {
+        cursor: pointer;
+        padding: 8px 15px;
+        background: #f0f2f5;
+        border-radius: 5px;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+        .upload-icon:hover {
+            background: #e4e6eb;
+            transform: translateY(-2px);
+        }
+
+        .upload-icon i {
+            font-size: 1.2em;
+        }
+
+    /* File Previews */
+    .file-previews {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .file-preview {
+        background: #f8f9fa;
+        padding: 10px 15px;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        border: 1px solid #dee2e6;
+    }
+
+        .file-preview:hover {
+            background: #e9ecef;
+        }
+
+    .file-name {
+        font-weight: 500;
+        margin-right: 8px;
+    }
+
+    .file-size {
+        color: #6c757d;
+        font-size: 0.9em;
+    }
+
+    .remove-file {
+        cursor: pointer;
+        color: #dc3545;
+        font-size: 1.2em;
+        padding: 0 5px;
+    }
+
+        .remove-file:hover {
+            color: #a71d2a;
+        }
+</style>

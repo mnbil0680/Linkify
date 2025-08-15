@@ -27,8 +27,6 @@ namespace LinkifyBLL.Services.Implementation
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new ArgumentNullException(nameof(userId));
-            if (string.IsNullOrWhiteSpace(textContent))
-                throw new ArgumentNullException(nameof(textContent));
 
             var post = new Post(textContent, userId);
             return await _postRepo.CreateAsync(post);
