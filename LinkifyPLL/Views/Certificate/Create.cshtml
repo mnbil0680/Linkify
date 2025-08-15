@@ -1,0 +1,173 @@
+﻿@model LinkifyBLL.ModelView.CertificateMV
+
+@{
+    ViewData["Title"] = "Upload New Certificate";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-0 pb-0">
+                    <h1 class="h3 fw-bold text-primary mb-0">@ViewData["Title"]</h1>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" enctype="multipart/form-data" method="post" class="needs-validation" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Name" class="form-control" placeholder=" " />
+                                    <label asp-for="Name" class="form-label"></label>
+                                    <span asp-validation-for="Name" class="invalid-feedback"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="IssuingOrganization" class="form-control" placeholder=" " />
+                                    <label asp-for="IssuingOrganization" class="form-label"></label>
+                                    <span asp-validation-for="IssuingOrganization" class="invalid-feedback"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="IssueDate" type="date" class="form-control" placeholder=" " />
+                                    <label asp-for="IssueDate" class="form-label"></label>
+                                    <span asp-validation-for="IssueDate" class="invalid-feedback"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="ExpirationDate" type="date" class="form-control" placeholder=" " />
+                                    <label asp-for="ExpirationDate" class="form-label"></label>
+                                    <span asp-validation-for="ExpirationDate" class="invalid-feedback"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="CredentialId" class="form-control" placeholder=" " />
+                                    <label asp-for="CredentialId" class="form-label"></label>
+                                    <span asp-validation-for="CredentialId" class="invalid-feedback"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="CredentialUrl" class="form-control" placeholder=" " />
+                                    <label asp-for="CredentialUrl" class="form-label"></label>
+                                    <span asp-validation-for="CredentialUrl" class="invalid-feedback"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label asp-for="Certificate" class="form-label d-block">
+                                        Certificate File
+                                        <small class="text-muted float-end">Max size: 10MB</small>
+                                    </label>
+                                    <div class="file-upload-wrapper">
+                                        <input asp-for="Certificate" type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" />
+                                        <div class="file-upload-info">
+                                            <span class="file-name">No file chosen</span>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary">Browse</button>
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="Certificate" class="invalid-feedback d-block"></span>
+                                    <small class="form-text text-muted">Accepted formats: PDF, JPG, PNG</small>
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a asp-action="Index" class="btn btn-lg btn-outline-secondary px-4">Cancel</a>
+                                    <button type="submit" class="btn btn-lg btn-primary px-4">
+                                        <i class="fas fa-upload me-2"></i>Upload Certificate
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <style>
+        .file-upload-wrapper {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+            .file-upload-wrapper input[type="file"] {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                opacity: 0;
+                cursor: pointer;
+                z-index: 2;
+            }
+
+        .file-upload-info {
+            display: flex;
+            align-items: center;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            background-color: #f8f9fa;
+        }
+
+        .file-name {
+            flex-grow: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding-right: 1rem;
+        }
+
+        .form-floating > label {
+            color: #6c757d;
+        }
+
+        .card {
+            border-radius: 0.75rem;
+        }
+    </style>
+
+    <script>
+        // Enhanced file input handling
+        $(document).ready(function() {
+            $('input[type="file"]').on('change', function() {
+                var fileName = $(this).val().split('\\').pop();
+                var $fileInfo = $(this).siblings('.file-upload-info');
+
+                if (fileName) {
+                    $fileInfo.find('.file-name').text(fileName);
+                } else {
+                    $fileInfo.find('.file-name').text('No file chosen');
+                }
+            });
+
+            // Add Bootstrap's validation classes
+            $('.needs-validation').on('submit', function(e) {
+                if (!this.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                $(this).addClass('was-validated');
+            });
+        });
+    </script>
+}

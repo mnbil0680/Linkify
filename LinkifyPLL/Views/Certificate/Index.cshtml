@@ -1,0 +1,159 @@
+﻿@using LinkifyDAL.Enums
+@model List<LinkifyBLL.ModelView.CertificateMV>
+
+@{
+    ViewData["Title"] = "My Certificates";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4" style="margin-top: 50px;">
+        <h1 class="display-5 fw-bold text-primary">@ViewData["Title"]</h1>
+        <a asp-action="Create" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus-circle me-2"></i>Upload New Certificate
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Name</th>
+                                <th>Organization</th>
+                                <th>Issue Date</th>
+                                <th>Expiration</th>
+                                <th>Status</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr class="@(item.Status != CertificateStatus.Active ? "table-secondary" : "")">
+                                    <td class="ps-4 fw-semibold">@Html.DisplayFor(modelItem => item.Name)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.IssuingOrganization)</td>
+                                    <td>
+                                        <span class="d-inline-flex align-items-center">
+                                            <i class="far fa-calendar-alt me-2 text-muted"></i>
+                                            @item.IssueDate?.ToString("yyyy-MM-dd")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (item.ExpirationDate.HasValue)
+                                        {
+                                            <span class="d-inline-flex align-items-center">
+                                                <i class="far fa-calendar-alt me-2 text-muted"></i>
+                                                @item.ExpirationDate?.ToString("yyyy-MM-dd")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">N/A</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge rounded-pill @(item.Status == CertificateStatus.Active ? "bg-success" : "bg-warning text-dark")">
+                                            <i class="@(item.Status == CertificateStatus.Active ? "fas fa-check-circle" : "fas fa-exclamation-circle") me-1"></i>
+                                            @item.Status.ToString()
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-2 flex-wrap" style="justify-content: right;">
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm px-3" title="View">
+                                                <i class="fas fa-eye">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-binoculars-fill" viewBox="0 0 16 16">
+                                                        <path d="M4.5 1A1.5 1.5 0 0 0 3 2.5V3h4v-.5A1.5 1.5 0 0 0 5.5 1zM7 4v1h2V4h4v.882a.5.5 0 0 0 .276.447l.895.447A1.5 1.5 0 0 1 15 7.118V13H9v-1.5a.5.5 0 0 1 .146-.354l.854-.853V9.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v.793l.854.853A.5.5 0 0 1 7 11.5V13H1V7.118a1.5 1.5 0 0 1 .83-1.342l.894-.447A.5.5 0 0 0 3 4.882V4zM1 14v.5A1.5 1.5 0 0 0 2.5 16h3A1.5 1.5 0 0 0 7 14.5V14zm8 0v.5a1.5 1.5 0 0 0 1.5 1.5h3a1.5 1.5 0 0 0 1.5-1.5V14zm4-11H9v-.5A1.5 1.5 0 0 1 10.5 1h1A1.5 1.5 0 0 1 13 2.5z" />
+                                                    </svg>
+                                                </i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-sm px-3" title="Edit">
+                                                <i class="fas fa-edit">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
+                                                        <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001" />
+                                                    </svg>
+                                                </i>
+                                            </a>
+                                            @if (true)
+                                            {
+                                                <form asp-action="Delete" method="post" class="d-inline" title="Delete">
+                                                    <input type="hidden" name="id" value="@item.Id" />
+                                                    <button type="submit" class="btn btn-danger btn-sm px-3">
+                                                        <i class="fas fa-trash-alt">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                                                <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
+                                                            </svg>
+                                                        </i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <form asp-action="Restore" method="post" class="d-inline">
+                                                    <input type="hidden" name="id" value="@item.Id" />
+                                                    <button type="submit" class="btn btn-success btn-sm px-3">
+                                                        <i class="fas fa-undo"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="empty-state">
+                <i class="fas fa-certificate fa-4x text-muted mb-4"></i>
+                <h3 class="fw-light">No Certificates Yet!</h3>
+                <p class="text-muted">Get started by uploading your first certificate</p>
+                <a asp-action="Create" class="btn btn-primary mt-3">
+                    <i class="fas fa-plus-circle me-2"></i>Upload Certificate
+                </a>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .empty-state {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 2rem;
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+
+    .card {
+        border-radius: 0.75rem;
+        overflow: hidden;
+    }
+</style>
