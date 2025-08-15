@@ -11,7 +11,6 @@ namespace LinkifyBLL.Helper
             : base(context, describer)
         {
         }
-
         public override async Task<User> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default)
         {
             return null;

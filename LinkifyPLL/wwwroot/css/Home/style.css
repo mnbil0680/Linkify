@@ -973,6 +973,7 @@ html {
     top: 100px;
     max-height: calc(100vh - 120px);
     overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: var(--border-light) transparent;
     /* Enhanced visual properties */
@@ -983,6 +984,9 @@ html {
 
 /* Enhanced Widget Container */
 .widget {
+    /*Abdo*/
+    overflow-x: hidden !important;
+
     background: var(--glass-bg);
     backdrop-filter: var(--backdrop-blur);
     -webkit-backdrop-filter: var(--backdrop-blur);
@@ -990,10 +994,9 @@ html {
     border-radius: 20px;
     box-shadow: var(--shadow);
     padding: 24px;
-    height: fit-content;
+    height: contain;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-    overflow: hidden;
     /* Enhanced styling */
     margin-bottom: 0;
     transform-origin: center;
@@ -1075,10 +1078,6 @@ html {
         border-radius: 2px;
         transition: width 0.3s ease;
     }
-
-.widget:hover .widget-title::after {
-    width: 80px;
-}
 
 .widget-title i {
     color: var(--primary-blue);

@@ -3,8 +3,6 @@ using LinkifyDAL.Entities;
 using LinkifyDAL.Enums;
 using LinkifyDAL.Repo.Abstraction;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 
 namespace LinkifyDAL.Repo.Implementation
 {
