@@ -80,7 +80,7 @@ namespace LinkifyPLL.Controllers
 
 
 
-            // Get current user
+
 
 
 
@@ -97,9 +97,6 @@ namespace LinkifyPLL.Controllers
                     }
                 }
             }
-
-            // Save post to database
-            await _postService.CreatePostAsync(user.Id, model.TextContent);
 
             // Redirect to a success page or another action
             return RedirectToAction("Index", "Home");
