@@ -2,7 +2,9 @@
 @{
     ViewData["Title"] = "My Connections";
     var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    Layout = "_AppLayout";
 }
+<partial name="_NavPartial" />
 <div class="container">
     <div class="connections-header">
         <div class="d-flex justify-content-between align-items-center mb-4">

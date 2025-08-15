@@ -250,11 +250,30 @@ namespace LinkifyPLL.Controllers
             return View(users);
         }
 
-        public IActionResult PeopleYouMayKnow()
+        public async Task <IActionResult> PeopleYouMayKnow()
         {
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var peopleYouMayKnow = _IFS.GetPeopleYouMayKnowAsync(currentUserId).Result.ToList();
-            return View(peopleYouMayKnow);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var peopleYouMayKnow = await _IFS.GetPeopleYouMayKnowAsync(userId);
+            var candidates = peopleYouMayKnow.Select(u => u.Id).ToList();
+            if (!candidates.Any())
+                return View(new List<PoepleMV>());
+            var model = new List<PoepleMV>();
+            foreach (var f in peopleYouMayKnow)
+            {
+                var otherUserId = f.Id;
+                var mutualCount = await _IFS.GetMutualFriendCountAsync(userId, otherUserId);
+                model.Add(new PoepleMV
+                {
+                    Id = f.Id,
+                    Name = f.UserName,
+                    ImgPath = f.ImgPath ?? "/imgs/Account/default.png",
+                    Title = f.Title,
+                    Status = FriendStatus.None, 
+                    MutualFriendsCount = mutualCount
+
+                });
+            }
+            return View(model);
         }
 
         //public IActionResult MyConnections()
@@ -267,8 +286,28 @@ namespace LinkifyPLL.Controllers
         public async Task<IActionResult> MyConnections()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var poepleList = await _IFS.GetFriendsAsync(userId);
-            return View(poepleList); 
+            var peopleList = await _IFS.GetFriendsAsync(userId);
+
+            var acceptedRequests = peopleList
+                .Where(f => f.Status == FriendStatus.Accepted)
+                .ToList();
+            var model = new List<PoepleMV>();
+            foreach (var f in acceptedRequests) {
+                var otherUserId = f.RequesterId == userId ? f.AddresseeId : f.RequesterId;
+                var mutualCount = await _IFS.GetMutualFriendCountAsync(userId, otherUserId);
+                model.Add(new PoepleMV
+                {
+                    Id = f.RequesterId == userId ? f.AddresseeId : f.RequesterId,
+                    Name = f.RequesterId == userId ? f.Addressee?.UserName : f.Requester?.UserName,
+                    ImgPath = f.RequesterId == userId ? f.Addressee?.ImgPath : f.Requester?.ImgPath,
+                    Title = f.RequesterId == userId ? f.Addressee?.Title : f.Requester?.Title,
+                    Status = f.Status,
+                    MutualFriendsCount = mutualCount
+
+                });
+            }
+            return View(model);
+
         }
 
         public async Task <IActionResult> Invitation()
@@ -287,17 +326,5 @@ namespace LinkifyPLL.Controllers
             }).ToList();
             return View(model);
         }
-        
-        
-
-        
-
-        
-
-
-
-
-
-
     }
 }

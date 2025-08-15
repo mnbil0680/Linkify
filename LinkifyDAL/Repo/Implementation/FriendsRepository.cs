@@ -174,11 +174,11 @@ namespace LinkifyDAL.Repo.Implementation
         public async Task<int> GetMutualFriendCountAsync(string currentUserId, string otherUserId)
         {
             var currentUserFriends = await _db.Friends
-                .Where(f => f.RequesterId == currentUserId || f.AddresseeId == currentUserId)
+                .Where(f => (f.RequesterId == currentUserId || f.AddresseeId == currentUserId) && (f.Status == FriendStatus.Accepted) )
                 .Select(f => f.RequesterId == currentUserId ? f.AddresseeId : f.RequesterId)
                 .ToListAsync();
             var otherUserFriends = await _db.Friends
-                .Where(f => f.RequesterId == otherUserId || f.AddresseeId == otherUserId)
+                .Where(f => (f.RequesterId == otherUserId || f.AddresseeId == otherUserId) && (f.Status == FriendStatus.Accepted))
                 .Select(f => f.RequesterId == otherUserId ? f.AddresseeId : f.RequesterId)
                 .ToListAsync();
             return currentUserFriends.Intersect(otherUserFriends).Count();
