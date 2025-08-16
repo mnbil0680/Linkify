@@ -30,6 +30,8 @@ namespace LinkifyBLL.ModelView
         public string TextContent { get; set; }
         public TimeSpan Since { get; set; }
         public List<string> Images { get; set; }
+        public List<string> Videos { get; set; }
+        public List<string> PDFs { get; set; }
         public int imageCount { get; set; }
 
 

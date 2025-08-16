@@ -75,6 +75,8 @@ namespace LinkifyBLL.Helper
             services.AddScoped<IUserSkillsRepository, UserSkillsRepository>();
             services.AddScoped<ICertificateRepository, CertificateRepository>();
             services.AddScoped<ICertificateService, CertificateService>();
+            services.AddScoped<IUserSkillsService, UserSkillsService>();
+            services.AddScoped<IUserSkillsRepository, UserSkillsRepository>();
         }
     }
 }

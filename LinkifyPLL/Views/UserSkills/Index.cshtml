@@ -264,7 +264,7 @@
 
         .skills-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+
             gap: 12px;
         }
 
@@ -464,7 +464,7 @@
                             var index = 0;
                         foreach (var skill in Model.skills)
                         {
-                                <div class="skill-tag" style="animation-delay:@(index * 0.1)s">
+                                <div class="skill-tag">
                                 @skill.Name
                                 <span class="skill-level">@skill.Level</span>
                                 
@@ -480,7 +480,7 @@
 </div>
 
     <script>
-        
+       
         function renderSkills(skills = userSkills) {
              const skillsGrid = document.getElementById('skillsGrid');
 

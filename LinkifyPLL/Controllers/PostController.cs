@@ -1,16 +1,12 @@
 ﻿using LinkifyBLL.ModelView;
 using LinkifyBLL.Services.Abstraction;
-using LinkifyBLL.Services.Implementation;
 using LinkifyDAL.Entities;
 using LinkifyDAL.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
 using SempaBLL.Helper;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 
 namespace LinkifyPLL.Controllers
@@ -59,13 +55,16 @@ namespace LinkifyPLL.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model); // Return to form with validation errors
+                return View(model); // Return validation errors
             }
 
-            // Check if content is provided (since Images are optional)
-            if (string.IsNullOrWhiteSpace(model.TextContent) && (model.Images == null))
+            // Validate: At least text or one file must be provided
+            if (string.IsNullOrWhiteSpace(model.TextContent) &&
+                (model.Images == null || !model.Images.Any()) &&
+                (model.Videos == null || !model.Videos.Any()) &&
+                (model.PDFs == null || !model.PDFs.Any()))
             {
-                ModelState.AddModelError("", "Post Must Have Text Or Images or Both .");
+                ModelState.AddModelError("", "Post must contain text, images, videos, or PDFs.");
                 return View(model);
             }
 
@@ -75,38 +74,32 @@ namespace LinkifyPLL.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-
+            // Step 1: Create the post (text content)
             var post = await _postService.CreatePostAsync(user.Id, model.TextContent);
 
+            // Step 2: Upload all files (images, videos, PDFs)
+            await UploadFiles(model.Images, "posts/images", post.Id);    // Images folder
+            await UploadFiles(model.Videos, "posts/videos", post.Id);   // Videos folder
+            await UploadFiles(model.PDFs, "posts/documents", post.Id);  // PDFs folder
 
+            return RedirectToAction("Index", "Home");
+        }
 
+        // Helper method to upload files of any type
+        private async Task UploadFiles(List<IFormFile> files, string folderName, int postId)
+        {
+            if (files == null || !files.Any()) return;
 
-
-
-
-            if (model.Images != null && model.Images.Any())
+            foreach (var file in files)
             {
-                foreach (var img in model.Images)
-                {
-                    if (img != null && img.Length > 0)
-                    {
-                        string imgPath = FileManager.UploadFile("Files", img);
-                        PostImages imgy = new PostImages(imgPath, post.Id);
-                        await _postImageService.AddPostImageAsync(imgy);
+                if (file.Length == 0) continue;
 
-                    }
+                string filePath = FileManager.UploadFile(folderName, file);
+                if (!filePath.StartsWith("Only ")) // Check if upload succeeded (not an error message)
+                {
+                    await _postImageService.AddPostImageAsync(new PostImages(filePath, postId));
                 }
             }
-
-            // Redirect to a success page or another action
-            return RedirectToAction("Index", "Home");
-
-
-
-
-
-
-
         }
 
 

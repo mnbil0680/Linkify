@@ -9,17 +9,17 @@ namespace SempaBLL.Helper
             try
             {
                 // Restrict to specific file types
-                var allowedExtensions = new[] { ".pdf", ".jpg", ".jpeg", ".png" };
+                var allowedExtensions = new[] { ".pdf", ".jpg", ".jpeg", ".png" , ".mp4"};
                 var extension = Path.GetExtension(File.FileName).ToLower();
                 if (!allowedExtensions.Contains(extension))
                 {
-                    return "Only PDF, JPG, and PNG files are allowed.";
+                    return "Only PDF, JPG, PNG and MP4 files are allowed.";
                 }
 
                 // Limit file size to 10MB
-                if (File.Length > 10 * 1024 * 1024)
+                if (File.Length > 80 * 1024 * 1024)
                 {
-                    return "File size must be under 10MB.";
+                    return "File size must be under 80MB.";
                 }
 
                 // Create folder (same as original)
