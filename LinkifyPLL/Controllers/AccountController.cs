@@ -3,6 +3,7 @@ using LinkifyBLL.Services.Abstraction;
 using LinkifyDAL.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using System.Security.Claims;
 
 namespace LinkifyPLL.Controllers
@@ -15,15 +16,20 @@ namespace LinkifyPLL.Controllers
         private readonly IPostService IPS;
         private readonly IEmailService IES;
         private readonly IPostCommentsService IPCS;
+        private readonly IPostReactionsService IPostReactionS;
+        private readonly ISharePostService ISharePostService;
 
         // Constructor to initialize IUserService
-        public AccountController(IUserService ius, IAuthenticationService authService, IFriendsService ifs, IPostService ips, IEmailService ies)
+        public AccountController(IUserService ius, IAuthenticationService authService, IFriendsService ifs, IPostService ips, IEmailService ies, IPostReactionsService IPRS, ISharePostService IsharePost, IPostCommentsService ipcs )
         {
             this.IUS = ius;
             this._authService = authService;
             this.IFS = ifs;
             this.IPS = ips;
             this.IES = ies;
+            this.IPostReactionS = IPRS;
+            this.ISharePostService = IsharePost;
+            this.IPCS = ipcs;
         }
 
         [Authorize]
@@ -71,6 +77,17 @@ namespace LinkifyPLL.Controllers
         // Manual Mapping
         private async Task<ProfileMV> MapUserToProfileMVAsync(User user)
         {
+            List<Post> UserPosts = (List<Post>)await IPS.GetUserPostsAsync(user.Id);
+            int TotalReactionNumber = 0;
+            int TotalCommentsRecieved = 0;
+            int TotalNumberShares = 0;
+            foreach(var post in UserPosts)
+            {
+                TotalReactionNumber += await IPostReactionS.GetReactionCountAsync(post.Id);
+                TotalCommentsRecieved += await IPCS.GetCommentCountForPostAsync(post.Id);
+            }
+
+            
             return new ProfileMV
             {
                 // Basic Information (from User entity)
@@ -106,9 +123,9 @@ namespace LinkifyPLL.Controllers
                 ConnectionsCount = await IFS.GetFriendCountAsync(user.Id),
                 PostsCount = await IPS.GetUserPostCountAsync(user.Id),
                 ProfileViews = 0,
-                LikesCount = 0,
-                CommentsCount = 0, 
-                SharesCount = 0,
+                LikesCount = TotalReactionNumber,
+                CommentsCount = TotalCommentsRecieved,
+                SharesCount = await ISharePostService.GetUserShareCountAsync(user.Id),
 
                 // Collections - initialize as empty (populated later from other services)
                 Skills = new List<SkillMV>(),
@@ -119,7 +136,8 @@ namespace LinkifyPLL.Controllers
                 Education = new List<EducationItemMV>(),
                 Courses = new List<CourseMV>(),
                 Projects = new List<ProjectItemMV>(),
-                Posts = new List<PostMV>(),
+                Posts = (await IPS.GetUserPostsAsync(user.Id)).Take(3).ToList(),
+
 
 
                 Connections = (await IFS.GetFriendsAsync(user.Id)).ToList()

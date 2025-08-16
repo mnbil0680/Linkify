@@ -63,7 +63,7 @@ namespace LinkifyBLL.ModelView
         public bool? IsPremiumMember { get; set; }
 
         // Posts
-        public List<PostMV>? Posts { get; set; }
+        public List<Post>? Posts { get; set; }
         public List<Friends>? Connections { get; set; }
 
 
@@ -80,7 +80,7 @@ namespace LinkifyBLL.ModelView
             Education = new List<EducationItemMV>();
             Courses = new List<CourseMV>();
             Projects = new List<ProjectItemMV>();
-            Posts = new List<PostMV>();
+            Posts = new List<Post>();
 
         }
     }
