@@ -185,27 +185,40 @@
                 $(this).toggle(name.includes(searchTerm));
             });
         });
-        $(document).on('click', '.add-friend-btn', function () {
-            var button = $(this);
-            var userId = button.data('user-id');
-            button.prop('disabled', true)
-                  .html('<i class="fas fa-spinner fa-spin me-2"></i>Connecting...');
-            $.ajax({
-                url: '/Friends/AddRequest',
-                type: 'POST',
-                data: { id: userId },
-                success: function () {
-                    button.html('<i class="fas fa-check me-2"></i>Request Sent')
-                          .removeClass('btn-connect')
-                          .addClass('btn-secondary');
-                },
-                error: function (err) {
-                    button.prop('disabled', false)
-                          .html('<i class="fas fa-user-plus me-2"></i>Connect');
-                    alert("Something went wrong!");
-                    console.error(err);
-                }
-            });
+        
+        document.addEventListener("click", async function (e) {
+    if (e.target.closest(".add-friend-btn")) {
+        const button = e.target.closest(".add-friend-btn");
+        const userId = button.getAttribute("data-user-id");
+
+        // Disable button & show loading
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Connecting...';
+
+        try {
+                    const response = await fetch('/Friends/AddFriend', {
+            method: 'POST',
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({ id: userId })
         });
+
+
+            if (response.ok) {
+                button.innerHTML = '<i class="fas fa-check me-2"></i>Request Sent';
+                button.classList.remove('btn-connect');
+                button.classList.add('btn-secondary');
+            } else {
+                throw new Error("Request failed with status " + response.status);
+            }
+
+        } catch (err) {
+            button.disabled = false;
+            button.innerHTML = '<i class="fas fa-user-plus me-2"></i>Connect';
+            alert("Something went wrong!");
+            console.error(err);
+        }
+    }
+});
+
     </script>
 }

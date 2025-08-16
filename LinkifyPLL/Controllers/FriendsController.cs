@@ -17,17 +17,19 @@ namespace LinkifyPLL.Controllers
             var allFriends = _IFS.GetFriendsAsync(id).Result.ToList();
             return View(allFriends);
         }
-        [HttpPost]
-        public IActionResult AddFriend(string id)
-        {
-            var requesterId = User.FindFirstValue(ClaimTypes.NameIdentifier); // now i am the requester and iam known from the session
-            if (requesterId == id)
-            {
-                return BadRequest("You cannot send a friend request to yourself.");
-            }
 
-            _IFS.AddFriendRequestAsync(requesterId, id);
-            return Ok(); //AJAX call success
+        [HttpPost]
+        public async Task<IActionResult> AddFriend(string id)
+        {
+            var requesterId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (requesterId == id)
+                return BadRequest("You cannot send a friend request to yourself.");
+
+            await _IFS.AddFriendRequestAsync(requesterId, id);
+            return Ok(new { message = "Request Sent" });
         }
+
+
     }
 }
