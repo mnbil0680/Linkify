@@ -71,6 +71,8 @@ namespace LinkifyBLL.Helper
             services.AddScoped<ICommentReactionsService, CommentReactionsService>();
             services.AddScoped<ICommentReactionsRepository, CommentReactionsRepository>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<ICertificateRepository, CertificateRepository>();
+            services.AddScoped<ICertificateService, CertificateService>();
             services.AddScoped<IUserSkillsService, UserSkillsService>();
             services.AddScoped<IUserSkillsRepository, UserSkillsRepository>();
         }

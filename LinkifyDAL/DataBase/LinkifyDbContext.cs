@@ -20,6 +20,7 @@ namespace LinkifyDAL.DataBase
         public DbSet<JobApplication> JobApplications { get; set; }
         public DbSet<SaveJob> SaveJobs { get; set; }
         public DbSet<CommentReactions> CommentReactions { get; set; }
+        public DbSet<Certificate> Certificates { get; set; }
         public DbSet<UserSkills> UserSkills { get; set; }
     }
 }

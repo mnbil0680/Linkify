@@ -7,11 +7,10 @@ namespace LinkifyBLL.ModelView
 {
     public class PostCreateMV
     {
-        
         public string? TextContent { get; set; }
         public List<IFormFile>? Images { get; set; }
-       
-
+        public List<IFormFile>? Videos { get; set; }
+        public List<IFormFile>? PDFs { get; set; }
     }
 }
 
