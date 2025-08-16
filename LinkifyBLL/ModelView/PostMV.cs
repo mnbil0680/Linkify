@@ -21,8 +21,11 @@ namespace LinkifyBLL.ModelView
         public bool IsPremiumUser { get; set; } = true;
         public bool IsVerified { get; set; } = true;
 
-
-
+        public bool IsSharedPost { get; set; } = false;
+        public User SharedPostAuthorId { get; set; }
+        public User SharedById { get; set; }
+        public string? SharedCaption { get; set; }
+        public DateTime SharedAt { get; set; }
 
         public string TextContent { get; set; }
         public TimeSpan Since { get; set; }

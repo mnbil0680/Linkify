@@ -107,6 +107,7 @@ namespace LinkifyPLL.Controllers
             var posts = (await IPS.GetRecentPostsAsync()).ToList();
             foreach (var post in posts)
             {
+                
                 var postMV = new PostMV
                 {
                     CreatedAt = post.CreatedOn,
@@ -122,9 +123,10 @@ namespace LinkifyPLL.Controllers
                     imageCount = await IPIS.GetImageCountForPostAsync(post.Id),
                     CommentsCount = await IPCS.GetCommentCountForPostAsync(post.Id),
                     IsSavedByCurrentUser = await ISavePostS.IsPostSavedByUserAsync(post.Id, post.UserId),
-                    //Comments = new list<>
+                   
+        //Comments = new list<>
 
-                    ReactionCount = await IPRS.GetReactionCountAsync(post.Id),
+        ReactionCount = await IPRS.GetReactionCountAsync(post.Id),
 
                     LikeCount = await IPRS.GetReactionCountAsync(post.Id, ReactionTypes.Like),
                     LoveCount = await IPRS.GetReactionCountAsync(post.Id, ReactionTypes.Love),
@@ -141,6 +143,17 @@ namespace LinkifyPLL.Controllers
                     },
                 };
 
+                bool shared = await ISharePS.HasUserSharedPostAsync(post.Id, post.UserId);
+                if (shared)
+                {
+                    var sharedPostData = await ISharePS.GetUserShareOfPostAsync(post.Id, post.UserId);
+                    postMV.IsSharedPost = shared;
+                    postMV.SharedPostAuthorId = sharedPostData.User;
+                    postMV.SharedById = post.User;
+                    postMV.SharedCaption = sharedPostData.Caption;
+                    postMV.SharedAt = sharedPostData.SharedAt;
+                }
+                
                 var images = await IPIS.GetImageByPostIdAsync(post.Id);
                 foreach (var img in images)
                 {

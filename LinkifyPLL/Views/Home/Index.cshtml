@@ -2,6 +2,7 @@
     ViewData["Title"] = "Home Page";
     Layout = "~/Views/Shared/_HomeLayout.cshtml";
     var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
 }
 
 @model List<PostMV>
@@ -64,6 +65,78 @@
     }
 
     (string emoji, string text, string color) GetReactionDisplay(string reactionType, bool isActive = false)
+    {
+        return reactionType?.ToLower() switch
+        {
+            "like" => ("👍", "Like", isActive ? "#1877f2" : "var(--text-secondary)"),
+            "love" => ("❤️", "Love", isActive ? "#e91e63" : "var(--text-secondary)"),
+            "haha" => ("😂", "Haha", isActive ? "#f39c12" : "var(--text-secondary)"),
+            "sad" => ("😢", "Sad", isActive ? "#2196f3" : "var(--text-secondary)"),
+            "angry" => ("😡", "Angry", isActive ? "#e74c3c" : "var(--text-secondary)"),
+            _ => ("", "Like", "var(--text-secondary)")
+        };
+    }
+}
+
+@functions {
+    string ShareFormatSince(TimeSpan since)
+    {
+        if (since.TotalMinutes < 60)
+            return $"{since.TotalMinutes:0} min ago";
+        if (since.TotalHours < 24)
+            return $"{since.TotalHours:0} hour{(since.TotalHours >= 2 ? "s" : "")} ago";
+        if (since.TotalDays < 30)
+            return $"{since.TotalDays:0} day{(since.TotalDays >= 2 ? "s" : "")} ago";
+        return $"{(since.TotalDays / 30):0} month{(since.TotalDays / 30 >= 2 ? "s" : "")} ago";
+    }
+
+    bool ShareHasUserReactedToComment(IEnumerable<CommentReactionMV> reactions, string userId, string reactionType)
+    {
+        return reactions != null && reactions.Any(r =>
+            r.ReactorId == userId &&
+            r.Reaction.ToString() == reactionType &&
+            (r.IsDeleted == false || r.IsDeleted == null)
+        );
+    }
+
+    bool ShareHasUserReactedToPost(IEnumerable<PostReactionMV> reactions, string userId, string reactionType)
+    {
+        return reactions != null && reactions.Any(r =>
+            r.ReactorId == userId &&
+            r.Reaction.ToString() == reactionType &&
+            (r.IsDeleted == false || r.IsDeleted == null)
+        );
+    }
+
+    string ShareGetUserReactionToPost(IEnumerable<PostReactionMV> reactions, string userId)
+    {
+        var userReaction = reactions?.FirstOrDefault(r =>
+            r.ReactorId == userId &&
+            (r.IsDeleted == false || r.IsDeleted == null)
+        );
+        return userReaction?.Reaction.ToString()?.ToLower() ?? "like";
+    }
+
+    List<string> ShareGetTopReactions(PostMV post, int maxCount = 3)
+    {
+        var reactionCounts = new Dictionary<string, int>
+        {
+            { "like", post.LikeCount },
+            { "love", post.LoveCount },
+            { "haha", post.LaughCount },
+            { "sad", post.SadCount },
+            { "angry", post.AngryCount }
+        };
+
+        return reactionCounts
+            .Where(r => r.Value > 0)
+            .OrderByDescending(r => r.Value)
+            .Take(maxCount)
+            .Select(r => r.Key)
+            .ToList();
+    }
+
+    (string emoji, string text, string color) ShareGetReactionDisplay(string reactionType, bool isActive = false)
     {
         return reactionType?.ToLower() switch
         {
@@ -1110,6 +1183,271 @@
         }
     </style>
 
+    <style>
+        /* Enhanced Shared Post Wrapper Styles */
+        .shared-post-wrapper {
+            background: var(--background-secondary);
+            border-radius: var(--radius-medium);
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border-light);
+            margin-bottom: 24px;
+            overflow: hidden;
+            transition: var(--transition-medium);
+            position: relative;
+        }
+
+            .shared-post-wrapper:hover {
+                box-shadow: var(--shadow-medium);
+                transform: translateY(-2px);
+            }
+
+            .shared-post-wrapper::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, var(--primary-blue), var(--accent-purple), var(--primary-yellow));
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .shared-post-wrapper:hover::before {
+                opacity: 1;
+            }
+
+        .shared-by-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px 12px 20px;
+            background: linear-gradient(135deg, rgba(27, 132, 255, 0.03), rgba(246, 192, 0, 0.02));
+            border-bottom: 1px solid var(--border-light);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .shared-by-header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(27, 132, 255, 0.05), transparent);
+                transition: left 0.6s ease;
+            }
+
+            .shared-by-header:hover::before {
+                left: 100%;
+            }
+
+        .shared-by-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border-light);
+            transition: var(--transition-fast);
+            box-shadow: 0 2px 8px rgba(27, 132, 255, 0.15);
+            flex-shrink: 0;
+        }
+
+            .shared-by-avatar:hover {
+                transform: scale(1.1);
+                border-color: var(--primary-blue);
+                box-shadow: 0 4px 12px rgba(27, 132, 255, 0.25);
+            }
+
+        .shared-by-text {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .shared-by-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+            .shared-by-name:hover {
+                color: var(--primary-blue);
+            }
+
+        .share-action-text {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .shared-caption {
+            color: var(--text-primary);
+            font-style: italic;
+            background: rgba(27, 132, 255, 0.05);
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 4px;
+            font-weight: 500;
+            border: 1px solid rgba(27, 132, 255, 0.1);
+        }
+
+        .share-icon {
+            color: var(--primary-blue);
+            font-size: 16px;
+            margin-right: 4px;
+            animation: shareIcon 2s ease-in-out infinite;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        @@keyframes shareIcon {
+            0%, 100%
+
+        {
+            transform: rotate(0deg);
+        }
+
+        25% {
+            transform: rotate(-5deg);
+        }
+
+        75% {
+            transform: rotate(5deg);
+        }
+
+        }
+
+        .share-timestamp {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-left: auto;
+            flex-shrink: 0;
+            background: var(--background-primary);
+            padding: 4px 8px;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+        }
+
+        /* Enhanced shared post card styling */
+        .shared-post-wrapper .post-card {
+            margin: 0;
+            border-radius: 0 0 var(--radius-medium) var(--radius-medium);
+            border: none;
+            box-shadow: none;
+            background: var(--background-secondary);
+        }
+
+            .shared-post-wrapper .post-card:hover {
+                transform: none;
+                box-shadow: none;
+            }
+
+        /* Responsive design for shared posts */
+        @@media (max-width: 768px) {
+            .shared-by-header
+
+        {
+            padding: 12px 16px 8px 16px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .shared-by-avatar {
+            width: 32px;
+            height: 32px;
+        }
+
+        .shared-by-text {
+            font-size: 13px;
+        }
+
+        .shared-caption {
+            margin-left: 0;
+            margin-top: 4px;
+            flex-basis: 100%;
+        }
+
+        }
+
+        @@media (max-width: 480px) {
+            .shared-post-wrapper
+
+        {
+            border-radius: var(--radius-small);
+            margin-left: -8px;
+            margin-right: -8px;
+        }
+
+        .shared-by-header {
+            padding: 10px 12px 6px 12px;
+        }
+
+        .shared-by-text {
+            font-size: 12px;
+        }
+
+        .share-timestamp {
+            font-size: 11px;
+            padding: 2px 6px;
+        }
+
+        }
+
+        /* Dark theme adjustments */
+        [data-theme="dark"] .shared-by-header {
+            background: linear-gradient(135deg, rgba(77, 163, 255, 0.08), rgba(255, 211, 51, 0.04));
+        }
+
+        [data-theme="dark"] .shared-caption {
+            background: rgba(77, 163, 255, 0.1);
+            border-color: rgba(77, 163, 255, 0.2);
+        }
+
+        [data-theme="dark"] .shared-by-avatar {
+            box-shadow: 0 2px 8px rgba(77, 163, 255, 0.2);
+        }
+
+        /* Loading state for shared posts */
+        .shared-post-wrapper.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+            .shared-post-wrapper.loading .shared-by-header::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                right: 20px;
+                width: 16px;
+                height: 16px;
+                border: 2px solid var(--border-light);
+                border-top-color: var(--primary-blue);
+                border-radius: 50%;
+                transform: translateY(-50%);
+                animation: spin 1s linear infinite;
+            }
+
+        @@keyframes spin {
+            from
+
+        {
+            transform: translateY(-50%) rotate(0deg);
+        }
+
+        to {
+            transform: translateY(-50%) rotate(360deg);
+        }
+
+        }
+    </style>
 }
 
 <div class="feed-container">
@@ -1124,8 +1462,552 @@
             var userReaction = GetUserReactionToPost(post.Reactions, currentUserId);
             var hasUserReacted = HasUserReactedToPost(post.Reactions, currentUserId, userReaction);
             var topReactions = GetTopReactions(post);
-            
 
+            @if(post.IsSharedPost){
+
+                <div class="shared-post-wrapper">
+                    <div class="shared-by-header">
+                        <img src="@(post.SharedById.ImgPath ?? "/imgs/Account/default.png")"
+                             alt="@post.SharedById.UserName"
+                             class="shared-by-avatar" />
+
+                        <div class="shared-by-text">
+                            <i class="fas fa-share share-icon" aria-hidden="true"></i>
+                            <a href="#" class="shared-by-name">@post.SharedById.UserName</a>
+                            <span class="share-action-text">shared this post</span>
+
+                            @if (!string.IsNullOrWhiteSpace(post.SharedCaption))
+                            {
+                                <span class="shared-caption">@post.SharedCaption</span>
+                            }
+                        </div>
+
+                        <span class="share-timestamp">@ShareFormatSince(DateTime.Now - @post.SharedAt)</span>
+                    </div>
+                    <article class="post-card" data-post-id="@post.postId" role="article">
+                        <!-- Post Header -->
+                        <header class="post-header">
+                            <img src="@(post.PostUserImg ?? "/images/default-avatar.png")"
+                                 alt="@post.PostUserName"
+                                 class="post-avatar"
+                                 loading="lazy" />
+                            <div class="post-author-info">
+                                <h4 class="post-author-name">@post.PostUserName</h4>
+                                @if (!string.IsNullOrWhiteSpace(post.PostUserTitle))
+                                {
+                                    <p class="post-author-title">@post.PostUserTitle</p>
+                                }
+                                <div class="post-meta">
+                                    <time datetime="@DateTime.Now.Subtract(post.Since).ToString("yyyy-MM-ddTHH:mm:ss")">
+                                        @FormatSince(post.Since)
+                                    </time>
+                                    <span class="post-visibility">
+                                        <i class="fas fa-globe-americas" aria-hidden="true"></i>
+                                        <span class="sr-only">Public post</span>
+                                        Public
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="post-actions-menu">
+
+                                <button class="bookmark-btn @(post.IsSavedByCurrentUser ? "saved" : "")"
+                                        data-post-id="@post.postId"
+                                        data-saved="@post.IsSavedByCurrentUser.ToString().ToLower()"
+                                        onclick="toggleBookmark(this, @post.postId)"
+                                        title="@(post.IsSavedByCurrentUser ? "Remove from saved posts" : "Save post")"
+                                        aria-label="@(post.IsSavedByCurrentUser ? "Remove from saved posts" : "Save post")">
+                                    <i class="@(post.IsSavedByCurrentUser ? "fa-solid fa-bookmark" : "fa-regular fa-bookmark")" aria-hidden="true" id="save-icon-@post.postId"></i>
+                                </button>
+
+
+
+
+                                @if (currentUserId == post.PostUserId) // Owner options
+                                {
+                                    <div class="dropdown">
+                                        <button class="post-menu-btn" aria-label="Post options" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-h" aria-hidden="true"></i>
+                                        </button>
+
+                                        <div class="dropdown-menu dropdown-menu-end">
+
+                                            <a class="dropdown-item"
+                                               asp-controller="Post"
+                                               asp-action="EditPost"
+                                               asp-route-id="@post.postId"
+                                               onclick="editPost(@post.postId)">
+                                                <i class="fas fa-edit me-2"></i>Edit
+                                            </a>
+
+                                            <a class="dropdown-item text-danger" href="javascript:void(0);" onclick="confirmDeletePost(@post.postId)">
+                                                <i class="fas fa-trash me-2"></i>Delete
+                                            </a>
+                                        </div>
+
+                                    </div>
+                                }
+                                else // Other user options
+                                {
+
+                                }
+
+
+
+                            </div>
+                        </header>
+
+                        <!-- Post Content -->
+                        <div class="post-content">
+                            @if (!string.IsNullOrWhiteSpace(post.TextContent))
+                            {
+                                <p class="post-text">@post.TextContent</p>
+                            }
+                            @if (post.Images != null && post.Images.Any())
+                            {
+                                <div class="post-media">
+                                    @foreach (var img in post.Images)
+                                    {
+                                        <img src="@img" alt="Post image" class="post-image" loading="lazy" />
+                                    }
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Post Footer -->
+                        <footer class="post-footer">
+                            <!-- Reaction Summary -->
+
+                            <div class="post-reactions-summary">
+                                @if (post.ReactionCount > 0)
+                                {
+                                    <div class="reaction-summary" onclick="showReactionDetails(@post.postId)">
+                                        <div class="reaction-icons">
+                                            @foreach (var reaction in topReactions)
+                                            {
+                                                switch (reaction)
+                                                {
+                                                    case "like":
+                                                        <span class="reaction-icon like" title="Like">👍</span>
+                                                        break;
+                                                    case "love":
+                                                        <span class="reaction-icon love" title="Love">❤️</span>
+                                                        break;
+                                                    case "haha":
+                                                        <span class="reaction-icon haha" title="Haha">😂</span>
+                                                        break;
+                                                    case "sad":
+                                                        <span class="reaction-icon sad" title="Sad">😢</span>
+                                                        break;
+                                                    case "angry":
+                                                        <span class="reaction-icon angry" title="Angry">😡</span>
+                                                        break;
+                                                }
+                                            }
+                                        </div>
+                                        <span class="reaction-count">
+                                            @if (post.ReactionCount == 1)
+                                            {
+                                                @:1 person reacted
+                                            }
+                                            else
+                                            {
+                                                @post.ReactionCount.ToString("N0") <text>reactions</text>
+                                            }
+                                        </span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="reaction-summary" style="color: var(--text-tertiary); font-size: 13px;">
+                                        No reactions yet
+                                    </div>
+                                }
+
+                                <div class="post-stats">
+                                    @if (post.CommentsCount > 0)
+                                    {
+                                        <span class="comment-count" onclick="toggleComments(@post.postId)">
+                                            @post.CommentsCount.ToString("N0") comment@(post.CommentsCount == 1 ? "" : "s")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="no-comments" style="color: var(--text-tertiary); font-size: 13px;">
+                                            No comments yet
+                                        </span>
+                                    }
+                                    @if (post.NumberOfShares > 0)
+                                    {
+                                        <span class="share-count">
+                                            @post.NumberOfShares.ToString("N0") share@(post.NumberOfShares == 1 ? "" : "s")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="no-shares" style="color: var(--text-tertiary); font-size: 13px;">
+                                            Not shared yet
+                                        </span>
+                                    }
+                                </div>
+
+                            </div>
+
+
+                            <!-- Post Actions -->
+                            <div class="post-actions">
+                                <div class="reactions-container">
+                                    @{
+                                        var reactionEmoji = "";
+                                        var reactionText = "Like";
+                                        var reactionColor = "var(--text-secondary)";
+
+                                        if (hasUserReacted)
+                                        {
+                                            switch (userReaction.ToLower())
+                                            {
+                                                case "like":
+                                                    reactionEmoji = "👍";
+                                                    reactionText = "Like";
+                                                    reactionColor = "#1877f2";
+                                                    break;
+                                                case "love":
+                                                    reactionEmoji = "❤️";
+                                                    reactionText = "Love";
+                                                    reactionColor = "#e91e63";
+                                                    break;
+                                                case "haha":
+                                                    reactionEmoji = "😂";
+                                                    reactionText = "Haha";
+                                                    reactionColor = "#f39c12";
+                                                    break;
+                                                case "sad":
+                                                    reactionEmoji = "😢";
+                                                    reactionText = "Sad";
+                                                    reactionColor = "#2196f3";
+                                                    break;
+                                                case "angry":
+                                                    reactionEmoji = "😡";
+                                                    reactionText = "Angry";
+                                                    reactionColor = "#e74c3c";
+                                                    break;
+                                            }
+                                        }
+                                        var (reactionEmoji2, reactionText2, reactionColor2) = GetReactionDisplay(userReaction, hasUserReacted);
+                                    }
+
+                                    @Html.AntiForgeryToken()
+                                    <!-- Add this line -->
+                                    <input type="hidden" id="currentUserId" value="@currentUserId" />
+
+                                    <!-- Single reaction button -->
+                                    <button class="reactions-button @(hasUserReacted ? "active" : "")"
+                                            type="button"
+                                            data-post-id="@post.postId"
+                                            data-current-reaction="@userReaction"
+                                            style="color: @reactionColor2;"
+                                            onclick="handleReactionButtonClick(@post.postId)">
+                                        <span class="selected-reaction">@reactionEmoji2</span>
+                                        <span class="reaction-text">@reactionText2</span>
+                                    </button>
+
+                                    <div class="reactions-popup">
+                                        <div class="reaction-item like" data-label="Like" data-reaction="like" onclick="selectReaction(@post.postId, 'like')">👍</div>
+                                        <div class="reaction-item love" data-label="Love" data-reaction="love" onclick="selectReaction(@post.postId, 'love')">❤️</div>
+                                        <div class="reaction-item haha" data-label="Haha" data-reaction="haha" onclick="selectReaction(@post.postId, 'haha')">😂</div>
+                                        <div class="reaction-item sad" data-label="Sad" data-reaction="sad" onclick="selectReaction(@post.postId, 'sad')">😢</div>
+                                        <div class="reaction-item angry" data-label="Angry" data-reaction="angry" onclick="selectReaction(@post.postId, 'angry')">😡</div>
+                                    </div>
+                                </div>
+
+                                <button class="action-btn" onclick="toggleComments(@post.postId)" aria-label="Comment on post">
+                                    <i class="far fa-comment" aria-hidden="true"></i>
+                                    <span>Comment</span>
+                                </button>
+
+                                <button class="action-btn" onclick="sharePost(@post.postId)" id="currentUserId" aria-label="Send post">
+                                    <i class="far fa-paper-plane" aria-hidden="true"></i>
+                                    <span>Share</span>
+                                </button>
+                            </div>
+
+                            <!-- Comments Section -->
+                            <div class="comments-section" id="comments-@post.postId" style="display: none;">
+                                <div class="comments-container">
+                                    @if (post.Comments != null && post.Comments.Any())
+                                    {
+                                        @foreach (var comment in post.Comments.Take(3)) // Show only first 3 comments initially
+                                        {
+                                            <div class="comment-item" data-comment-id="@comment.CommentID">
+                                                <img src="@(comment.AuthorAvatar ?? "/imgs/Account/default.png")" alt="@comment.AuthorName" class="comment-avatar" loading="lazy" />
+                                                <div class="comment-content">
+                                                    <div class="comment-bubble">
+                                                        <div class="comment-author">@comment.AuthorName</div>
+                                                        <div class="comment-text">
+                                                            @comment.TextContent
+
+                                                            @* @if (comment.IsEdited) *@
+                                                            @* { *@
+                                                            @*     <small class="text-muted ms-1">(edited)</small> *@
+                                                            @* } *@
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="comment-actions">
+                                                        @{
+                                                            var hasCommentReaction = HasUserReactedToComment(comment.Reactions, currentUserId, "like");
+                                                            var userCommentReaction = comment.Reactions?.FirstOrDefault(r =>
+                                                            r.ReactorId == currentUserId &&
+                                                            (r.IsDeleted == false || r.IsDeleted == null));
+                                                            var commentReactionType = userCommentReaction?.Reaction?.ToString()?.ToLower() ?? "like";
+                                                            var hasAnyCommentReaction = userCommentReaction != null;
+
+                                                            // Get reaction counts for this comment
+                                                            var commentLikeCount = comment.Reactions?.Count(r => r.Reaction == "Like" && !r.IsDeleted) ?? 0;
+                                                            var commentLoveCount = comment.Reactions?.Count(r => r.Reaction == "Love" && !r.IsDeleted) ?? 0;
+                                                            var commentHahaCount = comment.Reactions?.Count(r => r.Reaction == "Haha" && !r.IsDeleted) ?? 0;
+                                                            var commentAngryCount = comment.Reactions?.Count(r => r.Reaction == "Angry" && !r.IsDeleted) ?? 0;
+                                                            var totalCommentReactions = commentLikeCount + commentLoveCount + commentHahaCount + commentAngryCount;
+                                                        }
+
+                                                        <!-- Enhanced Comment Reactions -->
+                                                        <div class="comment-reaction-button-wrapper">
+                                                            <button class="comment-reaction-btn @(hasAnyCommentReaction ? "active" : "")"
+                                                                    type="button"
+                                                                    data-comment-id="@comment.CommentID"
+                                                                    data-current-reaction="@commentReactionType"
+                                                                    style="@(hasAnyCommentReaction ? GetCommentReactionColor(commentReactionType) : "")">
+                                                                <span class="comment-reaction-emoji">@GetCommentReactionEmoji(commentReactionType, hasAnyCommentReaction)</span>
+                                                                <span class="comment-reaction-text">@GetCommentReactionText(commentReactionType, hasAnyCommentReaction)</span>
+                                                            </button>
+                                                            <div class="comment-reactions-popup">
+                                                                <div class="comment-reaction-item like" data-label="Like" data-reaction="like" onclick="selectCommentReaction(@comment.CommentID, 'like')">👍</div>
+                                                                <div class="comment-reaction-item love" data-label="Love" data-reaction="love" onclick="selectCommentReaction(@comment.CommentID, 'love')">❤️</div>
+                                                                <div class="comment-reaction-item haha" data-label="Haha" data-reaction="haha" onclick="selectCommentReaction(@comment.CommentID, 'haha')">😂</div>
+                                                                <div class="comment-reaction-item sad" data-label="Sad" data-reaction="sad" onclick="selectCommentReaction(@comment.CommentID, 'sad')">😢</div>
+                                                                <div class="comment-reaction-item angry" data-label="Angry" data-reaction="angry" onclick="selectCommentReaction(@comment.CommentID, 'angry')">😡</div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Enhanced Reply Action -->
+                                                        <div class="comment-reply-container">
+                                                            <button class="comment-action reply-btn"
+                                                                    onclick="toggleReplyInput(@comment.CommentID)"
+                                                                    data-comment-id="@comment.CommentID">
+                                                                <i class="fas fa-reply me-1"></i>
+                                                                <span>Reply</span>
+                                                            </button>
+                                                        </div>
+
+                                                        <!-- Enhanced Edit/Delete Actions (if user owns comment) -->
+                                                        @if (currentUserId == comment.CommenterId)
+                                                        {
+                                                            <div class="comment-owner-actions">
+                                                                <div class="dropdown">
+                                                                    <button class="comment-action dropdown-toggle"
+                                                                            type="button"
+                                                                            id="commentMenu@(comment.CommentID)"
+                                                                            data-bs-toggle="dropdown"
+                                                                            aria-expanded="false">
+                                                                        <i class="fas fa-ellipsis-h"></i>
+                                                                    </button>
+                                                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="commentMenu@(comment.CommentID)">
+                                                                        <li>
+                                                                            <button class="dropdown-item" onclick="editComment(@comment.CommentID)">
+                                                                                <i class="fas fa-edit me-2"></i>Edit
+                                                                            </button>
+                                                                        </li>
+                                                                        <li>
+                                                                            <button class="dropdown-item text-danger" onclick="deleteComment(@comment.CommentID)">
+                                                                                <i class="fas fa-trash me-2"></i>Delete
+                                                                            </button>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+
+                                                        }
+
+                                                        <!-- Time Display with Enhanced Formatting -->
+                                                        <time datetime="@DateTime.Now.Subtract(comment.Since).ToString("yyyy-MM-ddTHH:mm:ss")">
+                                                            @FormatSince(comment.Since)
+                                                        </time>
+
+                                                        <!-- Report Action -->
+                                                        @if (currentUserId != comment.CommenterId)
+                                                        {
+                                                            <button class="comment-action report-btn" onclick="reportComment(@comment.CommentID)">
+                                                                <i class="fas fa-flag me-1"></i>
+                                                                <span class="d-none d-md-inline">Report</span>
+                                                            </button>
+                                                        }
+                                                    </div>
+
+                                                    @* // Show Relpies *@
+                                                    @if (comment.Replies != null && comment.Replies.Any())
+                                                    {
+                                                        <div class="replies-container" style="margin-left:44px;">
+                                                            @foreach (var reply in comment.Replies)
+                                                            {
+                                                                <div class="comment-item reply-item" data-comment-id="@reply.CommentID">
+                                                                    <img src="@(reply.AuthorAvatar ?? "/imgs/Account/default.png")" alt="@reply.AuthorName" class="comment-avatar" loading="lazy" />
+                                                                    <div class="comment-content">
+                                                                        <div class="comment-bubble">
+                                                                            <div class="comment-author">@reply.AuthorName</div>
+                                                                            <div class="comment-text">
+                                                                                @reply.TextContent
+                                                                                @if (reply.IsEdited)
+                                                                                {
+                                                                                    <small class="text-muted ms-1">(edited)</small>
+                                                                                }
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="comment-actions">
+                                                                            <time datetime="@DateTime.Now.Subtract(reply.Since).ToString("yyyy-MM-ddTHH:mm:ss")">
+                                                                                @FormatSince(reply.Since)
+                                                                            </time>
+                                                                            <!-- reply actions-->
+                                                                            @if (currentUserId == reply.CommenterId)
+                                                                            {
+                                                                                <div class="comment-owner-actions">
+                                                                                    <div class="dropdown">
+                                                                                        <button class="comment-action dropdown-toggle"
+                                                                                                type="button"
+                                                                                                id="replyMenu@(reply.CommentID)"
+                                                                                                data-bs-toggle="dropdown"
+                                                                                                aria-expanded="false">
+                                                                                            <i class="fas fa-ellipsis-h"></i>
+                                                                                        </button>
+                                                                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="replyMenu@(reply.CommentID)">
+                                                                                            <li>
+                                                                                                <button class="dropdown-item" onclick="editReply(@reply.CommentID)">
+                                                                                                    <i class="fas fa-edit me-2"></i>Edit
+                                                                                                </button>
+                                                                                            </li>
+                                                                                            <li>
+                                                                                                <button class="dropdown-item text-danger" onclick="deleteReply(@reply.CommentID)">
+                                                                                                    <i class="fas fa-trash me-2"></i>Delete
+                                                                                                </button>
+                                                                                            </li>
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                </div>
+                                                                            }
+
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    }
+
+
+                                                    <!-- Reply Input Section (Initially Hidden) -->
+                                                    <div class="reply-input-section" id="reply-@comment.CommentID" style="display: none;">
+                                                        <div class="reply-input-wrapper">
+                                                            <img src="@(ViewBag.CurrentUserAvatar ?? "/imgs/Account/default.png")"
+                                                                 alt="Your avatar"
+                                                                 class="reply-input-avatar" />
+                                                            <textarea class="reply-input"
+                                                                      placeholder="Write a reply..."
+                                                                      rows="1"
+                                                                      data-comment-id="@comment.CommentID"
+                                                                      onkeypress="handleReplySubmit(event, @comment.CommentID)"
+                                                                      oninput="autoResizeTextarea(this)"></textarea>
+                                                            <button class="reply-submit-btn"
+                                                                    onclick="submitReply(@comment.CommentID)"
+                                                                    disabled>
+                                                                <i class="fas fa-paper-plane"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    @functions {
+                                    string ShareGetCommentReactionEmoji(string reactionType, bool isActive)
+                                    {
+                                        if (!isActive) return "👍";
+
+                                        return reactionType?.ToLower() switch
+                                        {
+                                            "love" => "❤️",
+                                            "haha" => "😂",
+                                            "angry" => "😡",
+                                            _ => "👍"
+                                        };
+                                    }
+
+                                    string ShareGetCommentReactionText(string reactionType, bool isActive)
+                                    {
+                                        if (!isActive) return "Like";
+
+                                        return reactionType?.ToLower() switch
+                                        {
+                                            "love" => "Love",
+                                            "haha" => "Haha",
+                                            "angry" => "Angry",
+                                            _ => "Like"
+                                        };
+                                    }
+
+                                    string ShareGetCommentReactionColor(string reactionType)
+                                    {
+                                        return reactionType?.ToLower() switch
+                                        {
+                                            "love" => "color: #e91e63;",
+                                            "haha" => "color: #f39c12;",
+                                            "angry" => "color: #e74c3c;",
+                                            _ => "color: #1877f2;"
+                                        };
+                                    }
+                                }
+
+                            </div>
+                        </div>
+                                        }
+
+                                        @if (post.Comments.Count > 3)
+                                        {
+                                            <div class="load-more-comments" onclick="loadMoreComments(@post.postId)">
+                                                <span style="color: var(--text-secondary); cursor: pointer; font-size: 14px; padding: 8px;">
+                                                    View @((post.Comments.Count - 3).ToString()) more comment@(post.Comments.Count - 3 == 1 ? "" : "s")
+                                                </span>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 14px;">
+                                            No comments yet. Be the first to comment!
+                                        </div>
+                                    }
+                                </div>
+
+                                <!-- Comment Input -->
+                                <div class="comment-input-container">
+                                    <div class="comment-input-wrapper">
+                                        <img src="@(currentUserId != null ? "/imgs/Account/default.png" : "/imgs/Account/default.png")" alt="Your avatar" class="comment-input-avatar" loading="lazy" />
+                                        <textarea class="comment-input" placeholder="Write a comment..." rows="1"
+                                                  data-post-id="@post.postId"
+                                                  onkeypress="handleCommentSubmit(event, @post.postId)"
+                                                  oninput="autoResizeTextarea(this)"></textarea>
+                                        <button class="comment-submit-btn" onclick="submitComment(@post.postId)" disabled>
+                                            <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </footer>
+                    </article>
+
+                </div>
+                
+            
+            }
+            else
+            {
+                
+            
 
             <article class="post-card" data-post-id="@post.postId" role="article">
                 <!-- Post Header -->
@@ -1369,7 +2251,7 @@
                             <span>Comment</span>
                         </button>
 
-                        <button class="action-btn" onclick="sharePost(@post.postId)" aria-label="Send post">
+                            <button class="action-btn" onclick="sharePost(@post.postId)" id="currentUserId"  aria-label="Send post">
                             <i class="far fa-paper-plane" aria-hidden="true"></i>
                             <span>Share</span>
                         </button>
@@ -1421,9 +2303,9 @@
                                                             type="button"
                                                             data-comment-id="@comment.CommentID"
                                                             data-current-reaction="@commentReactionType"
-                                                            style="@(hasAnyCommentReaction ? GetCommentReactionColor(commentReactionType) : "")">
-                                                        <span class="comment-reaction-emoji">@GetCommentReactionEmoji(commentReactionType, hasAnyCommentReaction)</span>
-                                                        <span class="comment-reaction-text">@GetCommentReactionText(commentReactionType, hasAnyCommentReaction)</span>
+                                                            style="@(hasAnyCommentReaction ? ShareGetCommentReactionColor(commentReactionType) : "")">
+                                                        <span class="comment-reaction-emoji">@ShareGetCommentReactionEmoji(commentReactionType, hasAnyCommentReaction)</span>
+                                                            <span class="comment-reaction-text">@ShareGetCommentReactionText(commentReactionType, hasAnyCommentReaction)</span>
                                                     </button>
                                                     <div class="comment-reactions-popup">
                                                         <div class="comment-reaction-item like" data-label="Like" data-reaction="like" onclick="selectCommentReaction(@comment.CommentID, 'like')">👍</div>
@@ -1643,6 +2525,8 @@
                     </div>
                 </footer>
             </article>
+            
+            }
         }
     }
     else
@@ -2375,7 +3259,7 @@
                 });
         }
 
-        function sharePost(postId) {
+        function sendPost(postId) {
             const postUrl = `${window.location.origin}/posts/${postId}`;
             
             if (navigator.share) {
@@ -2411,6 +3295,8 @@
                 document.body.removeChild(textArea);
             }
         }
+
+
 
         function reportPost(postId) {
             if (confirm('Are you sure you want to report this post?')) {
@@ -2541,9 +3427,7 @@
 
   
 
-        function sendPost(postId) {
-            showToast('Send functionality coming soon!', 'info');
-        }
+       
 
 
      </script>
@@ -2893,6 +3777,210 @@
         }
     </script>
      
+    @* For Share Post *@
+    <script>
+                // Share Post Implementation using MVC Actions
+
+        function sharePost(postId) {
+            
+            checkIfAlreadyShared(postId);
+        }
+
+                function checkIfAlreadyShared(postId) {
+            const userId = getCurrentUserId();
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            fetch('/Share/CheckIfShared', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify({ postId: postId, userId: userId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.hasShared) {
+                    handleAlreadyShared(data.shareId, postId);
+                } else {
+                    showShareDialog(postId);
+                }
+            })
+            .catch(() => {
+                showToast('Error checking share status', 'error');
+            });
+        }
+
+
+        function handleAlreadyShared(shareId, postId) {
+            const userChoice = confirm('You have already shared this post. Do you want to update your caption?');
+
+            if (userChoice) {
+                showUpdateCaptionDialog(shareId);
+            } else {
+                showToast('Post already shared', 'info');
+            }
+        }
+
+        function showShareDialog(postId) {
+            const caption = prompt('Add a caption for your share (optional):');
+
+            // User cancelled the dialog
+            if (caption === null) {
+                return;
+            }
+
+            executeShare(postId, caption);
+        }
+
+        function executeShare(postId, caption) {
+            const userId = getCurrentUserId();
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            showToast('Sharing post...', 'info');
+
+            fetch('/Share/CreateShare', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token // ASP.NET Core anti-forgery token
+                },
+                body: JSON.stringify({
+                    postId: postId,
+                    userId: userId,
+                    caption: caption || ''
+                })
+            })
+            .then(res => res.json())
+            .then(response => {
+                if (response.success) {
+                    showToast('Post shared successfully!', 'success');
+                    updateShareButton(postId, true);
+                    updateShareCount(postId);
+                } else {
+                    showToast(response.message || 'Failed to share post', 'error');
+                }
+            })
+            .catch(() => {
+                showToast('Failed to share post', 'error');
+            });
+        }
+
+        function showUpdateCaptionDialog(shareId) {
+            const newCaption = prompt('Update your caption:');
+
+            if (newCaption === null) {
+                return;
+            }
+
+            updateShareCaption(shareId, newCaption);
+        }
+
+        function updateShareCaption(shareId, newCaption) {
+            ajaxCall({
+                url: '/Share/UpdateCaption',
+                method: 'POST',
+                data: {
+                    shareId: shareId,
+                    newCaption: newCaption
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showToast('Caption updated successfully!', 'success');
+                    } else {
+                        showToast(response.message || 'Failed to update caption', 'error');
+                    }
+                },
+                error: function() {
+                    showToast('Failed to update caption', 'error');
+                }
+            });
+        }
+
+        function updateShareButton(postId, isShared) {
+            const shareButton = document.querySelector(`[data-post-id="${postId}"] .share-btn`);
+            if (shareButton) {
+                shareButton.classList.toggle('shared', isShared);
+                shareButton.textContent = isShared ? 'Shared' : 'Share';
+            }
+        }
+
+        function updateShareCount(postId) {
+            ajaxCall({
+                url: '/Share/GetShareCount',
+                method: 'POST',
+                data: { postId: postId },
+                success: function(response) {
+                    const countElement = document.querySelector(`[data-post-id="${postId}"] .share-count`);
+                    if (countElement && response.success) {
+                        countElement.textContent = response.count;
+                    }
+                },
+                error: function() {
+                    console.log('Failed to update share count');
+                }
+            });
+        }
+
+        // Utility functions (assuming these exist in your app)
+        function isUserLoggedIn() {
+            // Replace with your actual authentication check
+            return document.querySelector('meta[name="user-id"]') !== null;
+        }
+
+        function getCurrentUserId() {
+            const input = document.getElementById('currentUserId');
+            return input ? input.value : null;
+        }
+
+
+
+        // Archive/Restore functionality
+        function archiveShare(shareId) {
+            ajaxCall({
+                url: '/Share/ArchiveShare',
+                method: 'POST',
+                data: { shareId: shareId },
+                success: function(response) {
+                    if (response.success) {
+                        showToast('Share archived', 'success');
+                        refreshUserShares();
+                    } else {
+                        showToast(response.message || 'Failed to archive share', 'error');
+                    }
+                },
+                error: function() {
+                    showToast('Failed to archive share', 'error');
+                }
+            });
+        }
+
+        function restoreShare(shareId) {
+            ajaxCall({
+                url: '/Share/RestoreShare',
+                method: 'POST',
+                data: { shareId: shareId },
+                success: function(response) {
+                    if (response.success) {
+                        showToast('Share restored', 'success');
+                        refreshUserShares();
+                    } else {
+                        showToast(response.message || 'Failed to restore share', 'error');
+                    }
+                },
+                error: function() {
+                    showToast('Failed to restore share', 'error');
+                }
+            });
+        }
+
+        function refreshUserShares() {
+            // Reload the shares list if on user profile page
+            if (window.location.pathname.includes('/Profile')) {
+                location.reload();
+            }
+        }
+    </script>
     
 
 }
