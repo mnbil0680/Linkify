@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 
 namespace LinkifyDAL.Enums
 {
-    public enum SkillCategory
+    public enum SkillLevel
     {
-        Technology,
-        Design,
-        Business,
-        Language,
-        SoftSkill,
-        Methodology
+        Beginner,
+        Intermediate,
+        Advanced,
+        Expert,
+        Master
     }
 }
