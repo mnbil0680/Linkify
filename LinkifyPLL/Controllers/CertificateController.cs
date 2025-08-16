@@ -4,7 +4,7 @@ using LinkifyDAL.Entities;
 using LinkifyDAL.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SempaBLL.Helper;
+using LinkifyBLL.Helper;
 using System.Security.Claims;
 
 namespace LinkifyPLL.Controllers

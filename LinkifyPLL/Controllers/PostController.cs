@@ -5,7 +5,7 @@ using LinkifyDAL.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using SempaBLL.Helper;
+using LinkifyBLL.Helper;
 using System.Security.Claims;
 
 

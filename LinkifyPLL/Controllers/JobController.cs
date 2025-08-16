@@ -5,7 +5,7 @@ using System.Security.Claims;
 using LinkifyBLL.Services.Implementation;
 using LinkifyBLL.Services.Abstraction;
 using LinkifyDAL.Enums;
-using SempaBLL.Helper;
+using LinkifyBLL.Helper;
 
 namespace LinkifyPLL.Controllers
 {

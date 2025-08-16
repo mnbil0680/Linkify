@@ -60,18 +60,13 @@ namespace LinkifyBLL.ModelView
         // Account & Activity Information
         public DateTime? RegistrationDate { get; set; }
         
-        public bool IsPremiumMember { get; set; }
+        public bool? IsPremiumMember { get; set; }
 
         // Posts
-        public List<PostMV> Posts { get; set; }
-        public List<Friends> Connections { get; set; }
+        public List<PostMV>? Posts { get; set; }
+        public List<Friends>? Connections { get; set; }
 
 
-        //// Recommendations & Endorsements
-        //public List<RecommendationMV>? ReceivedRecommendations { get; set; }
-        //public List<RecommendationMV>? GivenRecommendations { get; set; }
-        //public List<EndorsementMV>? Endorsements { get; set; }
-        //public List<TestimonialMV>? Testimonials { get; set; }
 
 
         // CTOR

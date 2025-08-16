@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace SempaBLL.Helper
+namespace LinkifyBLL.Helper
 {
     public static class FileManager
     {

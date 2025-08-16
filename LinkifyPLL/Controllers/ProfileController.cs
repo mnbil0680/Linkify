@@ -27,25 +27,21 @@ namespace LinkifyPLL.Controllers
             // May be 404 Page
             if (string.IsNullOrEmpty(userId))
             {
-
-                return RedirectToAction("Login");
+                return RedirectToAction("Login", "Account");
             }
 
-            // Get user from service (you'll need to add this method to IUserService)
+            // Get user from service
             var user = await IUS.GetUserByIdAsync(userId);
 
             if (user == null)
             {
-                return RedirectToAction("Login");
+                return RedirectToAction("Login", "Account");
             }
 
             // Map User entity to ProfileMV
             var profileMV = await MapUserToProfileMVAsync(user);
 
-
             return View(profileMV);
-
-            return View();
         }
 
         // Manual Mapping
@@ -147,7 +143,7 @@ namespace LinkifyPLL.Controllers
                     }
 
                     // Upload the new image using your FileManager/Upload helper
-                    imageFileName = SempaBLL.Helper.FileManager.UploadFile("Files", ProfileImage);
+                    imageFileName = LinkifyBLL.Helper.FileManager.UploadFile("Files", ProfileImage);
 
                     // Check if upload was successful
                     if (string.IsNullOrEmpty(imageFileName) || imageFileName.Contains("Error") || imageFileName.Contains("Exception"))
@@ -157,7 +153,7 @@ namespace LinkifyPLL.Controllers
                     }
 
                     // Update model with new image path for database storage
-                    imageFileName = $"/Files/{imageFileName}";
+                    imageFileName = $"{imageFileName}";
                 }
 
                 // Update user profile using the service
