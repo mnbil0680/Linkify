@@ -264,7 +264,7 @@
 
         .skills-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+
             gap: 12px;
         }
 
@@ -461,10 +461,9 @@
                     }
                     else
                     {
-                            var index = 0;
                         foreach (var skill in Model.skills)
                         {
-                                <div class="skill-tag" style="animation-delay:@(index * 0.1)s">
+                                <div class="skill-tag">
                                 @skill.Name
                                 <span class="skill-level">@skill.Level</span>
                                 
@@ -480,94 +479,7 @@
 </div>
 
     <script>
-        
-        function renderSkills(skills = userSkills) {
-             const skillsGrid = document.getElementById('skillsGrid');
-
-             if (skills.length === 0) {
-                 skillsGrid.innerHTML = '<div class="empty-state">No skills found. Add some skills to get started!</div>';
-                 return;
-             }
-
-             skillsGrid.innerHTML = skills.map((skill, index) => `
-                 <div class="skill-tag" style="animation-delay: ${index * 0.1}s">
-                     ${skill.name}
-                     <span class="skill-level">${skill.level}</span>
-                     <div class="remove-skill" onclick="removeSkill(${index})" title="Remove skill">×</div>
-                 </div>
-             `).join('');
-
-             updateStats(skills);
-         }
        
-
-        function addCustomSkill() {
-            const nameInput = document.getElementById('skillNameInput');
-            const levelSelect = document.getElementById('skillLevel');
-            const categorySelect = document.getElementById('skillCategory');
-
-            const skillName = nameInput.value.trim();
-            if (!skillName) {
-                nameInput.style.borderColor = '#e53e3e';
-                nameInput.placeholder = 'Please enter a skill name';
-                setTimeout(() => {
-                    nameInput.style.borderColor = '';
-                    nameInput.placeholder = 'Skill name...';
-                }, 2000);
-                return;
-            }
-
-            // Check if skill already exists
-            if (userSkills.some(skill => skill.name.toLowerCase() === skillName.toLowerCase())) {
-                nameInput.style.borderColor = '#f56500';
-                nameInput.value = '';
-                nameInput.placeholder = 'Skill already exists!';
-                setTimeout(() => {
-                    nameInput.style.borderColor = '';
-                    nameInput.placeholder = 'Skill name...';
-                }, 2000);
-                return;
-            }
-
-            const newSkill = {
-                name: skillName,
-                level: levelSelect.value.charAt(0).toUpperCase() + levelSelect.value.slice(1),
-                category: categorySelect.value
-            };
-
-            userSkills.push(newSkill);
-            nameInput.value = '';
-
-            // Add success animation to button
-            const btn = document.querySelector('.add-custom-btn');
-            btn.style.background = 'linear-gradient(135deg, #48bb78, #38a169)';
-            btn.innerHTML = '✓ Added!';
-            setTimeout(() => {
-                btn.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
-                btn.innerHTML = '➕ Add Custom';
-            }, 1500);
-
-            renderSkills();
-        }
-
-        function removeSkill(index) {
-            userSkills.splice(index, 1);
-            renderSkills();
-        }
-
-        function filterSkills() {
-            const searchTerm = document.getElementById('searchSkills').value.toLowerCase();
-            const categoryFilter = document.getElementById('categoryFilter').value;
-
-            let filteredSkills = userSkills.filter(skill => {
-                const matchesSearch = skill.name.toLowerCase().includes(searchTerm);
-                const matchesCategory = categoryFilter === 'all' || skill.category === categoryFilter;
-                return matchesSearch && matchesCategory;
-            });
-
-            renderSkills(filteredSkills);
-        }
-
         // Event listeners
         document.getElementById('searchSkills').addEventListener('input', filterSkills);
         document.getElementById('categoryFilter').addEventListener('change', filterSkills);
