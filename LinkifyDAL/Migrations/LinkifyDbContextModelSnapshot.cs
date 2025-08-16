@@ -89,7 +89,7 @@ namespace LinkifyDAL.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("IssueDate")
+                    b.Property<DateTime?>("IssueDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("IssuingOrganization")

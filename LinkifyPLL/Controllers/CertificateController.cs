@@ -32,7 +32,7 @@ namespace LinkifyPLL.Controllers
             try
             {
                 var certificates = await _certificateService.GetByUserIdAsync(GetCurrentUserId());
-                return View(certificates.Select(MapToViewModel).ToList());
+                return View("index",certificates.Select(MapToViewModel).ToList());
             }
             catch (Exception ex)
             {
