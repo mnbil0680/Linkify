@@ -6,15 +6,24 @@
 }
 @if (TempData["ErrorMessage"] != null)
 {
+    <br />
+    <br />
+    <br />
     <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
 }
 @if (TempData["SuccessMessage"] != null)
 {
+    <br />
+    <br />
+    <br />
     <div class="alert alert-success">@TempData["SuccessMessage"]</div>
 }
 
 @if (Model != null && Model.Any())
 {
+    <br />
+    <br />
+    <br />
     <div class="list-group list-group-flush">
        
         @foreach (var request in Model)
@@ -80,9 +89,10 @@
                         </form>
 
                         <!-- View Profile Button -->
-                        <a href="/Profile/Details/@request.UserId" class="btn btn-outline-primary btn-lg w-100" style="min-width: 50px;">
+                        <a asp-controller="Account" asp-action="User" asp-route-UserId="@request.UserId" class="btn btn-outline-primary btn-lg w-100" style="min-width: 50px;">
                             <i class="fas fa-eye me-2"></i>View Profile
                         </a>
+
                     </div>
                 </div>
             </div>

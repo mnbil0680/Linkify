@@ -9,70 +9,140 @@
 <link rel="stylesheet" href="~/css/people.css" />
 
 <style>
+    :root {
+        /* Light Mode Colors */
+        --primary-dark: #071437;
+        --primary-blue: #1b84ff;
+        --primary-yellow: #f6c000;
+        --accent-blue: #0066cc;
+        --accent-purple: #4a3c8e;
+        --accent-orange: #ff6b35;
+        --accent-green: #00d084;
+        --accent-pink: #ff4081;
+        --light-gray: #f4f4f4;
+        --medium-gray: #e0e0e0;
+        --dark-gray: #666;
+        --white: #ffffff;
+        --text-dark: #333;
+        --text-light: #555;
+        --border-light: #e1e5e9;
+        --background-primary: #ffffff;
+        --background-secondary: #f8f9fa;
+        --shadow: 0 2px 10px rgba(7, 20, 55, 0.1);
+        --shadow-hover: 0 4px 20px rgba(27, 132, 255, 0.15);
+        --shadow-strong: 0 8px 40px rgba(7, 20, 55, 0.12);
+        /* Glass Effects */
+        --glass-bg: rgba(255, 255, 255, 0.8);
+        --glass-border: rgba(255, 255, 255, 0.2);
+        --backdrop-blur: blur(20px);
+    }
+
+    [data-theme="dark"] {
+        --primary-dark: #ffffff;
+        --primary-blue: #4da3ff;
+        --primary-yellow: #ffd633;
+        --accent-blue: #3399ff;
+        --accent-purple: #7b6bc4;
+        --accent-orange: #ff8c5a;
+        --accent-green: #00f5a0;
+        --accent-pink: #ff6ba3;
+        --light-gray: #1a1a1a;
+        --medium-gray: #2d2d2d;
+        --dark-gray: #a0a0a0;
+        --white: #0f0f0f;
+        --text-dark: #ffffff;
+        --text-light: #b0b0b0;
+        --border-light: #333333;
+        --background-primary: #121212;
+        --background-secondary: #1e1e1e;
+        --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        --shadow-hover: 0 4px 20px rgba(77, 163, 255, 0.2);
+        --shadow-strong: 0 8px 40px rgba(0, 0, 0, 0.4);
+        /* Dark Glass Effects */
+        --glass-bg: rgba(18, 18, 18, 0.8);
+        --glass-border: rgba(255, 255, 255, 0.1);
+    }
+
     .people-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-bottom: 2rem;
         padding: 1.5rem 0 0.5rem 0;
-        border-bottom: 1px solid #e0e0e0;
+        border-bottom: 1px solid var(--border-light);
     }
-    .people-header h2 {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #0a66c2;
-        margin-bottom: 0;
-    }
-    .people-header .search-box {
-        position: relative;
-        min-width: 260px;
-    }
-    .people-header .search-input {
-        padding: 10px 12px 10px 38px;
-        border-radius: 25px;
-        border: 1px solid #e0e0e0;
-        font-size: 1rem;
-        width: 100%;
-        transition: border-color 0.2s;
-    }
-    .people-header .search-input:focus {
-        border-color: #0a66c2;
-    }
-    .people-header .search-box i {
-        position: absolute;
-        left: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #888;
-        font-size: 1.1rem;
-    }
+
+        .people-header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 0;
+        }
+
+        .people-header .search-box {
+            position: relative;
+            min-width: 260px;
+        }
+
+        .people-header .search-input {
+            padding: 10px 12px 10px 38px;
+            border-radius: 25px;
+            border: 1px solid var(--border-light);
+            font-size: 1rem;
+            width: 100%;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: var(--background-primary);
+            color: var(--text-dark);
+        }
+
+            .people-header .search-input:focus {
+                border-color: var(--primary-blue);
+                box-shadow: var(--shadow-hover);
+            }
+
+        .people-header .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--dark-gray);
+            font-size: 1.1rem;
+        }
+
     .people-card .card-img-container {
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
     }
+
     .people-card .card-body {
         text-align: center;
         padding-bottom: 0.5rem;
+        background: var(--background-primary);
     }
+
     .people-card .card-title {
         font-size: 1.15rem;
         font-weight: 700;
-        color: #191919;
+        color: var(--text-dark);
         margin-bottom: 0.25rem;
     }
+
     .people-card .text-muted {
         font-size: 0.95rem;
         margin-bottom: 0.25rem;
+        color: var(--text-light);
     }
+
     .people-card .mutual-friends {
         font-size: 0.9rem;
-        color: #666;
+        color: var(--dark-gray);
         margin-bottom: 0.5rem;
         text-align: center;
     }
+
     .people-card .card-footer {
-        background: #f8f8f8;
-        border-top: 1px solid #e0e0e0;
+        background: var(--background-secondary);
+        border-top: 1px solid var(--border-light);
         border-bottom-left-radius: 10px;
         border-bottom-right-radius: 10px;
         display: flex;
@@ -81,42 +151,70 @@
         align-items: center;
         padding: 0.75rem 1rem;
     }
+
     .people-card .btn-connect {
         font-weight: 600;
         border-radius: 25px;
         font-size: 0.98rem;
-        box-shadow: 0 2px 8px rgba(10,102,194,0.08);
+        box-shadow: var(--shadow);
+        background: var(--primary-blue);
+        border-color: var(--primary-blue);
+        transition: all 0.2s ease;
     }
+
+        .people-card .btn-connect:hover {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-1px);
+        }
+
     .people-card .btn-view-profile {
         border-radius: 25px;
         font-size: 0.98rem;
+        background: var(--background-primary);
+        border: 1px solid var(--border-light);
+        color: var(--text-dark);
+        transition: all 0.2s ease;
     }
+
+        .people-card .btn-view-profile:hover {
+            background: var(--background-secondary);
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+            box-shadow: var(--shadow);
+        }
+
     .no-image-placeholder {
         border-radius: 50%;
         width: 120px;
         height: 120px;
         margin: 0 auto;
-        background: linear-gradient(135deg, #e0e0e0 0%, #f3f3f3 100%);
+        background: linear-gradient(135deg, var(--light-gray) 0%, var(--background-secondary) 100%);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #bbb;
+        color: var(--dark-gray);
         font-size: 3rem;
     }
+
     @@media (max-width: 768px) {
-        .people-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-        .no-image-placeholder {
-            width: 80px;
-            height: 80px;
-            font-size: 2rem;
-        }
+        .people-header
+
+    {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .no-image-placeholder {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+    }
+
     }
 </style>
-
 <div class="container mt-4">
     <div class="people-header" style="margin: 3rem auto">
         <h2>People You May Know</h2>
@@ -164,10 +262,11 @@
                         <button class="btn btn-connect add-friend-btn flex-grow-1" data-user-id="@user.Id">
                             <i class="fas fa-user-plus me-2"></i>Connect
                         </button>
-                        <a href="@Url.Action("Profile", "Home", new { id = user.Id })" 
+                        <a asp-controller="Account" asp-action="User" asp-route-UserId="@user.Id"
                            class="btn btn-outline-secondary btn-view-profile">
                             <i class="fas fa-eye me-2"></i>View Profile
                         </a>
+
                     </div>
                 </div>
             </div>
