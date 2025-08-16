@@ -1,258 +1,425 @@
-﻿@model LinkifyBLL.ModelView.ProfileMV
-
+﻿@model ProfileMV
 @{
     ViewData["Title"] = "Edit Profile";
     Layout = "~/Views/Shared/_AppLayout.cshtml";
 }
-
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">
-                        <i class="fas fa-user-edit"></i>
-                        Edit Your Profile
-                    </h3>
-                </div>
-                <div class="card-body">
-
-                    @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
-
-                    @using (Html.BeginForm("EditProfile", "Profile", FormMethod.Post, new { enctype = "multipart/form-data", @class = "needs-validation", novalidate = "novalidate" }))
-                    {
-                        @Html.AntiForgeryToken()
-                        @Html.HiddenFor(m => m.Id)
-
-                        <!-- Profile Image Section -->
-                        <div class="form-group mb-4 text-center">
-                            <label class="form-label fw-bold">Profile Picture</label>
-                            <div class="mb-3">
-                                @if (!string.IsNullOrEmpty(Model.ImgPath))
-                                {
-                                    <img src="@Model.ImgPath" alt="Profile Image" class="rounded-circle"
-                                         style="width: 120px; height: 120px; object-fit: cover;" id="profilePreview" />
-                                }
-                                else
-                                {
-                                    <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center"
-                                         style="width: 120px; height: 120px; margin: 0 auto;">
-                                        <i class="fas fa-user fa-3x text-white"></i>
-                                    </div>
-                                }
-                            </div>
-                            <input type="file" name="ProfileImage" class="form-control" accept="image/*"
-                                   onchange="previewImage(event)" />
-                            <small class="text-muted">Supported: JPG, PNG, GIF (Max 5MB)</small>
-                        </div>
-
-                        <!-- Basic Information -->
-                        <fieldset class="border p-3 mb-4 rounded">
-                            <legend class="w-auto px-2 h5 text-primary">
-                                <i class="fas fa-user"></i> Basic Information
-                            </legend>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        @Html.LabelFor(m => m.Name, new { @class = "form-label fw-bold" })
-                                        @Html.TextBoxFor(m => m.Name, new { @class = "form-control", required = "required" })
-                                        @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger small" })
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        @Html.LabelFor(m => m.Email, new { @class = "form-label fw-bold" })
-                                        @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email" })
-                                        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small" })
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        @Html.LabelFor(m => m.PhoneNumber, new { @class = "form-label fw-bold" })
-                                        @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control" })
-                                        @Html.ValidationMessageFor(m => m.PhoneNumber, "", new { @class = "text-danger small" })
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        @Html.LabelFor(m => m.Location, new { @class = "form-label fw-bold" })
-                                        @Html.TextBoxFor(m => m.Location, new { @class = "form-control" })
-                                        @Html.ValidationMessageFor(m => m.Location, "", new { @class = "text-danger small" })
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group mb-3">
-                                @Html.LabelFor(m => m.Bio, new { @class = "form-label fw-bold" })
-                                @Html.TextAreaFor(m => m.Bio, new { @class = "form-control", rows = 4, placeholder = "Tell us about yourself..." })
-                                @Html.ValidationMessageFor(m => m.Bio, "", new { @class = "text-danger small" })
-                            </div>
-                        </fieldset>
-
-                        <!-- Professional Information -->
-                        <fieldset class="border p-3 mb-4 rounded">
-                            <legend class="w-auto px-2 h5 text-success">
-                                <i class="fas fa-briefcase"></i> Professional Information
-                            </legend>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        @Html.LabelFor(m => m.Title, new { @class = "form-label fw-bold" })
-                                        @Html.TextBoxFor(m => m.Title, new { @class = "form-control", placeholder = "e.g., Software Developer" })
-                                        @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger small" })
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        @Html.LabelFor(m => m.Company, new { @class = "form-label fw-bold" })
-                                        @Html.TextBoxFor(m => m.Company, new { @class = "form-control" })
-                                        @Html.ValidationMessageFor(m => m.Company, "", new { @class = "text-danger small" })
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        @Html.LabelFor(m => m.Industry, new { @class = "form-label fw-bold" })
-                                        @Html.TextBoxFor(m => m.Industry, new { @class = "form-control" })
-                                        @Html.ValidationMessageFor(m => m.Industry, "", new { @class = "text-danger small" })
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        @Html.LabelFor(m => m.YearsOfExperience, new { @class = "form-label fw-bold" })
-                                        @Html.TextBoxFor(m => m.YearsOfExperience, new { @class = "form-control", type = "number", min = "0", max = "50" })
-                                        @Html.ValidationMessageFor(m => m.YearsOfExperience, "", new { @class = "text-danger small" })
-                                    </div>
-                                </div>
-                            </div>
-                        </fieldset>
-
-                        <!-- Social Links -->
-                        <fieldset class="border p-3 mb-4 rounded">
-                            <legend class="w-auto px-2 h5 text-info">
-                                <i class="fas fa-link"></i> Social Links
-                            </legend>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        @Html.LabelFor(m => m.LinkedInUrl, new { @class = "form-label fw-bold" })
-                                        @Html.TextBoxFor(m => m.LinkedInUrl, new { @class = "form-control", type = "url", placeholder = "https://linkedin.com/in/username" })
-                                        @Html.ValidationMessageFor(m => m.LinkedInUrl, "", new { @class = "text-danger small" })
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        @Html.LabelFor(m => m.GitHubUrl, new { @class = "form-label fw-bold" })
-                                        @Html.TextBoxFor(m => m.GitHubUrl, new { @class = "form-control", type = "url", placeholder = "https://github.com/username" })
-                                        @Html.ValidationMessageFor(m => m.GitHubUrl, "", new { @class = "text-danger small" })
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group mb-3">
-                                @Html.LabelFor(m => m.PortfolioUrl, new { @class = "form-label fw-bold" })
-                                @Html.TextBoxFor(m => m.PortfolioUrl, new { @class = "form-control", type = "url", placeholder = "https://yourportfolio.com" })
-                                @Html.ValidationMessageFor(m => m.PortfolioUrl, "", new { @class = "text-danger small" })
-                            </div>
-                        </fieldset>
-
-                        <!-- Account Settings -->
-                        <fieldset class="border p-3 mb-4 rounded">
-                            <legend class="w-auto px-2 h5 text-warning">
-                                <i class="fas fa-cog"></i> Account Settings
-                            </legend>
-
-                            
-                        </fieldset>
-
-                        <!-- Form Actions -->
-                        <div class="d-flex justify-content-between">
-                            <a href="@Url.Action("Index", "Account")" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Cancel
-                            </a>
-                            <button type="submit" class="btn btn-primary px-4">
-                                <i class="fas fa-save"></i> Save Changes
-                            </button>
-                        </div>
-                    }
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Profile Header Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body text-center">
+                    <div class="position-relative d-inline-block mb-3">
+                        <img id="profileImagePreview"
+                             src="@(!string.IsNullOrEmpty(Model.ImgPath) ? "/Files/" + Model.ImgPath : "/images/default-avatar.jpg")"
+                             alt="Profile Picture"
+                             class="rounded-circle border"
+                             style="width: 120px; height: 120px; object-fit: cover;">
+                        <label for="ProfileImage" class="position-absolute bottom-0 end-0 btn btn-primary btn-sm rounded-circle p-2" style="cursor: pointer;">
+                            <i class="fas fa-camera"></i>
+                        </label>
+                    </div>
+                    <h4 class="mb-1">@Model.Name</h4>
+                    <p class="text-muted mb-0">@(!string.IsNullOrEmpty(Model.Title) ? Model.Title : "Add your title")</p>
                 </div>
             </div>
+
+            <!-- Edit Form -->
+            <form asp-action="EditProfile" method="post" enctype="multipart/form-data" id="profileForm">
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.Id)
+                @Html.HiddenFor(m => m.ImgPath)
+
+                <!-- Success/Error Messages -->
+                @if (ViewData.ModelState.IsValid == false)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Please fix the following errors:</strong>
+                        <ul class="mb-0 mt-2">
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        @TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                <!-- Profile Image Upload (Hidden) -->
+                <input type="file" id="ProfileImage" name="ProfileImage" accept="image/*" style="display: none;" onchange="previewImage(this)">
+
+                <!-- Basic Information Card -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="fas fa-user me-2"></i>Basic Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                <input asp-for="Name" class="form-control" placeholder="Enter your full name" required>
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Email" class="form-label">Email Address</label>
+                                <input asp-for="Email" type="email" class="form-control" placeholder="Enter your email" readonly>
+                                <small class="form-text text-muted">Email cannot be changed here</small>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+                                <input asp-for="PhoneNumber" type="tel" class="form-control" placeholder="Enter your phone number">
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Location" class="form-label">Location</label>
+                                <input asp-for="Location" class="form-control" placeholder="Enter your location">
+                                <span asp-validation-for="Location" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Professional Information Card -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="fas fa-briefcase me-2"></i>Professional Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Title" class="form-label">Professional Title</label>
+                                <input asp-for="Title" class="form-control" placeholder="e.g. Software Developer, Marketing Manager">
+                                <span asp-validation-for="Title" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Company" class="form-label">Company</label>
+                                <input asp-for="Company" class="form-control" placeholder="Enter your company name">
+                                <span asp-validation-for="Company" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Industry" class="form-label">Industry</label>
+                                <input asp-for="Industry" class="form-control" placeholder="e.g. Technology, Healthcare, Finance">
+                                <span asp-validation-for="Industry" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="YearsOfExperience" class="form-label">Years of Experience</label>
+                                <input asp-for="YearsOfExperience" type="number" min="0" max="50" class="form-control" placeholder="Enter years of experience">
+                                <span asp-validation-for="YearsOfExperience" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Status" class="form-label">Status</label>
+                                <select asp-for="Status" class="form-select">
+                                    <option value="">Select Status</option>
+                                    <option value="Available">Available</option>
+                                    <option value="Busy">Busy</option>
+                                    <option value="Do Not Disturb">Do Not Disturb</option>
+                                    <option value="Away">Away</option>
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Bio" class="form-label">Bio</label>
+                            <textarea asp-for="Bio" class="form-control" rows="4" placeholder="Tell us about yourself, your experience, and what you're passionate about..."></textarea>
+                            <span asp-validation-for="Bio" class="text-danger"></span>
+                            <small class="form-text text-muted">Maximum 500 characters</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Links Card -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="fas fa-link me-2"></i>Social Links</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="LinkedInUrl" class="form-label">
+                                    <i class="fab fa-linkedin text-primary me-1"></i>LinkedIn Profile
+                                </label>
+                                <input asp-for="LinkedInUrl" type="url" class="form-control" placeholder="https://linkedin.com/in/yourprofile">
+                                <span asp-validation-for="LinkedInUrl" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="GitHubUrl" class="form-label">
+                                    <i class="fab fa-github text-dark me-1"></i>GitHub Profile
+                                </label>
+                                <input asp-for="GitHubUrl" type="url" class="form-control" placeholder="https://github.com/yourusername">
+                                <span asp-validation-for="GitHubUrl" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="PortfolioUrl" class="form-label">
+                                    <i class="fas fa-globe text-info me-1"></i>Portfolio Website
+                                </label>
+                                <input asp-for="PortfolioUrl" type="url" class="form-control" placeholder="https://yourportfolio.com">
+                                <span asp-validation-for="PortfolioUrl" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Statistics (Read-only) -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Account Statistics</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-2 col-6 mb-3">
+                                <div class="stat-item">
+                                    <h4 class="text-primary mb-1">@Model.ConnectionsCount</h4>
+                                    <small class="text-muted">Connections</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6 mb-3">
+                                <div class="stat-item">
+                                    <h4 class="text-success mb-1">@Model.PostsCount</h4>
+                                    <small class="text-muted">Posts</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6 mb-3">
+                                <div class="stat-item">
+                                    <h4 class="text-info mb-1">@Model.ProfileViews</h4>
+                                    <small class="text-muted">Profile Views</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6 mb-3">
+                                <div class="stat-item">
+                                    <h4 class="text-danger mb-1">@Model.LikesCount</h4>
+                                    <small class="text-muted">Likes</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6 mb-3">
+                                <div class="stat-item">
+                                    <h4 class="text-warning mb-1">@Model.CommentsCount</h4>
+                                    <small class="text-muted">Comments</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6 mb-3">
+                                <div class="stat-item">
+                                    <h4 class="text-secondary mb-1">@Model.SharesCount</h4>
+                                    <small class="text-muted">Shares</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Member Since:</strong> @(Model.RegistrationDate?.ToString("MMMM dd, yyyy") ?? "Unknown")</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1">
+                                    <strong>Membership:</strong>
+                                    <span class="badge @(Model.IsPremiumMember == true ? "bg-warning" : "bg-secondary")">
+                                        @(Model.IsPremiumMember == true ? "Premium" : "Standard")
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <button type="submit" class="btn btn-primary btn-lg me-3">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                        <a href="@Url.Action("Index", "Account")" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
-@section Scripts {
-    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50" style="z-index: 9999;">
+    <div class="d-flex justify-content-center align-items-center h-100">
+        <div class="text-center text-white">
+            <div class="spinner-border mb-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p>Updating your profile...</p>
+        </div>
+    </div>
+</div>
 
-    <script>
-        function previewImage(event) {
-            const file = event.target.files[0];
-            if (file) {
-                // Validate file size (5MB max)
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('File size must be less than 5MB');
-                    event.target.value = '';
-                    return;
-                }
+<style>
+    .stat-item {
+        padding: 15px;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        transition: transform 0.2s ease;
+    }
 
-                // Validate file type
-                const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
-                if (!validTypes.includes(file.type)) {
-                    alert('Please select a valid image file (JPG, PNG, GIF)');
-                    event.target.value = '';
-                    return;
-                }
+        .stat-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
 
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const preview = document.getElementById('profilePreview');
-                    if (preview) {
-                        preview.src = e.target.result;
-                    }
-                };
-                reader.readAsDataURL(file);
+    .card {
+        border: none;
+        border-radius: 12px;
+    }
+
+    .card-header {
+        border-radius: 12px 12px 0 0 !important;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+        }
+
+    .btn {
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+    #profileImagePreview {
+        transition: transform 0.2s ease;
+        cursor: pointer;
+    }
+
+        #profileImagePreview:hover {
+            transform: scale(1.05);
+        }
+
+    .alert {
+        border-radius: 8px;
+        border: none;
+    }
+</style>
+
+<script>
+    // Image preview functionality
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            // Validate file size (5MB)
+            if (input.files[0].size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                input.value = '';
+                return;
+            }
+
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            const fileType = input.files[0].type.toLowerCase();
+
+            if (!allowedTypes.includes(fileType)) {
+                alert('Please select a valid image file (JPG, PNG, GIF)');
+                input.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('profileImagePreview').src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Form submission with loading overlay
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+        document.getElementById('loadingOverlay').classList.remove('d-none');
+    });
+
+    // Character count for bio
+    const bioTextarea = document.querySelector('textarea[name="Bio"]');
+    if (bioTextarea) {
+        const maxLength = 500;
+        const charCountElement = document.createElement('small');
+        charCountElement.className = 'form-text text-muted';
+
+        function updateCharCount() {
+            const currentLength = bioTextarea.value.length;
+            charCountElement.textContent = `${currentLength}/${maxLength} characters`;
+
+            if (currentLength > maxLength) {
+                charCountElement.classList.remove('text-muted');
+                charCountElement.classList.add('text-danger');
+                bioTextarea.classList.add('is-invalid');
+            } else {
+                charCountElement.classList.remove('text-danger');
+                charCountElement.classList.add('text-muted');
+                bioTextarea.classList.remove('is-invalid');
             }
         }
 
-        // Simple form validation
-        $(document).ready(function() {
-            // Add custom validation rules if needed
-            $.validator.addMethod("maxFileSize", function(value, element, params) {
-                if (element.files.length === 0) return true;
-                return element.files[0].size <= params;
-            }, "File size must be less than 5MB");
+        bioTextarea.addEventListener('input', updateCharCount);
+        bioTextarea.parentNode.appendChild(charCountElement);
+        updateCharCount();
+    }
 
-            // Apply validation
-            $('form').validate({
-                rules: {
-                    Name: {
-                        required: true,
-                        minlength: 2
-                    },
-                    Email: {
-                        email: true
-                    },
-                    ProfileImage: {
-                        maxFileSize: 5242880 // 5MB in bytes
-                    }
-                },
-                messages: {
-                    Name: {
-                        required: "Name is required",
-                        minlength: "Name must be at least 2 characters"
-                    },
-                    Email: "Please enter a valid email address"
+    // Auto-dismiss alerts after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.alert:not(.alert-danger)');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                if (alert.classList.contains('show')) {
+                    alert.classList.remove('show');
+                    alert.classList.add('fade');
+                    setTimeout(() => alert.remove(), 150);
                 }
-            });
+            }, 5000);
         });
-    </script>
+    });
+
+    // URL validation
+    function validateUrl(input) {
+        if (input.value && !input.value.match(/^https?:\/\/.+/)) {
+            input.setCustomValidity('Please enter a valid URL starting with http:// or https://');
+        } else {
+            input.setCustomValidity('');
+        }
+    }
+
+    // Add URL validation to social link inputs
+    document.querySelectorAll('input[type="url"]').forEach(function(input) {
+        input.addEventListener('blur', function() {
+            validateUrl(this);
+        });
+    });
+</script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

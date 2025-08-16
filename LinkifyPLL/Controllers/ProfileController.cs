@@ -1,6 +1,7 @@
 ﻿using LinkifyBLL.ModelView;
 using LinkifyBLL.Services.Abstraction;
 using LinkifyDAL.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -20,6 +21,7 @@ namespace LinkifyPLL.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> Edit()
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -107,11 +109,12 @@ namespace LinkifyPLL.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditProfile(ProfileMV model, IFormFile ProfileImage)
         {
-            if (!ModelState.IsValid)
+
+            if (ProfileImage == null && string.IsNullOrEmpty(model.ImgPath))
             {
-                // If model is invalid, return the view with validation errors
-                return View("Edit", model);
+                ModelState.AddModelError("ProfileImage", "Profile image is required.");
             }
+
 
             try
             {

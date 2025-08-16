@@ -49,22 +49,18 @@ namespace LinkifyPLL.Controllers
         }
 
 
-
         [HttpPost]
         public async Task<IActionResult> CreatePost(PostCreateMV model)
         {
             if (!ModelState.IsValid)
             {
-                return View(model); // Return validation errors
+                return View(model); // Return to form with validation errors
             }
 
-            // Validate: At least text or one file must be provided
-            if (string.IsNullOrWhiteSpace(model.TextContent) &&
-                (model.Images == null || !model.Images.Any()) &&
-                (model.Videos == null || !model.Videos.Any()) &&
-                (model.PDFs == null || !model.PDFs.Any()))
+            // Check if content is provided (since Images are optional)
+            if (string.IsNullOrWhiteSpace(model.TextContent) && (model.Images == null))
             {
-                ModelState.AddModelError("", "Post must contain text, images, videos, or PDFs.");
+                ModelState.AddModelError("", "Post Must Have Text Or Images or Both .");
                 return View(model);
             }
 
@@ -74,16 +70,30 @@ namespace LinkifyPLL.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Step 1: Create the post (text content)
+
             var post = await _postService.CreatePostAsync(user.Id, model.TextContent);
 
-            // Step 2: Upload all files (images, videos, PDFs)
-            await UploadFiles(model.Images, "posts/images", post.Id);    // Images folder
-            await UploadFiles(model.Videos, "posts/videos", post.Id);   // Videos folder
-            await UploadFiles(model.PDFs, "posts/documents", post.Id);  // PDFs folder
 
+
+            if (model.Images != null && model.Images.Any())
+            {
+                foreach (var img in model.Images)
+                {
+                    if (img != null && img.Length > 0)
+                    {
+                        string imgPath = FileManager.UploadFile("Files", img);
+                        PostImages imgy = new PostImages(imgPath, post.Id);
+                        await _postImageService.AddPostImageAsync(imgy);
+
+                    }
+                }
+            }
+
+            // Redirect to a success page or another action
             return RedirectToAction("Index", "Home");
+
         }
+
 
         // Helper method to upload files of any type
         private async Task UploadFiles(List<IFormFile> files, string folderName, int postId)
