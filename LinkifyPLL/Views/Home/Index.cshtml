@@ -1668,32 +1668,32 @@
                                             {
                                                 case "like":
                                                     shareReactionEmoji = "👍";
-                                                    reactionText = "Like";
-                                                    reactionColor = "#1877f2";
+                                                    shareReactionText = "Like";
+                                                    shareReactionColor = "#1877f2";
                                                     break;
                                                 case "love":
                                                     shareReactionEmoji = "❤️";
-                                                    reactionText = "Love";
-                                                    reactionColor = "#e91e63";
+                                                    shareReactionText = "Love";
+                                                    shareReactionColor = "#e91e63";
                                                     break;
                                                 case "haha":
                                                     shareReactionEmoji = "😂";
-                                                    reactionText = "Haha";
-                                                    reactionColor = "#f39c12";
+                                                    shareReactionText = "Haha";
+                                                    shareReactionColor = "#f39c12";
                                                     break;
                                                 case "sad":
                                                     shareReactionEmoji = "😢";
-                                                    reactionText = "Sad";
-                                                    reactionColor = "#2196f3";
+                                                    shareReactionText = "Sad";
+                                                    shareReactionColor = "#2196f3";
                                                     break;
                                                 case "angry":
                                                     shareReactionEmoji = "😡";
-                                                    reactionText = "Angry";
-                                                    reactionColor = "#e74c3c";
+                                                    shareReactionText = "Angry";
+                                                    shareReactionColor = "#e74c3c";
                                                     break;
                                             }
                                         }
-                                        var (reactionEmoji2, reactionText2, reactionColor2) = GetReactionDisplay(userReaction, hasUserReacted);
+                                        var (shareReactionEmoji2, shareReactionText2, shareReactionColor2) = GetReactionDisplay(shareUserReaction, shareHasUserReacted);
                                     }
 
                                     @Html.AntiForgeryToken()
@@ -1701,14 +1701,14 @@
                                     <input type="hidden" id="currentUserId" value="@currentUserId" />
 
                                     <!-- Single reaction button -->
-                                    <button class="reactions-button @(hasUserReacted ? "active" : "")"
+                                    <button class="reactions-button @(shareHasUserReacted ? "active" : "")"
                                             type="button"
                                             data-post-id="@post.postId"
-                                            data-current-reaction="@userReaction"
-                                            style="color: @reactionColor2;"
+                                            data-current-reaction="@shareUserReaction"
+                                            style="color: @shareReactionColor2;"
                                             onclick="handleReactionButtonClick(@post.postId)">
-                                        <span class="selected-reaction">@reactionEmoji2</span>
-                                        <span class="reaction-text">@reactionText2</span>
+                                        <span class="selected-reaction">@shareReactionEmoji2</span>
+                                        <span class="reaction-text">@shareReactionText2</span>
                                     </button>
 
                                     <div class="reactions-popup">
@@ -1756,30 +1756,30 @@
 
                                                     <div class="comment-actions">
                                                         @{
-                                                            var hasCommentReaction = HasUserReactedToComment(comment.Reactions, currentUserId, "like");
-                                                            var userCommentReaction = comment.Reactions?.FirstOrDefault(r =>
+                                                            var shareHasCommentReaction = ShareHasUserReactedToComment(comment.Reactions, currentUserId, "like");
+                                                            var shareUserCommentReaction = comment.Reactions?.FirstOrDefault(r =>
                                                             r.ReactorId == currentUserId &&
                                                             (r.IsDeleted == false || r.IsDeleted == null));
-                                                            var commentReactionType = userCommentReaction?.Reaction?.ToString()?.ToLower() ?? "like";
-                                                            var hasAnyCommentReaction = userCommentReaction != null;
+                                                            var shareCommentReactionType = shareUserCommentReaction?.Reaction?.ToString()?.ToLower() ?? "like";
+                                                            var shareHasAnyCommentReaction = shareUserCommentReaction != null;
 
                                                             // Get reaction counts for this comment
-                                                            var commentLikeCount = comment.Reactions?.Count(r => r.Reaction == "Like" && !r.IsDeleted) ?? 0;
-                                                            var commentLoveCount = comment.Reactions?.Count(r => r.Reaction == "Love" && !r.IsDeleted) ?? 0;
-                                                            var commentHahaCount = comment.Reactions?.Count(r => r.Reaction == "Haha" && !r.IsDeleted) ?? 0;
-                                                            var commentAngryCount = comment.Reactions?.Count(r => r.Reaction == "Angry" && !r.IsDeleted) ?? 0;
-                                                            var totalCommentReactions = commentLikeCount + commentLoveCount + commentHahaCount + commentAngryCount;
+                                                            var shareCommentLikeCount = comment.Reactions?.Count(r => r.Reaction == "Like" && !r.IsDeleted) ?? 0;
+                                                            var shareCommentLoveCount = comment.Reactions?.Count(r => r.Reaction == "Love" && !r.IsDeleted) ?? 0;
+                                                            var shareCommentHahaCount = comment.Reactions?.Count(r => r.Reaction == "Haha" && !r.IsDeleted) ?? 0;
+                                                            var shareCommentAngryCount = comment.Reactions?.Count(r => r.Reaction == "Angry" && !r.IsDeleted) ?? 0;
+                                                            var shareTotalCommentReactions = shareCommentLikeCount + shareCommentLoveCount + shareCommentHahaCount + shareCommentAngryCount;
                                                         }
 
                                                         <!-- Enhanced Comment Reactions -->
                                                         <div class="comment-reaction-button-wrapper">
-                                                            <button class="comment-reaction-btn @(hasAnyCommentReaction ? "active" : "")"
+                                                            <button class="comment-reaction-btn @(shareHasAnyCommentReaction ? "active" : "")"
                                                                     type="button"
                                                                     data-comment-id="@comment.CommentID"
-                                                                    data-current-reaction="@commentReactionType"
-                                                                    style="@(hasAnyCommentReaction ? GetCommentReactionColor(commentReactionType) : "")">
-                                                                <span class="comment-reaction-emoji">@GetCommentReactionEmoji(commentReactionType, hasAnyCommentReaction)</span>
-                                                                <span class="comment-reaction-text">@GetCommentReactionText(commentReactionType, hasAnyCommentReaction)</span>
+                                                                    data-current-reaction="@shareCommentReactionType"
+                                                                    style="@(shareHasAnyCommentReaction ? ShareGetCommentReactionColor(shareCommentReactionType) : "")">
+                                                                <span class="comment-reaction-emoji">@ShareGetCommentReactionEmoji(shareCommentReactionType, shareHasAnyCommentReaction)</span>
+                                                                <span class="comment-reaction-text">@ShareGetCommentReactionText(shareCommentReactionType, shareHasAnyCommentReaction)</span>
                                                             </button>
                                                             <div class="comment-reactions-popup">
                                                                 <div class="comment-reaction-item like" data-label="Like" data-reaction="like" onclick="selectCommentReaction(@comment.CommentID, 'like')">👍</div>
@@ -1831,7 +1831,7 @@
 
                                                         <!-- Time Display with Enhanced Formatting -->
                                                         <time datetime="@DateTime.Now.Subtract(comment.Since).ToString("yyyy-MM-ddTHH:mm:ss")">
-                                                            @FormatSince(comment.Since)
+                                                            @ShareFormatSince(comment.Since)
                                                         </time>
 
                                                         <!-- Report Action -->
@@ -1857,15 +1857,15 @@
                                                                             <div class="comment-author">@reply.AuthorName</div>
                                                                             <div class="comment-text">
                                                                                 @reply.TextContent
-                                                                                @if (reply.IsEdited)
-                                                                                {
-                                                                                    <small class="text-muted ms-1">(edited)</small>
-                                                                                }
+                                                                                @* @if (reply.IsEdited) *@
+                                                                                @* { *@
+                                                                                @*     <small class="text-muted ms-1">(edited)</small> *@
+                                                                                @* } *@
                                                                             </div>
                                                                         </div>
                                                                         <div class="comment-actions">
                                                                             <time datetime="@DateTime.Now.Subtract(reply.Since).ToString("yyyy-MM-ddTHH:mm:ss")">
-                                                                                @FormatSince(reply.Since)
+                                                                                @ShareFormatSince(reply.Since)
                                                                             </time>
                                                                             <!-- reply actions-->
                                                                             @if (currentUserId == reply.CommenterId)
@@ -1924,11 +1924,11 @@
                                                     </div>
 
                                                     @functions {
-                                    string ShareGetCommentReactionEmoji(string reactionType, bool isActive)
+                                    string ShareGetCommentReactionEmoji(string shareReactionType, bool shareIsActive)
                                     {
-                                        if (!isActive) return "👍";
+                                        if (!shareIsActive) return "👍";
 
-                                        return reactionType?.ToLower() switch
+                                        return shareReactionType?.ToLower() switch
                                         {
                                             "love" => "❤️",
                                             "haha" => "😂",
@@ -1937,11 +1937,11 @@
                                         };
                                     }
 
-                                    string ShareGetCommentReactionText(string reactionType, bool isActive)
+                                    string ShareGetCommentReactionText(string shareReactionType, bool shareIsActive)
                                     {
-                                        if (!isActive) return "Like";
+                                        if (!shareIsActive) return "Like";
 
-                                        return reactionType?.ToLower() switch
+                                        return shareReactionType?.ToLower() switch
                                         {
                                             "love" => "Love",
                                             "haha" => "Haha",
@@ -1950,9 +1950,9 @@
                                         };
                                     }
 
-                                    string ShareGetCommentReactionColor(string reactionType)
+                                    string ShareGetCommentReactionColor(string shareReactionType)
                                     {
-                                        return reactionType?.ToLower() switch
+                                        return shareReactionType?.ToLower() switch
                                         {
                                             "love" => "color: #e91e63;",
                                             "haha" => "color: #f39c12;",

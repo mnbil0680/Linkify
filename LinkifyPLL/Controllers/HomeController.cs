@@ -117,7 +117,8 @@ namespace LinkifyPLL.Controllers
                 PostMV sharedPostMV = new PostMV()
                 {
                     // Original post data
-                    postId = originalPost.Id,
+                    
+                    postId = sharedpostData.Id,
                     PostUserName = originalPost.User.UserName,
                     PostUserId = originalPost.UserId,
                     PostUserTitle = originalPost.User.Title,
