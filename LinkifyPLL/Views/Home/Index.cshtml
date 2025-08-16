@@ -1459,9 +1459,9 @@
                 <input type="hidden" name="id" value="@post.postId" />
             </form>
 
-            var userReaction = GetUserReactionToPost(post.Reactions, currentUserId);
-            var hasUserReacted = HasUserReactedToPost(post.Reactions, currentUserId, userReaction);
-            var topReactions = GetTopReactions(post);
+            var shareUserReaction = ShareGetUserReactionToPost(post.Reactions, currentUserId);
+            var shareHasUserReacted = ShareHasUserReactedToPost(post.Reactions, currentUserId, shareUserReaction);
+            var shareTopReactions = ShareGetTopReactions(post);
 
             @if(post.IsSharedPost){
 
@@ -1499,7 +1499,7 @@
                                 }
                                 <div class="post-meta">
                                     <time datetime="@DateTime.Now.Subtract(post.Since).ToString("yyyy-MM-ddTHH:mm:ss")">
-                                        @FormatSince(post.Since)
+                                        @ShareFormatSince(post.Since)
                                     </time>
                                     <span class="post-visibility">
                                         <i class="fas fa-globe-americas" aria-hidden="true"></i>
@@ -1583,7 +1583,7 @@
                                 {
                                     <div class="reaction-summary" onclick="showReactionDetails(@post.postId)">
                                         <div class="reaction-icons">
-                                            @foreach (var reaction in topReactions)
+                                            @foreach (var reaction in shareTopReactions)
                                             {
                                                 switch (reaction)
                                                 {
@@ -1658,36 +1658,36 @@
                             <div class="post-actions">
                                 <div class="reactions-container">
                                     @{
-                                        var reactionEmoji = "";
-                                        var reactionText = "Like";
-                                        var reactionColor = "var(--text-secondary)";
+                                        var shareReactionEmoji = "";
+                                        var shareReactionText = "Like";
+                                        var shareReactionColor = "var(--text-secondary)";
 
-                                        if (hasUserReacted)
+                                        if (shareHasUserReacted)
                                         {
-                                            switch (userReaction.ToLower())
+                                            switch (shareUserReaction.ToLower())
                                             {
                                                 case "like":
-                                                    reactionEmoji = "👍";
+                                                    shareReactionEmoji = "👍";
                                                     reactionText = "Like";
                                                     reactionColor = "#1877f2";
                                                     break;
                                                 case "love":
-                                                    reactionEmoji = "❤️";
+                                                    shareReactionEmoji = "❤️";
                                                     reactionText = "Love";
                                                     reactionColor = "#e91e63";
                                                     break;
                                                 case "haha":
-                                                    reactionEmoji = "😂";
+                                                    shareReactionEmoji = "😂";
                                                     reactionText = "Haha";
                                                     reactionColor = "#f39c12";
                                                     break;
                                                 case "sad":
-                                                    reactionEmoji = "😢";
+                                                    shareReactionEmoji = "😢";
                                                     reactionText = "Sad";
                                                     reactionColor = "#2196f3";
                                                     break;
                                                 case "angry":
-                                                    reactionEmoji = "😡";
+                                                    shareReactionEmoji = "😡";
                                                     reactionText = "Angry";
                                                     reactionColor = "#e74c3c";
                                                     break;
@@ -2006,6 +2006,14 @@
             }
             else
             {
+                <form id="deletePostForm-@post.postId" method="post" action="/Post/DeletePost" style="display:none;">
+                    <input type="hidden" name="id" value="@post.postId" />
+                </form>
+
+                var userReaction = GetUserReactionToPost(post.Reactions, currentUserId);
+                var hasUserReacted = HasUserReactedToPost(post.Reactions, currentUserId, userReaction);
+                var topReactions = GetTopReactions(post);
+
                 
             
 

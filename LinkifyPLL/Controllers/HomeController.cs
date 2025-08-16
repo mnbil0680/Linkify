@@ -7,6 +7,7 @@ using LinkifyPLL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Security.Claims;
@@ -102,8 +103,169 @@ namespace LinkifyPLL.Controllers
 
             // Store in ViewData
             ViewData["RightSideData"] = rightSideModel;
-
             List<PostMV> HomePosts = new List<PostMV>();
+
+            // Map SharedPostMV
+            List<SharePost> sharedPostsBeforeMap = (List<SharePost>)await ISharePS.GetUserSharesAsync(userId);
+            sharedPostsBeforeMap.Reverse();
+            foreach (var sharedpostData in sharedPostsBeforeMap)
+            {
+                // Get the original post data
+                var originalPost = sharedpostData.Post;
+                var sharedByUser = sharedpostData.User;
+
+                PostMV sharedPostMV = new PostMV()
+                {
+                    // Original post data
+                    postId = originalPost.Id,
+                    PostUserName = originalPost.User.UserName,
+                    PostUserId = originalPost.UserId,
+                    PostUserTitle = originalPost.User.Title,
+                    PostUserImg = originalPost.User.ImgPath ?? "/imgs/Account/default.png",
+                    TextContent = originalPost.TextContent,
+                    CreatedAt = originalPost.CreatedOn,
+                    IsEdited = (originalPost.UpdatedOn != null),
+                    Since = DateTime.Now - originalPost.CreatedOn,
+
+                    // Shared post specific data
+                    IsSharedPost = true,
+                    SharedById = sharedByUser, // User who shared the post
+                    SharedPostAuthorId = originalPost.User, // Original post author
+                    SharedCaption = sharedpostData.Caption,
+                    SharedAt = sharedpostData.SharedAt,
+
+                    // Initialize collections
+                    Images = new List<string>(),
+                    Comments = new List<CommentCreateMV>(),
+                    Reactions = new List<PostReactionMV>(),
+
+                    // Get counts and other data (same as regular posts)
+                    imageCount = await IPIS.GetImageCountForPostAsync(originalPost.Id),
+                    CommentsCount = await IPCS.GetCommentCountForPostAsync(originalPost.Id),
+                    NumberOfShares = await ISharePS.GetPostShareCountAsync(originalPost.Id),
+                    IsSavedByCurrentUser = await ISavePostS.IsPostSavedByUserAsync(originalPost.Id, userId),
+
+                    // Reaction counts
+                    ReactionCount = await IPRS.GetReactionCountAsync(originalPost.Id),
+                    LikeCount = await IPRS.GetReactionCountAsync(originalPost.Id, ReactionTypes.Like),
+                    LoveCount = await IPRS.GetReactionCountAsync(originalPost.Id, ReactionTypes.Love),
+                    LaughCount = await IPRS.GetReactionCountAsync(originalPost.Id, ReactionTypes.Haha),
+                    SadCount = await IPRS.GetReactionCountAsync(originalPost.Id, ReactionTypes.Sad),
+                    AngryCount = await IPRS.GetReactionCountAsync(originalPost.Id, ReactionTypes.Angry),
+                    ReactionsNumbers = new List<int>
+        {
+            await IPRS.GetReactionCountAsync(originalPost.Id, ReactionTypes.Like),
+            await IPRS.GetReactionCountAsync(originalPost.Id, ReactionTypes.Love),
+            await IPRS.GetReactionCountAsync(originalPost.Id, ReactionTypes.Haha),
+            await IPRS.GetReactionCountAsync(originalPost.Id, ReactionTypes.Sad),
+            await IPRS.GetReactionCountAsync(originalPost.Id, ReactionTypes.Angry)
+        }
+                };
+
+                // Load images (same logic as regular posts)
+                var images = await IPIS.GetImageByPostIdAsync(originalPost.Id);
+                foreach (var img in images)
+                {
+                    sharedPostMV.Images.Add(img.ImagePath);
+                }
+
+                var comments = await IPCS.GetCommentsForPostAsync(originalPost.Id);
+                foreach (var comment in comments)
+                {
+                    // Fetch reactions for this comment
+                    var commentReactions = await ICRS.GetReactionsByCommentAsync(comment.Id);
+
+                    var reactionMVs = commentReactions.Select(r => new CommentReactionMV
+                    {
+                        Id = r.Id,
+                        CommentId = r.CommentId,
+                        ReactorId = r.ReactorId,
+                        ReactorUserName = r.Reactor?.UserName,
+                        Reaction = r.Reaction.ToString(),
+                        IsDeleted = r.IsDeleted,
+                        CreatedOn = r.CreatedOn
+                    }).ToList();
+
+                    // Fetch replies for this comment
+                    var replies = await IPCS.GetCommentRepliesAsync(comment.Id);
+
+                    var replyMVs = new List<CommentCreateMV>();
+                    foreach (var reply in replies)
+                    {
+                        // Fetch reactions for each reply
+                        var replyReactions = await ICRS.GetReactionsByCommentAsync(reply.Id);
+                        var replyReactionMVs = replyReactions.Select(r => new CommentReactionMV
+                        {
+                            Id = r.Id,
+                            CommentId = r.CommentId,
+                            ReactorId = r.ReactorId,
+                            ReactorUserName = r.Reactor?.UserName,
+                            Reaction = r.Reaction.ToString(),
+                            IsDeleted = r.IsDeleted,
+                            CreatedOn = r.CreatedOn
+                        }).ToList();
+
+                        // Create reply CommentCreateMV
+                        replyMVs.Add(new CommentCreateMV(
+                            isEdited: (reply.UpdatedOn != null ? true : false),
+                            createdAt: reply.CreatedOn,
+                            authorName: reply.User.UserName,
+                            authorAvatar: reply.User.ImgPath,
+                            commentId: reply.Id,
+                            postId: reply.PostId,
+                            textContent: reply.Content,
+                            imagePath: reply.ImgPath,
+                            parentCommentId: reply.ParentCommentId,
+                            commenterId: reply.CommenterId
+                        )
+                        {
+                            Reactions = replyReactionMVs,
+                            Replies = new List<CommentCreateMV>() // For now, empty; add recursion for deeper nesting if needed
+                        });
+                    }
+
+                    // Create main comment CommentCreateMV
+                    var commentMV = new CommentCreateMV(
+                        isEdited: (comment.UpdatedOn != null ? true : false),
+                        authorName: comment.User.UserName,
+                        authorAvatar: comment.User.ImgPath,
+                        commentId: comment.Id,
+                        postId: comment.PostId,
+                        textContent: comment.Content,
+                        imagePath: comment.ImgPath,
+                        parentCommentId: comment.ParentCommentId,
+                        commenterId: comment.CommenterId,
+                        createdAt: comment.CreatedOn
+                    )
+                    {
+                        Reactions = reactionMVs,
+                        Replies = replyMVs
+                    };
+
+                    sharedPostMV.Comments.Add(commentMV);
+                }
+
+
+                // Load reactions (same logic as regular posts)
+                var reactions = await IPRS.GetReactionsByPostAsync(originalPost.Id);
+                sharedPostMV.Reactions = reactions.Select(r => new PostReactionMV
+                {
+                    Id = r.Id,
+                    PostId = r.PostId,
+                    ReactorId = r.ReactorId,
+                    ReactorUserName = r.Reactor?.UserName,
+                    Reaction = r.Reaction.ToString(),
+                    IsDeleted = r.IsDeleted,
+                    CreatedOn = r.CreatedOn
+                }).ToList();
+
+                HomePosts.Add(sharedPostMV);
+            }
+
+
+
+            // Map PostMV
+            
             var posts = (await IPS.GetRecentPostsAsync()).ToList();
             foreach (var post in posts)
             {
@@ -122,6 +284,7 @@ namespace LinkifyPLL.Controllers
                     Images = new List<string>(),
                     imageCount = await IPIS.GetImageCountForPostAsync(post.Id),
                     CommentsCount = await IPCS.GetCommentCountForPostAsync(post.Id),
+                    NumberOfShares = await ISharePS.GetPostShareCountAsync(post.Id),
                     IsSavedByCurrentUser = await ISavePostS.IsPostSavedByUserAsync(post.Id, post.UserId),
                    
         //Comments = new list<>
@@ -143,16 +306,6 @@ namespace LinkifyPLL.Controllers
                     },
                 };
 
-                bool shared = await ISharePS.HasUserSharedPostAsync(post.Id, post.UserId);
-                if (shared)
-                {
-                    var sharedPostData = await ISharePS.GetUserShareOfPostAsync(post.Id, post.UserId);
-                    postMV.IsSharedPost = shared;
-                    postMV.SharedPostAuthorId = sharedPostData.User;
-                    postMV.SharedById = post.User;
-                    postMV.SharedCaption = sharedPostData.Caption;
-                    postMV.SharedAt = sharedPostData.SharedAt;
-                }
                 
                 var images = await IPIS.GetImageByPostIdAsync(post.Id);
                 foreach (var img in images)
@@ -260,6 +413,9 @@ namespace LinkifyPLL.Controllers
             }
 
             
+            
+
+
 
             return View("index", HomePosts);
         }
