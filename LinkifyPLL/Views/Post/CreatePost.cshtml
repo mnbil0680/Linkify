@@ -9,29 +9,16 @@
     <!-- Text Content -->
     <textarea asp-for="TextContent" class="form-control" placeholder="What's on your mind?" rows="4" style="margin-bottom:10px;"></textarea>
 
-    <!-- File Upload Icons - Now using Bootstrap buttons -->
+    <!-- File Upload Buttons -->
     <div class="d-flex gap-2 mb-3">
         <label class="btn btn-outline-primary btn-sm">
             <i class="fas fa-image me-1"></i> Photo
-            <input type="file" asp-for="Images" multiple accept="image/*" class="d-none">
-        </label>
-        <label class="btn btn-outline-danger btn-sm">
-            <i class="fas fa-video me-1"></i> Video
-            <input type="file" asp-for="Videos" multiple accept="video/*" class="d-none">
-        </label>
-        <label class="btn btn-outline-warning btn-sm">
-            <i class="fas fa-file-pdf me-1"></i> PDF
-            <input type="file" asp-for="PDFs" multiple accept=".pdf" class="d-none">
+            <input type="file" asp-for="Images" multiple accept="image/*" class="d-none" id="imageUpload">
         </label>
     </div>
 
-    <!-- Hidden File Inputs -->
-    <input type="file" asp-for="Images" multiple accept="image/*" class="d-none" id="ImagesInput">
-    <input type="file" asp-for="Videos" multiple accept="video/*" class="d-none" id="VideosInput">
-    <input type="file" asp-for="PDFs" multiple accept=".pdf" class="d-none" id="PDFsInput">
-
-    <!-- File Previews -->
-    <div id="filePreviews" class="file-previews mt-3"></div>
+    <!-- File Previews Container - Initially hidden -->
+    <div id="filePreviews" class="file-previews mt-3 row" style="display: none;"></div>
 
     <!-- Submit Button -->
     <button type="submit" class="btn btn-primary mt-3">Post</button>
@@ -40,165 +27,90 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // Object to track ALL selected files by type
-            const selectedFiles = {
-                Images: [],
-                Videos: [],
-                PDFs: []
-            };
+            // Track all selected files
+            let selectedFiles = [];
+            const $filePreviews = $('#filePreviews');
+            const $imageUpload = $('#imageUpload');
 
-            // Trigger file input when icons are clicked
-            $(".upload-icon").click(function () {
-                const type = $(this).data("type");
-                $(`#${type}Input`).click();
-            });
-
-            // Handle file selection
-            $("input[type='file']").change(function (e) {
-                const type = $(this).attr("id").replace("Input", "");
+            // Handle image upload and preview
+            $imageUpload.change(function(e) {
                 const files = Array.from(e.target.files);
-
-                // Validate and add new files
-                files.forEach(file => {
-                    if (validateFile(file, type)) {
-                        selectedFiles[type].push(file);
-                        addFilePreview(file, type);
-                    }
-                });
-
-                updateFileInput(type);
+                selectedFiles = selectedFiles.concat(files);
+                updatePreviews();
+                updateFileInput();
             });
 
-            // Validate file type/size
-            function validateFile(file, type) {
-                const validTypes = {
-                    Images: ['image/jpeg', 'image/png', 'image/gif'],
-                    Videos: ['video/mp4', 'video/quicktime'],
-                    PDFs: ['application/pdf']
-                };
+            // Update previews display
+            function updatePreviews() {
+                $filePreviews.empty();
 
-                if (!validTypes[type].includes(file.type)) {
-                    alert(`Invalid ${type.slice(0, -1)} type: ${file.name}`);
-                    return false;
+                if (selectedFiles.length > 0) {
+                    $filePreviews.show();
+
+                    selectedFiles.forEach((file, index) => {
+                        if (!file.type.match('image.*')) return;
+
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            $filePreviews.append(`
+                                <div class="col-md-3 mb-3 image-preview">
+                                    <div class="card">
+                                        <img src="${e.target.result}" class="card-img-top" style="height: 150px; object-fit: cover;">
+                                        <div class="card-body p-2">
+                                            <p class="card-text small mb-1">${file.name}</p>
+                                            <p class="card-text small text-muted">${(file.size/1024).toFixed(2)} KB</p>
+                                            <button class="btn btn-sm btn-danger remove-image" data-index="${index}">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `);
+                        }
+                        reader.readAsDataURL(file);
+                    });
+                } else {
+                    $filePreviews.hide();
                 }
-
-                // 80MB max for videos, 10MB for others
-                const maxSize = type === 'Videos' ? 80 * 1024 * 1024 : 10 * 1024 * 1024;
-                if (file.size > maxSize) {
-                    alert(`${file.name} exceeds maximum file size (${type === 'Videos' ? '80MB' : '10MB'})`);
-                    return false;
-                }
-
-                return true;
             }
 
-            // Add file preview
-            function addFilePreview(file, type) {
-                const preview = $(`
-                    <div class="file-preview btn btn-success" data-type="${type}" data-name="${file.name}">
-                        <span class="badge bg-secondary me-2">${type.slice(0, -1)}</span>
-                        <span class="file-name">${file.name}</span>
-                        <span class="file-size">(${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
-                        <span class="remove-file ms-auto">&times;</span>
-                    </div>
-                `);
-
-                preview.find(".remove-file").click(function () {
-                    removeFile(file, type);
-                    preview.remove();
-                });
-
-                $("#filePreviews").append(preview);
-            }
-
-            // Remove file from tracking
-            function removeFile(fileToRemove, type) {
-                selectedFiles[type] = selectedFiles[type].filter(
-                    f => f.name !== fileToRemove.name || f.size !== fileToRemove.size
-                );
-                updateFileInput(type);
-            }
-
-            // Update the hidden input with current files
-            function updateFileInput(type) {
-                const input = $(`#${type}Input`)[0];
+            // Update the actual file input
+            function updateFileInput() {
                 const dataTransfer = new DataTransfer();
-
-                selectedFiles[type].forEach(file => {
-                    dataTransfer.items.add(file);
-                });
-
-                input.files = dataTransfer.files;
+                selectedFiles.forEach(file => dataTransfer.items.add(file));
+                $imageUpload[0].files = dataTransfer.files;
             }
+
+            // Remove preview handler
+            $(document).on('click', '.remove-image', function() {
+                const index = $(this).data('index');
+                selectedFiles.splice(index, 1);
+                updatePreviews();
+                updateFileInput();
+            });
         });
     </script>
 }
 
 <style>
-    /* Upload Icons */
-    .upload-icons {
-        display: flex;
-        gap: 15px;
-    }
-
-    .upload-icon {
-        cursor: pointer;
-        padding: 8px 15px;
-        background: #f0f2f5;
-        border-radius: 5px;
-        transition: all 0.3s;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-        .upload-icon:hover {
-            background: #e4e6eb;
-            transform: translateY(-2px);
-        }
-
-        .upload-icon i {
-            font-size: 1.2em;
-        }
-
-    /* File Previews */
     .file-previews {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
+        min-height: 100px;
     }
 
-    .file-preview {
-        background: #f8f9fa;
-        padding: 10px 15px;
-        border-radius: 5px;
-        display: flex;
-        align-items: center;
-        border: 1px solid #dee2e6;
+    .image-preview .card-img-top {
+        max-height: 150px;
+        object-fit: contain;
     }
 
-        .file-preview:hover {
-            background: #e9ecef;
-        }
-
-    .file-name {
-        font-weight: 500;
-        margin-right: 8px;
+    .card {
+        height: 100%;
     }
 
-    .file-size {
-        color: #6c757d;
-        font-size: 0.9em;
+    .remove-image {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
     }
-
-    .remove-file {
-        cursor: pointer;
-        color: #dc3545;
-        font-size: 1.2em;
-        padding: 0 5px;
-    }
-
-        .remove-file:hover {
-            color: #a71d2a;
-        }
 </style>
