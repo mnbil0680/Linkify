@@ -2,6 +2,7 @@
 using LinkifyBLL.Services.Abstraction;
 using LinkifyDAL.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using System.Security.Claims;
@@ -146,10 +147,99 @@ namespace LinkifyPLL.Controllers
 
 
         [HttpGet]
-        public IActionResult Login()
+        public async Task<IActionResult> Login(string returnUurl)
         {
-            return View();
+            UserLoginMV model = new UserLoginMV
+            {
+                ReturnUrl = returnUurl,
+                // Corrected the usage of SignInManager to include the generic type argument
+                ExternalLogins = (await HttpContext.RequestServices
+                    .GetRequiredService<SignInManager<User>>()
+                    .GetExternalAuthenticationSchemesAsync()).ToList()
+            };
+            return View(model);
         }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public IActionResult ExternalLogin(string provider, string returnUrl)
+        {
+            var redirectUrl = Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl });
+
+            var properties = HttpContext.RequestServices
+                    .GetRequiredService<SignInManager<User>>().ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            return new ChallengeResult(provider, properties);
+
+
+        }
+
+        // Fix for CS7036, CS1922, and CS0103 errors in the ExternalLoginCallback method
+        [AllowAnonymous]
+        public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
+        {
+            returnUrl = returnUrl ?? Url.Content("~/");
+
+            UserLoginMV loginMV = new UserLoginMV
+            {
+                ReturnUrl = returnUrl,
+                ExternalLogins = (await HttpContext.RequestServices
+                    .GetRequiredService<SignInManager<User>>()
+                    .GetExternalAuthenticationSchemesAsync()).ToList(),
+            };
+
+            if (remoteError != null)
+            {
+                ModelState.AddModelError(string.Empty, $"Error From External Provider: {remoteError}");
+                return View("Login", loginMV);
+            }
+
+            var info = await HttpContext.RequestServices
+                .GetRequiredService<SignInManager<User>>().GetExternalLoginInfoAsync();
+
+            if (info == null)
+            {
+                ModelState.AddModelError(string.Empty, "Error Loading External Login Information");
+                return View("Login", loginMV);
+            }
+
+            var signInResult = await HttpContext.RequestServices
+                .GetRequiredService<SignInManager<User>>()
+                .ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
+
+            if (signInResult.Succeeded)
+            {
+                return LocalRedirect(returnUrl);
+            }
+            else
+            {
+                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+                if (email != null)
+                {
+                    var user = await IUS.GetUserByEmailAsync(email);
+                    if (user == null)
+                    {
+                        // Fix for CS7036: Provide required parameters for the User constructor
+                        user = new User(email, email, null, null, null, null, null);
+
+                        await HttpContext.RequestServices.GetRequiredService<UserManager<User>>().CreateAsync(user);
+                    }
+
+                    // Fix for CS0103: AccessFailedCount is a property of the User class, not a standalone variable
+                    user.AccessFailedCount = 0;
+
+                    // Fix for CS1922: Use the UserManager to add the login information
+                    await HttpContext.RequestServices.GetRequiredService<UserManager<User>>().AddLoginAsync(user, info);
+                    await HttpContext.RequestServices.GetRequiredService<SignInManager<User>>().SignInAsync(user, isPersistent: false);
+                    return LocalRedirect(returnUrl);
+                }
+
+                ViewBag.ErrorTitle = $"Email claim not received  from: {info.LoginProvider}";
+                ViewBag.ErrorMessage = "Please contact support on linkifycorprate@gmail.com";
+                return View("Error");
+            }
+            return View("Login", loginMV);
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> Login(UserLoginMV model)

@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.Google;
+
 
 namespace LinkifyBLL.Helper
 {
@@ -40,6 +42,15 @@ namespace LinkifyBLL.Helper
                     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ ";
             });
             services.AddScoped<IUserStore<User>, CustomUserStore>();
+
+            services.AddAuthentication()
+                .AddGoogle(options =>
+                {
+                    // Configure Google authentication options here
+                    options.ClientId = "85633930874-kjgqomm0qnadorqfg41096kk7vd2r0ns.apps.googleusercontent.com";
+                    options.ClientSecret = "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";
+                });
+
         }
 
         public static void LinkifyDependencyInjection(this IServiceCollection services) { 
