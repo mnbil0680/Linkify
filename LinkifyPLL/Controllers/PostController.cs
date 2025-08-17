@@ -165,9 +165,7 @@ namespace LinkifyPLL.Controllers
                 {
                     if (!model.ExistingImages.Contains(image.ImagePath))
                     {
-                        // Image was removed in UI, delete it
-                        // Add method to delete image in IPostImagesService
-                        // await _postImageService.DeleteImageAsync(image.Id);
+                        _postImageService.DeleteImageAsync(image.Id);
                     }
                 }
 
