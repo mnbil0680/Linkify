@@ -222,13 +222,21 @@ namespace LinkifyPLL.Controllers
                     IsSaved = await _saveJobService.IsJobSavedByUserAsync(job.Id, userId)
                 });
             }
+            var totalApplications = 0;
+            foreach (var job in nonDeletedJobs)
+            {
+                totalApplications += await _jobApplicationService
+                    .GetApplicationCountForJobAsync(job.Id, includeDeleted: false);
+            }
+
 
             var model = new JobListMV
             {
                 jobs = jobDetails,
                 TotalJobsCount = nonDeletedJobs.Count(),
-                ActiveJobsCount = (await _jobService.GetActiveJobsAsync()).Count(),
-                ApplicationsCount = await _jobApplicationService.GetApplicationCountByUserAsync(userId, includeDeleted: false),
+                ActiveJobsCount = (await _jobService.GetActiveJobsAsync())
+                        .Count(job => job.UserId == userId),
+                ApplicationsCount = totalApplications,
                 CurrentFilter = filter.ToLower()
             };
 
