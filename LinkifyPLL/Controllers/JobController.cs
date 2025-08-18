@@ -170,6 +170,8 @@ namespace LinkifyPLL.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             IEnumerable<Job> jobs;
+            var allUserJobs = await _jobService.GetJobsByUserAsync(userId, includeInactive: true);
+            var nonDeletedJobs = allUserJobs.Where(j => !j.IsDeleted.GetValueOrDefault());
 
             switch (filter.ToLower())
             {
@@ -189,8 +191,8 @@ namespace LinkifyPLL.Controllers
                     jobs = expiredJobs.Where(job => job.UserId == userId);
                     break;
                 default:
-                    var allUserJobs = await _jobService.GetJobsByUserAsync(userId, includeInactive: true);
-                    jobs = allUserJobs.Where(job =>
+                    var allList = await _jobService.GetJobsByUserAsync(userId, includeInactive: true);
+                    jobs = allList.Where(job =>
                         !job.IsDeleted.GetValueOrDefault());
                     break;
 
@@ -224,7 +226,7 @@ namespace LinkifyPLL.Controllers
             var model = new JobListMV
             {
                 jobs = jobDetails,
-                TotalJobsCount = jobsList.Count,
+                TotalJobsCount = nonDeletedJobs.Count(),
                 ActiveJobsCount = (await _jobService.GetActiveJobsAsync()).Count(),
                 ApplicationsCount = await _jobApplicationService.GetApplicationCountByUserAsync(userId, includeDeleted: false),
                 CurrentFilter = filter.ToLower()
