@@ -49,6 +49,12 @@ namespace LinkifyBLL.Helper
                     // Configure Google authentication options here
                     options.ClientId = "85633930874-kjgqomm0qnadorqfg41096kk7vd2r0ns.apps.googleusercontent.com";
                     options.ClientSecret = "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";
+                })
+                .AddFacebook(options =>
+                {
+                    // Configure FaceBook authentication options here
+                    options.AppId = "1099167751730787";
+                    options.AppSecret = "cfd2b6022a741f80c53efb4428a24685";
                 });
 
         }
