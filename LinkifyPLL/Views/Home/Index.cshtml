@@ -68,7 +68,7 @@
     {
         return reactionType?.ToLower() switch
         {
-            "like" => ("👍", "Like", isActive ? "#1877f2" : "var(--text-secondary)"),
+            "like" => ("👍", "Like", isActive ? "#b0b3b8" : "var(--text-secondary)"),
             "love" => ("❤️", "Love", isActive ? "#e91e63" : "var(--text-secondary)"),
             "haha" => ("😂", "Haha", isActive ? "#f39c12" : "var(--text-secondary)"),
             "sad" => ("😢", "Sad", isActive ? "#2196f3" : "var(--text-secondary)"),
@@ -140,7 +140,7 @@
     {
         return reactionType?.ToLower() switch
         {
-            "like" => ("👍", "Like", isActive ? "#1877f2" : "var(--text-secondary)"),
+            "like" => ("👍", "Like", isActive ? "#b0b3b8" : "var(--text-secondary)"),
             "love" => ("❤️", "Love", isActive ? "#e91e63" : "var(--text-secondary)"),
             "haha" => ("😂", "Haha", isActive ? "#f39c12" : "var(--text-secondary)"),
             "sad" => ("😢", "Sad", isActive ? "#2196f3" : "var(--text-secondary)"),
@@ -1669,7 +1669,7 @@
                                                 case "like":
                                                     shareReactionEmoji = "👍";
                                                     shareReactionText = "Like";
-                                                    shareReactionColor = "#1877f2";
+                                                    shareReactionColor = "#b0b3b8";
                                                     break;
                                                 case "love":
                                                     shareReactionEmoji = "❤️";
@@ -1706,7 +1706,7 @@
                                             data-post-id="@post.postId"
                                             data-current-reaction="@shareUserReaction"
                                             style="color: @shareReactionColor2;"
-                                            onclick="handleReactionButtonClick(@post.postId)">
+                                            onclick="selectReaction(@post.postId, 'like')">
                                         <span class="selected-reaction">@shareReactionEmoji2</span>
                                         <span class="reaction-text">@shareReactionText2</span>
                                     </button>
@@ -1957,7 +1957,7 @@
                                             "love" => "color: #e91e63;",
                                             "haha" => "color: #f39c12;",
                                             "angry" => "color: #e74c3c;",
-                                            _ => "color: #1877f2;"
+                                            _ => "color: #b0b3b8;"
                                         };
                                     }
                                 }
@@ -2203,7 +2203,7 @@
                                         case "like":
                                             reactionEmoji = "👍";
                                             reactionText = "Like";
-                                            reactionColor = "#1877f2";
+                                                reactionColor = "#b0b3b8";
                                             break;
                                         case "love":
                                             reactionEmoji = "❤️";
@@ -2240,7 +2240,7 @@
                                     data-post-id="@post.postId"
                                     data-current-reaction="@userReaction"
                                     style="color: @reactionColor2;"
-                                    onclick="handleReactionButtonClick(@post.postId)">
+                                        onclick="selectReaction(@post.postId, 'like')">
                                 <span class="selected-reaction">@reactionEmoji2</span>
                                 <span class="reaction-text">@reactionText2</span>
                             </button>
@@ -2491,7 +2491,7 @@
                                         "love" => "color: #e91e63;",
                                         "haha" => "color: #f39c12;",
                                         "angry" => "color: #e74c3c;",
-                                        _ => "color: #1877f2;"
+                                        _ => "color: #b0b3b8;"
                                     };
                                 }
                             }
@@ -2553,7 +2553,7 @@
     <script>
         // Enhanced Reactions System
         const reactions = {
-            like: { emoji: "👍", text: "Like", color: "#1877f2" },
+            like: { emoji: "👍", text: "Like", color: "#b0b3b8" },
             love: { emoji: "❤️", text: "Love", color: "#e91e63" },
             haha: { emoji: "😂", text: "Haha", color: "#f39c12" },
             sad: { emoji: "😢", text: "Sad", color: "#2196f3" },
@@ -2574,7 +2574,7 @@
         function initializeReactions() {
             document.querySelectorAll('.reactions-button').forEach(button => {
                 const postId = button.dataset.postId;
-                const currentReaction = button.dataset.currentReaction || 'like';
+                const currentReaction = button.dataset.currentReaction;
                 userReactions[postId] = currentReaction;
             });
         }
@@ -2619,7 +2619,7 @@
             const reactionTextSpan = button.querySelector('.reaction-text');
 
             // Check if user already has this reaction
-            const currentReaction = userReactions[postId];
+            const currentReaction = null;
             const isCurrentReaction = currentReaction === reactionKey;
 
             if (isCurrentReaction) {

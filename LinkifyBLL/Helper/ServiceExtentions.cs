@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Authentication.Google;
 
 
 namespace LinkifyBLL.Helper
@@ -56,6 +55,7 @@ namespace LinkifyBLL.Helper
                     options.AppId = "1411757057043227";
                     options.AppSecret = "7ae5d7dffb51655c9d45bee3a36060b5";
                 });
+            
 
         }
 
