@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authentication;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -32,6 +33,9 @@ namespace LinkifyBLL.ModelView
 
         [Required(ErrorMessage = "You must accept the Privacy Policy")]
         public bool AcceptPrivacy { get; set; }
+
+        public string ReturnUrl { get; set; }
+        public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
     }
 }

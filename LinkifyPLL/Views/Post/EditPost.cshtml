@@ -17,13 +17,10 @@
         <div class="col-md-8">
             <div class="card shadow">
                 <div class="card-header">
-
-                    <h2 class="mb-0">Edit Post</h2>
+                    <h1 class="mb-0 text-primary" style="margin-top:15px;">Edit Post</h1>
                 </div>
 
                 <div class="card-body">
-
-                  
                     @Html.AntiForgeryToken()
                     <form asp-action="EditPost" asp-controller="Post" method="post" enctype="multipart/form-data">
                         <div asp-validation-summary="All" class="text-danger"></div>
@@ -67,6 +64,12 @@
                             <span asp-validation-for="NewImgPaths" class="text-danger"></span>
                         </div>
 
+                        <!-- New Image Previews Container -->
+                        <div id="imagePreview" style="display: none;">
+                            <label class="form-label">New Image Previews:</label>
+                            <div id="previewContainer" class="d-flex flex-wrap gap-2"></div>
+                        </div>
+
                         <div class="d-flex justify-content-between">
                             <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Cancel</a>
                             <button type="submit" class="btn btn-primary">
@@ -74,7 +77,6 @@
                             </button>
                         </div>
                     </form>
-
                 </div>
             </div>
         </div>
@@ -82,8 +84,10 @@
 </div>
 
 @section Scripts {
-    
     <script>
+        // Store the current files globally
+        window.currentFiles = [];
+
         // Image preview functionality
         function previewImages(input) {
             const previewContainer = document.getElementById('previewContainer');
@@ -94,6 +98,9 @@
 
             if (input.files && input.files.length > 0) {
                 previewSection.style.display = 'block';
+
+                // Store files in our global array
+                window.currentFiles = Array.from(input.files);
 
                 // Limit to 10 images
                 const maxImages = Math.min(input.files.length, 10);
@@ -117,6 +124,7 @@
                     reader.onload = function(e) {
                         const imageDiv = document.createElement('div');
                         imageDiv.className = 'position-relative';
+                        imageDiv.dataset.index = i; // Store the file index
                         imageDiv.innerHTML = `
                             <img src="${e.target.result}"
                                  class="img-thumbnail"
@@ -134,11 +142,31 @@
                 }
             } else {
                 previewSection.style.display = 'none';
+                window.currentFiles = [];
             }
         }
 
         function removePreview(button) {
-            button.parentElement.remove();
+            const previewDiv = button.parentElement;
+            const index = parseInt(previewDiv.dataset.index);
+
+            // Remove from our files array
+            if (window.currentFiles && window.currentFiles.length > index) {
+                window.currentFiles.splice(index, 1);
+
+                // Update the file input
+                const dataTransfer = new DataTransfer();
+                window.currentFiles.forEach(file => dataTransfer.items.add(file));
+                document.querySelector('[name="NewImgPaths"]').files = dataTransfer.files;
+
+                // Update data indices for remaining previews
+                const previews = document.querySelectorAll('#previewContainer > div');
+                previews.forEach((div, i) => {
+                    div.dataset.index = i;
+                });
+            }
+
+            previewDiv.remove();
 
             // If no more previews, hide the preview section
             const previewContainer = document.getElementById('previewContainer');
@@ -160,18 +188,16 @@
         }
 
         // Form validation
-          document.querySelector('form').addEventListener('submit', function(e) {
+        document.querySelector('form').addEventListener('submit', function(e) {
             const textContent = document.querySelector('[name="NewTextContent"]').value.trim();
             const existingImages = document.querySelectorAll('input[name="ExistingImages"]').length;
-            const newImages = document.querySelector('[name="NewImgPaths"]').files.length;
+            const newImages = window.currentFiles ? window.currentFiles.length : 0;
 
             if (!textContent && existingImages === 0 && newImages === 0) {
                 e.preventDefault();
                 alert('Post must have text content or at least one image.');
                 return false;
             }
-        });
-
 
             // Show loading state
             const submitBtn = this.querySelector('button[type="submit"]');

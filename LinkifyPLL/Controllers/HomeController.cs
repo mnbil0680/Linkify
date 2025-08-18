@@ -1,17 +1,12 @@
 using LinkifyBLL.ModelView;
 using LinkifyBLL.Services.Abstraction;
-using LinkifyBLL.Services.Implementation;
 using LinkifyDAL.Entities;
 using LinkifyDAL.Enums;
 using LinkifyPLL.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
-using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Security.Claims;
-using System.Xml.Linq;
 
 namespace LinkifyPLL.Controllers
 {
