@@ -97,7 +97,7 @@ namespace LinkifyPLL.Controllers
                 Education = new List<EducationItemMV>(),
                 Courses = new List<CourseMV>(),
                 Projects = new List<ProjectItemMV>(),
-                Posts = (List<Post>)(await IPS.GetUserPostsAsync(user.Id)).ToList().Take(3),
+                Posts = (await IPS.GetUserPostsAsync(user.Id)).Take(3).ToList(),
 
 
                 Connections = (await IFS.GetFriendsAsync(user.Id)).ToList()

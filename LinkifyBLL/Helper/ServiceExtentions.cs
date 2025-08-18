@@ -53,8 +53,8 @@ namespace LinkifyBLL.Helper
                 .AddFacebook(options =>
                 {
                     // Configure FaceBook authentication options here
-                    options.AppId = "1099167751730787";
-                    options.AppSecret = "cfd2b6022a741f80c53efb4428a24685";
+                    options.AppId = "1948710782588446";
+                    options.AppSecret = "b82051d54aba13bda889b32c3deffb16";
                 });
 
         }

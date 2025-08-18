@@ -254,10 +254,17 @@ namespace LinkifyPLL.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Signup()
+        public async Task<IActionResult> Signup(string returnUurl)
         {
-
-            return View();
+            UserRegisterMV model = new UserRegisterMV
+            {
+                ReturnUrl = returnUurl,
+                // Corrected the usage of SignInManager to include the generic type argument
+                ExternalLogins = (await HttpContext.RequestServices
+                    .GetRequiredService<SignInManager<User>>()
+                    .GetExternalAuthenticationSchemesAsync()).ToList()
+            };
+            return View(model);
         }
 
         [HttpPost]
