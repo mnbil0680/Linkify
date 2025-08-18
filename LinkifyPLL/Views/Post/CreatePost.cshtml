@@ -5,160 +5,112 @@
     Layout = "~/Views/Shared/_AppLayout.cshtml";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header">
-                    <h2 class="mb-0">Create a New Post</h2>
-                </div>
+<form asp-action="CreatePost" enctype="multipart/form-data" id="postForm" style="margin-top: 70px;">
+    <!-- Text Content -->
+    <textarea asp-for="TextContent" class="form-control" placeholder="What's on your mind?" rows="4" style="margin-bottom:10px;"></textarea>
 
-
-                <div class="card-body">
-
-                    @* Success Message *@
-                    @if (TempData["SuccessMessage"] != null)
-                    {
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            @TempData["SuccessMessage"]
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    }
-
-                    @* Form *@
-                    <form asp-action="CreatePost" asp-controller="Post" method="post" enctype="multipart/form-data">
-                        @* Validation Summary *@
-                        <div asp-validation-summary="All" class="text-danger"></div>
-
-
-                        @* Content Field *@
-                        <div class="mb-3">
-                            <label asp-for="TextContent" class="form-label">What's on your mind?</label>
-                            <textarea asp-for="TextContent"
-                                      class="form-control"
-                                      rows="4"
-                                      placeholder="Share your thoughts..."
-                                      maxlength="1000"></textarea>
-                            <span asp-validation-for="TextContent" class="text-danger"></span>
-                            <div class="form-text">Maximum 1000 characters</div>
-                        </div>
-
-                        @* Images Field *@
-                        <div class="mb-3">
-                            <label asp-for="Images" class="form-label">Add Images (Optional)</label>
-                            <input asp-for="Images"
-                                   class="form-control"
-                                   type="file"
-                                   multiple
-                                   accept="image/*"
-                                   onchange="previewImages(this)" />
-                            <span asp-validation-for="Images" class="text-danger"></span>
-                            <div class="form-text">You can select multiple images. Max 5MB per image.</div>
-                        </div>
-
-                        @* Image Preview *@
-                        <div id="imagePreview" class="mb-3" style="display: none;">
-                            <label class="form-label">Preview:</label>
-                            <div id="previewContainer" class="d-flex flex-wrap gap-2"></div>
-                        </div>
-
-
-
-                        @* Submit Buttons *@
-                        <div class="d-flex justify-content-between">
-                            <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-paper-plane me-2"></i>Share Post
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+    <!-- File Upload Buttons -->
+    <div class="d-flex gap-2 mb-3">
+        <label class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-image me-1"></i> Photo
+            <input type="file" asp-for="Images" multiple accept="image/*" class="d-none" id="imageUpload">
+        </label>
     </div>
-</div>
+
+    <!-- File Previews Container - Initially hidden -->
+    <div id="filePreviews" class="file-previews mt-3 row" style="display: none;"></div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn btn-primary mt-3">Post</button>
+</form>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-
     <script>
-        // Image preview functionality
-        function previewImages(input) {
-            const previewContainer = document.getElementById('previewContainer');
-            const previewSection = document.getElementById('imagePreview');
+        $(document).ready(function () {
+            // Track all selected files
+            let selectedFiles = [];
+            const $filePreviews = $('#filePreviews');
+            const $imageUpload = $('#imageUpload');
 
-            // Clear previous previews
-            previewContainer.innerHTML = '';
+            // Handle image upload and preview
+            $imageUpload.change(function(e) {
+                const files = Array.from(e.target.files);
+                selectedFiles = selectedFiles.concat(files);
+                updatePreviews();
+                updateFileInput();
+            });
 
-            if (input.files && input.files.length > 0) {
-                previewSection.style.display = 'block';
+            // Update previews display
+            function updatePreviews() {
+                $filePreviews.empty();
 
-                // Limit to 10 images
-                const maxImages = Math.min(input.files.length, 10);
+                if (selectedFiles.length > 0) {
+                    $filePreviews.show();
 
-                for (let i = 0; i < maxImages; i++) {
-                    const file = input.files[i];
+                    selectedFiles.forEach((file, index) => {
+                        if (!file.type.match('image.*')) return;
 
-                    // Check file size (5MB limit)
-                    if (file.size > 5 * 1024 * 1024) {
-                        alert(`${file.name} is too large. Maximum file size is 5MB.`);
-                        continue;
-                    }
-
-                    // Check file type
-                    if (!file.type.startsWith('image/')) {
-                        alert(`${file.name} is not an image file.`);
-                        continue;
-                    }
-
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const imageDiv = document.createElement('div');
-                        imageDiv.className = 'position-relative';
-                        imageDiv.innerHTML = `
-                            <img src="${e.target.result}"
-                                 class="img-thumbnail"
-                                 style="width: 100px; height: 100px; object-fit: cover;">
-                            <button type="button"
-                                    class="btn btn-sm btn-danger position-absolute top-0 end-0"
-                                    onclick="removePreview(this)"
-                                    style="transform: translate(50%, -50%);">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        `;
-                        previewContainer.appendChild(imageDiv);
-                    };
-                    reader.readAsDataURL(file);
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            $filePreviews.append(`
+                                <div class="col-md-3 mb-3 image-preview">
+                                    <div class="card">
+                                        <img src="${e.target.result}" class="card-img-top" style="height: 150px; object-fit: cover;">
+                                        <div class="card-body p-2">
+                                            <p class="card-text small mb-1">${file.name}</p>
+                                            <p class="card-text small text-muted">${(file.size/1024).toFixed(2)} KB</p>
+                                            <button class="btn btn-sm btn-danger remove-image" data-index="${index}">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `);
+                        }
+                        reader.readAsDataURL(file);
+                    });
+                } else {
+                    $filePreviews.hide();
                 }
-            } else {
-                previewSection.style.display = 'none';
-            }
-        }
-
-        function removePreview(button) {
-            button.parentElement.remove();
-
-            // If no more previews, hide the preview section
-            const previewContainer = document.getElementById('previewContainer');
-            if (previewContainer.children.length === 0) {
-                document.getElementById('imagePreview').style.display = 'none';
-            }
-        }
-
-        // Form validation
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const textContent = document.querySelector('#TextContent').value.trim();
-
-            if (!textContent) {
-                e.preventDefault();
-                alert('Please enter some content for your post.');
-                return false;
             }
 
-            // Show loading state
-            const submitBtn = this.querySelector('button[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Posting...';
+            // Update the actual file input
+            function updateFileInput() {
+                const dataTransfer = new DataTransfer();
+                selectedFiles.forEach(file => dataTransfer.items.add(file));
+                $imageUpload[0].files = dataTransfer.files;
+            }
+
+            // Remove preview handler
+            $(document).on('click', '.remove-image', function() {
+                const index = $(this).data('index');
+                selectedFiles.splice(index, 1);
+                updatePreviews();
+                updateFileInput();
+            });
         });
     </script>
 }
+
+<style>
+    .file-previews {
+        min-height: 100px;
+    }
+
+    .image-preview .card-img-top {
+        max-height: 150px;
+        object-fit: contain;
+    }
+
+    .card {
+        height: 100%;
+    }
+
+    .remove-image {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+</style>
