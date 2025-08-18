@@ -189,8 +189,11 @@ namespace LinkifyPLL.Controllers
                     jobs = expiredJobs.Where(job => job.UserId == userId);
                     break;
                 default:
-                    jobs = await _jobService.GetJobsByUserAsync(userId, includeInactive: true);
+                    var allUserJobs = await _jobService.GetJobsByUserAsync(userId, includeInactive: true);
+                    jobs = allUserJobs.Where(job =>
+                        !job.IsDeleted.GetValueOrDefault());
                     break;
+
             }
 
             var jobsList = jobs.ToList();

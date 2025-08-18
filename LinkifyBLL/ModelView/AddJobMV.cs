@@ -23,6 +23,7 @@ namespace LinkifyBLL.ModelView
         public string SalaryRange { get; set; }
         public JobTypes Type { get; set; } = JobTypes.FullTime;
         public JobPresence Presence { get; set; } = JobPresence.Onsite;
+        [Required(ErrorMessage="Expiry date is required")]
         public DateTime? ExpiresOn { get; set; }
        
     }

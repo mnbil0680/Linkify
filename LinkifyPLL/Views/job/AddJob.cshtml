@@ -339,7 +339,8 @@
 
                         <div class="form-group">
                         <label asp-for="ExpiresOn">Application Deadline</label>
-                        <input asp-for="ExpiresOn" type="date">
+                        <input asp-for="ExpiresOn" type="date" required>
+                        <span asp-validation-for="ExpiresOn" class="text-danger"></span>
                         </div>
                     </div>
 
