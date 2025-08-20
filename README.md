@@ -24,7 +24,7 @@ Linkify is a modern web application built with ASP.NET Core Razor Pages (.NET 9)
 ## Getting Started
 
 1. **Clone the repository:**
-   git clone https://github.com/yourusername/linkify.git
+   git clone https://github.com/mnbil0680/linkify.git
 2. **Open in Visual Studio 2022.**
 3. **Restore NuGet packages.**
 4. **Update database connection strings as needed.**
